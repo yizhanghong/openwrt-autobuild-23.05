@@ -217,7 +217,7 @@ updateOpenWrtFeeds()
 	fi
 	
 	# Update feeds configuration
-	print_log "INFO" "update feeds" "正在更新Feeds源码，请等待..."
+	print_log "INFO" "update feeds" "更新Feeds源码!"
 	${NETWORK_PROXY_CMD} ${path}/scripts/feeds update -a; ret=$?
 	if [ $ret -ne 0 ]; then
 		print_log "ERROR" "update feeds" "更新本地源失败(Err:$ret), 请检查!"
@@ -225,7 +225,7 @@ updateOpenWrtFeeds()
 	fi
 	
 	# Install feeds configuration
-	print_log "INFO" "update feeds" "正在安装Feds源码，请等待..."
+	print_log "INFO" "update feeds" "安装Feds源码!"
 	${NETWORK_PROXY_CMD} ${path}/scripts/feeds install -a; ret=$?
 	if [ $ret -ne 0 ]; then
 		print_log "ERROR" "update feeds" "安装本地源失败(Err:$ret), 请检查!"
@@ -252,11 +252,11 @@ setOpenWrtFeeds()
 	fi
 	
 	# 设置脚本种子配置文件
-	print_log "INFO" "setting feeds" "正在拷贝Feeds源配置文件，请等待..."
+	print_log "INFO" "setting feeds" "拷贝Feeds源配置文件!"
 	[ -e ${OPENWRT_FEEDS_CONF_FILE} ] && cp -rf ${OPENWRT_FEEDS_CONF_FILE} ${path}
 	
 	# 设置种子配置文件
-	print_log "INFO" "setting feeds" "正在设置Feeds源配置文件，请等待..."
+	print_log "INFO" "setting feeds" "设置Feeds源配置文件!"
 	for key in "${!FEEDS_ARRAY[@]}"; do
 		if grep -q "src-git.*${key}.*https" "${path}/feeds.conf.default"; then
 			if grep -q "^#.*src-git.*${key}.*https" "${path}/feeds.conf.default"; then
@@ -294,7 +294,7 @@ cloneOpenWrtSrc()
 	fi
 	
 	if [ ! -d "${path}" ]; then
-		print_log "INFO" "clone sources" "正在克隆源码文件，请等待..."
+		print_log "INFO" "clone sources" "克隆源码文件!"
 		
 		${NETWORK_PROXY_CMD} git clone ${url} -b ${branch} --depth=1 ${path}; ret=$?
 		if [ ${ret} -ne 0 ]; then
@@ -302,7 +302,7 @@ cloneOpenWrtSrc()
 			return ${ret}
 		fi
 	else
-		print_log "INFO" "clone sources" "正在更新源码文件，请等待..."
+		print_log "INFO" "clone sources" "更新源码文件!"
 		${NETWORK_PROXY_CMD} git -C ${path} pull
 	fi
 	

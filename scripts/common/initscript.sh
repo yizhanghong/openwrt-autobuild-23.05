@@ -149,7 +149,6 @@ runLinuxEnv()
 	fi
 
 	if [ ${USERCONFIG_ARRAY["mode"]} -eq ${COMPILE_MODE[local_compile]} ]; then
-		echo "test31"
 		# 设置源码目录 
 		setSourceMenu ${source_name_array[@]}
 	else

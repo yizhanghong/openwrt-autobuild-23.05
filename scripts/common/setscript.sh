@@ -21,7 +21,7 @@ addOpenWrtPlugins()
 	
 	# other package
 	if [ ! -d "${plugins_path}/otherpackage" ]; then
-		print_log "INFO" "custom config" "正在获取otherpackage资源，请等待..."
+		print_log "INFO" "custom config" "获取otherpackage资源!"
 		
 		url="https://github.com/lysgwl/openwrt-package.git/otherpackage?ref=master"
 		get_remote_spec_contents $url "otherpackage" ${plugins_path} ${NETWORK_PROXY_CMD}
@@ -97,7 +97,7 @@ setOpenWrtConfig()
 	
 	# 设置缺省IP地址
 	{
-		print_log "INFO" "custom config" "设置缺省IP地址，请等待..."
+		print_log "INFO" "custom config" "设置缺省IP地址!"
 		file="${source_path}/package/base-files/files/bin/config_generate"
 		
 		if [ -e ${file} ]; then
@@ -112,7 +112,7 @@ setOpenWrtConfig()
 	
 	# 设置主机名称
 	{
-		print_log "INFO" "custom config" "设置主机名称，请等待..."
+		print_log "INFO" "custom config" "设置主机名称!"
 		file="${source_path}/package/base-files/files/bin/config_generate"
 		
 		if [ -e ${file} ]; then
@@ -131,7 +131,7 @@ setOpenWrtConfig()
 	
 	# 设置时区
 	{
-		print_log "INFO" "custom config" "设置系统时区，请等待..."
+		print_log "INFO" "custom config" "设置系统时区!"
 		file="${source_path}/package/base-files/files/bin/config_generate"
 		
 		if [ -e ${file} ]; then
@@ -160,7 +160,7 @@ setOpenWrtConfig()
 	
 	# nginx配置文件
 	{
-		print_log "INFO" "custom config" "设置nginx配置文件，请等待..."
+		print_log "INFO" "custom config" "设置nginx配置文件!"
 		nginx_cfg="${source_path}/feeds/packages/net/nginx-util/files/nginx.config"
 		
 		if [ -f ${nginx_cfg} ]; then
