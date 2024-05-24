@@ -9,18 +9,18 @@ setLedePlugins()
 	
 	# kiddin9
 	if [ ! -d "${plugins_path}/kiddin9" ]; then
-		print_log "INFO" "custom config" "获取kiddin9资源!"
+		print_log "INFO" "custom config" "获取kiddin9仓库代码..."
 		
 		url="https://github.com/lysgwl/openwrt-package.git/kiddin9/master?ref=master"
 		#get_remote_spec_contents $url "kiddin9" ${plugins_path} ${NETWORK_PROXY_CMD}
 	fi
 	
 	# golang
-	rm -rf ${source_path}/feeds/packages/lang/golang
-	print_log "INFO" "custom config" "获取golang资源!"
+	#rm -rf ${source_path}/feeds/packages/lang/golang
+	#print_log "INFO" "custom config" "获取golang仓库代码..."
 	
-	url="https://github.com/sbwml/packages_lang_golang.git?ref=22.x"
-	clone_repo_contents $url "${source_path}/feeds/packages/lang/golang" ${NETWORK_PROXY_CMD}
+	#url="https://github.com/sbwml/packages_lang_golang.git?ref=22.x"
+	#clone_repo_contents $url "${source_path}/feeds/packages/lang/golang" ${NETWORK_PROXY_CMD}
 }
 
 # 设置lede主题
@@ -31,14 +31,14 @@ setLedeThemes()
 	
 	# luci-theme-argon
 	find ${source_path} -name luci-theme-argon | xargs rm -rf;
-	print_log "INFO" "custom config" "获取luci-theme-argon资源!"
+	print_log "INFO" "custom config" "获取luci-theme-argon仓库代码..."
 	
 	url="https://github.com/jerrykuku/luci-theme-argon.git?ref=18.06"
 	clone_repo_contents $url "${plugins_path}/luci-theme-argon" ${NETWORK_PROXY_CMD}
 	
 	# luci-theme-argon-config
 	find ${source_path} -name luci-theme-argon-config | xargs rm -rf;
-	print_log "INFO" "custom config" "获取luci-theme-argon-config资源!"
+	print_log "INFO" "custom config" "获取luci-theme-argon-config仓库代码..."
 	
 	url="https://github.com/jerrykuku/luci-app-argon-config.git?ref=18.06"
 	clone_repo_contents $url "${plugins_path}/luci-theme-argon-config" ${NETWORK_PROXY_CMD}
@@ -55,12 +55,12 @@ setLedeConfig()
 		if [ -e ${file} ]; then
 			# 默认主题
 			if grep -q "+luci-theme-bootstrap" ${file}; then
-				print_log "INFO" "custom config" "修改默认主题!"
+				print_log "INFO" "custom config" "[修改默认主题]"
 				sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' ${file}
 			fi
 			
 			# 取消http编译
-			print_log "INFO" "custom config" "修改uhttpd编译!"
+			print_log "INFO" "custom config" "[修改uhttpd编译]"
 			if grep -q "+uhttpd" ${file}; then
 				sed -i 's/+uhttpd //g' ${file}
 			fi
@@ -75,7 +75,7 @@ setLedeConfig()
 	{
 		file="${source_path}/package/lean/default-settings/files/zzz-default-settings"
 		if [ -e ${file} ]; then
-			print_log "INFO" "custom config" "设置主机名称!"
+			print_log "INFO" "custom config" "[设置主机名称]"
 			
 			default_name="${USERCONFIG_ARRAY["defaultname"]}"
 			host_name=$(sed -n 's/.*hostname=\(.*\)/\1/p' ${file})
@@ -94,7 +94,7 @@ setLedeConfig()
 	{
 		file="${source_path}/package/lean/default-settings/files/zzz-default-settings"
 		if [ -e ${file} ]; then
-			print_log "INFO" "custom config" "设置编译信息!"
+			print_log "INFO" "custom config" "[设置编译信息]"
 			
 			build_info="C95wl build $(TZ=UTC-8 date "+%Y.%m.%d") @ OpenWrt"
 			sed -i "s/\(echo \"DISTRIB_DESCRIPTION='\)[^\']*\( '\"\s>> \/etc\/openwrt_release\)/\1${build_info}\2/g" ${file}
