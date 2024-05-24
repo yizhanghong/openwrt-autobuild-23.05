@@ -65,7 +65,7 @@ addOpenWrtThemes()
 		setOfficialThemes ${source_path} ${plugins_path}
 		;;
 	${SOURCE_TYPE[coolsnowwolf]})
-		setLedePlugins ${source_path} ${plugins_path}
+		setLedeThemes ${source_path} ${plugins_path}
 		;;
 	*)
 		;;

@@ -74,3 +74,11 @@ jobs:
         with:
           name: ${{ env.FIRMWARE_NAME }}
           path: ${{ env.FIRMWARE_PATH }} 
+          
+      - name: Delete workflow runs
+        uses: Mattraks/delete-workflow-runs@v2  # main
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          retain_days: 7
+          keep_minimum_runs: 2   

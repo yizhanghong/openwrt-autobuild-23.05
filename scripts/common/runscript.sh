@@ -274,7 +274,7 @@ setOpenWrtFeeds()
 # 克隆openwrt源码
 cloneOpenWrtSrc()
 {
-	print_log "TRACE" "clone sources" "正在获取OpenWrt源码中，请等待..."
+	print_log "TRACE" "clone sources" "正在获取OpenWrt源码，请等待..."
 	
 	# 传入源码信息
 	local -n local_source_array="$1"
