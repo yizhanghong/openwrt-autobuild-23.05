@@ -7,14 +7,6 @@ setLedePlugins()
 	source_path=$1
 	plugins_path=$2
 	
-	# kiddin9
-	if [ ! -d "${plugins_path}/kiddin9" ]; then
-		print_log "INFO" "custom config" "获取kiddin9仓库代码..."
-		
-		url="https://github.com/lysgwl/openwrt-package.git/kiddin9/master?ref=master"
-		#get_remote_spec_contents $url "kiddin9" ${plugins_path} ${NETWORK_PROXY_CMD}
-	fi
-	
 	# golang
 	#rm -rf ${source_path}/feeds/packages/lang/golang
 	#print_log "INFO" "custom config" "获取golang仓库代码..."

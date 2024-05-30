@@ -15,12 +15,20 @@ setOfficialPlugins()
 		#get_remote_spec_contents $url "shidahuilang" ${plugins_path} ${NETWORK_PROXY_CMD}
 	fi
 	
+	# kiddin9
+	if [ ! -d "${plugins_path}/kiddin9" ]; then
+		print_log "INFO" "custom config" "获取kiddin9仓库代码..."
+		
+		url="https://github.com/lysgwl/openwrt-package.git/kiddin9/master?ref=master"
+		get_remote_spec_contents $url "kiddin9" ${plugins_path} ${NETWORK_PROXY_CMD}
+	fi
+	
 	# siropboy
 	if [ ! -d "${plugins_path}/sirpdboy-package" ]; then
 		print_log "INFO" "custom config" "获取sirpdboy-package仓库代码..."
 		
 		url="https://github.com/sirpdboy/sirpdboy-package.git?ref=main"
-		clone_repo_contents $url "${plugins_path}" ${NETWORK_PROXY_CMD}
+		#clone_repo_contents $url "${plugins_path}" ${NETWORK_PROXY_CMD}
 	fi
 }
 
