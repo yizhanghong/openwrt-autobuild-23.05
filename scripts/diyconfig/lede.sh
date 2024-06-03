@@ -6,13 +6,6 @@ setLedePlugins()
 {
 	source_path=$1
 	plugins_path=$2
-	
-	# golang
-	#rm -rf ${source_path}/feeds/packages/lang/golang
-	#print_log "INFO" "custom config" "获取golang仓库代码..."
-	
-	#url="https://github.com/sbwml/packages_lang_golang.git?ref=22.x"
-	#clone_repo_contents $url "${source_path}/feeds/packages/lang/golang" ${NETWORK_PROXY_CMD}
 }
 
 # 设置lede主题
@@ -22,18 +15,31 @@ setLedeThemes()
 	plugins_path=$2
 	
 	# luci-theme-argon
-	find ${source_path} -name luci-theme-argon | xargs rm -rf;
-	print_log "INFO" "custom config" "获取luci-theme-argon仓库代码..."
-	
-	url="https://github.com/jerrykuku/luci-theme-argon.git?ref=18.06"
-	clone_repo_contents $url "${plugins_path}/luci-theme-argon" ${NETWORK_PROXY_CMD}
+	{
+		find ${source_path} -name luci-theme-argon | xargs rm -rf;
+		print_log "INFO" "custom config" "获取luci-theme-argon仓库代码..."
+		
+		url="https://github.com/jerrykuku/luci-theme-argon.git?ref=18.06"
+		clone_repo_contents $url "${plugins_path}/luci-theme-argon" ${NETWORK_PROXY_CMD}
+	}
 	
 	# luci-theme-argon-config
-	find ${source_path} -name luci-theme-argon-config | xargs rm -rf;
-	print_log "INFO" "custom config" "获取luci-theme-argon-config仓库代码..."
+	{
+		find ${source_path} -name luci-theme-argon-config | xargs rm -rf;
+		print_log "INFO" "custom config" "获取luci-theme-argon-config仓库代码..."
+		
+		url="https://github.com/jerrykuku/luci-app-argon-config.git?ref=18.06"
+		clone_repo_contents $url "${plugins_path}/luci-theme-argon-config" ${NETWORK_PROXY_CMD}
+	}
 	
-	url="https://github.com/jerrykuku/luci-app-argon-config.git?ref=18.06"
-	clone_repo_contents $url "${plugins_path}/luci-theme-argon-config" ${NETWORK_PROXY_CMD}
+	# luci-theme-edge
+	{
+		find ${source_path} -name luci-theme-edge | xargs rm -rf;
+		print_log "INFO" "custom config" "获取luci-theme-edge仓库代码..."
+		
+		url="https://github.com/kiddin9/luci-theme-edge.git?ref=18.06"
+		clone_repo_contents $url "${plugins_path}/luci-theme-edge" ${NETWORK_PROXY_CMD}
+	}
 }
 
 # 设置lede配置
@@ -41,22 +47,24 @@ setLedeConfig()
 {
 	source_path=$1
 	
-	# 默认编译选项
+	# luci/Makefile默认编译依赖
 	{
 		file="${source_path}/feeds/luci/collections/luci/Makefile"
 		if [ -e ${file} ]; then
-			# 默认主题
+		
+			# 修改默认主题
 			if grep -q "+luci-theme-bootstrap" ${file}; then
 				print_log "INFO" "custom config" "[修改默认主题]"
 				sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' ${file}
 			fi
 			
-			# 取消http编译
+			# 取消uhttpd依赖
 			print_log "INFO" "custom config" "[修改uhttpd编译]"
 			if grep -q "+uhttpd" ${file}; then
 				sed -i 's/+uhttpd //g' ${file}
 			fi
 			
+			# 取消uhttpd-mod-ubus依赖
 			if grep -q "+uhttpd" ${file}; then
 				sed -i 's/+uhttpd-mod-ubus //g' ${file}
 			fi

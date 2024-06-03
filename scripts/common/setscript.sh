@@ -14,17 +14,9 @@ addOpenWrtPlugins()
 	source_type=${local_source_array["Type"]}
 	
 	# 自定义插件路径
-	plugins_path="${source_path}/package/${USERCONFIG_ARRAY["plugins"]}" 
+	plugins_path="${source_path}/package/${USERCONFIG_ARRAY["plugins"]}/plugins" 
 	if [ ! -d "${plugins_path}" ]; then
 		mkdir -p "${plugins_path}"
-	fi
-	
-	# other package
-	if [ ! -d "${plugins_path}/otherpackage" ]; then
-		print_log "INFO" "custom config" "获取otherpackage仓库代码..."
-		
-		url="https://github.com/lysgwl/openwrt-package.git/otherpackage?ref=master"
-		get_remote_spec_contents $url "otherpackage" ${plugins_path} ${NETWORK_PROXY_CMD}
 	fi
 
 	case ${source_type} in
@@ -40,6 +32,25 @@ addOpenWrtPlugins()
 	*)
 		;;
 	esac
+	
+	# other package
+	{
+		if [ ! -d "${plugins_path}/otherpackage" ]; then
+			print_log "INFO" "custom config" "获取otherpackage仓库代码..."
+			
+			url="https://github.com/lysgwl/openwrt-package.git/otherpackage?ref=master"
+			get_remote_spec_contents $url "otherpackage" ${plugins_path} ${NETWORK_PROXY_CMD}
+		fi
+	}
+	
+	# golang
+	{
+		#rm -rf ${source_path}/feeds/packages/lang/golang
+		print_log "INFO" "custom config" "获取golang仓库代码..."
+		
+		#url="https://github.com/sbwml/packages_lang_golang.git?ref=22.x"
+		#clone_repo_contents $url "${source_path}/feeds/packages/lang/golang" ${NETWORK_PROXY_CMD}
+	}
 }
 
 # 自定义主题
@@ -52,7 +63,7 @@ addOpenWrtThemes()
 	source_type=${local_source_array["Type"]}
 	
 	# 自定义插件路径
-	plugins_path="${source_path}/package/${USERCONFIG_ARRAY["plugins"]}" 
+	plugins_path="${source_path}/package/${USERCONFIG_ARRAY["plugins"]}/themes" 
 	if [ ! -d "${plugins_path}" ]; then
 		mkdir -p "${plugins_path}"
 	fi
