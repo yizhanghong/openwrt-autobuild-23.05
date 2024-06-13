@@ -71,7 +71,7 @@ CMD_ARRAY[${CMD_TYPE[getOpenWrtFirmware]}]="获取OpenWrt固件"
 declare -A FEEDS_ARRAY
 #FEEDS_ARRAY["helloworld"]="https://github.com/fw876/helloworld"
 #FEEDS_ARRAY["passwall"]="https://github.com/xiaorouji/openwrt-passwall"
-FEEDS_ARRAY["kenzo"]="https://github.com/kenzok8/openwrt-packages"
+#FEEDS_ARRAY["kenzo"]="https://github.com/kenzok8/openwrt-packages"
 #FEEDS_ARRAY["small"]="https://github.com/kenzok8/small"
 #FEEDS_ARRAY["scw"]="https://github.com/songchenwen/openwrt-package"
 #FEEDS_ARRAY["xwrt"]="https://github.com/x-wrt/com.x-wrt"
