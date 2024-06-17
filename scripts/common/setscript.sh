@@ -48,7 +48,7 @@ addOpenWrtPlugins()
 		#rm -rf ${source_path}/feeds/packages/lang/golang
 		print_log "INFO" "custom config" "获取golang仓库代码..."
 		
-		#url="https://github.com/sbwml/packages_lang_golang.git?ref=22.x"
+		url="https://github.com/sbwml/packages_lang_golang.git?ref=22.x"
 		#clone_repo_contents $url "${source_path}/feeds/packages/lang/golang" ${NETWORK_PROXY_CMD}
 	}
 }

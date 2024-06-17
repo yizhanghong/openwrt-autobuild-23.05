@@ -1,6 +1,115 @@
 #!/bin/bash
 
 #********************************************************************************#
+# 设置light插件
+setLightPlugin()
+{
+	source_path=$1
+	
+	# 删除luci-light插件
+	{
+		file="${source_path}/feeds/luci/collections/luci-light"
+		if [ -d ${file} ]; then
+			print_log "INFO" "custom config" "[删除插件luci-light]"
+			rm -rf ${file}
+		fi
+	}
+	
+	# 取消luci-ssl对luci-light依赖
+	{
+		file="${source_path}/feeds/luci/collections/luci-ssl/Makefile"
+		if [ -e ${file} ]; then
+			print_log "INFO" "custom config" "[修改插件luci-ssl]"
+			
+			if grep -q "+luci-light" ${file}; then
+				sed -i 's/+luci-light //g' ${file}
+			fi
+		fi
+	}
+	
+	# 取消luci-ssl-openssl对luci-light依赖
+	{
+		file="${source_path}/feeds/luci/collections/luci-ssl-openssl/Makefile"
+		if [ -e ${file} ]; then
+			print_log "INFO" "custom config" "[修改插件luci-ssl-openssl]"
+			
+			if grep -q "+luci-light" ${file}; then
+				sed -i 's/+luci-light //g' ${file}
+			fi
+		fi
+	}
+}
+
+# 设置nginx插件
+setNginxPlugin()
+{
+	source_path=$1
+	
+	# 取消luci-nginx对luci-theme-bootstrap依赖
+	{
+		file="${source_path}/feeds/luci/collections/luci-nginx/Makefile"
+		if [ -e ${file} ]; then
+			print_log "INFO" "custom config" "[修改插件luci-nginx]"
+			
+			if grep -q "+luci-theme-bootstrap" ${file}; then
+				sed -i 's/+luci-theme-bootstrap //g' ${file}
+			fi
+		fi	
+	}
+	
+	# 取消luci-ssl-nginx对luci-theme-bootstrap依赖
+	{
+		file="${source_path}/feeds/luci/collections/luci-ssl-nginx/Makefile"
+		if [ -e ${file} ]; then
+			print_log "INFO" "custom config" "[修改插件luci-ssl-nginx]"
+			
+			if grep -q "+luci-theme-bootstrap" ${file}; then
+				sed -i 's/+luci-theme-bootstrap //g' ${file}
+			fi
+		fi	
+	}
+}
+
+# 设置缺省编译
+setDefaultCompile()
+{
+	source_path=$1
+	
+	# 编译O2优化
+	{
+		file="${source_path}/include/target.mk"
+		if [ -e ${file} ]; then
+			print_log "INFO" "custom config" "[编译O2优化]"
+			sed -i 's/Os/O2/g' ${file}
+		fi
+	}
+	
+	# luci/Makefile默认编译依赖
+	{
+		file="${source_path}/feeds/luci/collections/luci/Makefile"
+		if [ -e ${file} ]; then
+		
+			# 修改默认主题
+			if grep -q "+luci-light" ${file}; then
+				print_log "INFO" "custom config" "[修改默认主题]"
+				sed -i 's/luci-light/luci-theme-argon/g' ${file}
+			fi
+			
+			# 取消uhttpd依赖
+			print_log "INFO" "custom config" "[修改uhttpd编译]"
+			if grep -q "+uhttpd" ${file}; then
+				sed -i 's/+uhttpd //g' ${file}
+			fi
+			
+			# 取消uhttpd-mod-ubus依赖
+			if grep -q "+uhttpd-mod-ubus" ${file}; then
+				sed -i 's/+uhttpd-mod-ubus //g' ${file}
+			fi
+		fi
+	}
+}
+
+#********************************************************************************#
 # 设置Official插件
 setOfficialPlugins()
 {
@@ -62,93 +171,19 @@ setOfficialThemes()
 		print_log "INFO" "custom config" "获取luci-theme-edge仓库代码..."
 		
 		url="https://github.com/kiddin9/luci-theme-edge.git?ref=master"
-		clone_repo_contents $url "${plugins_path}/luci-theme-edge" ${NETWORK_PROXY_CMD}
+		#clone_repo_contents $url "${plugins_path}/luci-theme-edge" ${NETWORK_PROXY_CMD}
 	}
 }
 
 # 设置Official配置
 setOfficialConfig()
 {
-	source_path=$1
+	# 设置缺省编译
+	setDefaultCompile $1
 	
-	# luci/Makefile默认编译依赖
-	{
-		file="${source_path}/feeds/luci/collections/luci/Makefile"
-		if [ -e ${file} ]; then
-		
-			# 修改默认主题
-			if grep -q "+luci-light" ${file}; then
-				print_log "INFO" "custom config" "[修改默认主题]"
-				sed -i 's/luci-light/luci-theme-argon/g' ${file}
-			fi
-			
-			# 取消uhttpd依赖
-			print_log "INFO" "custom config" "[修改uhttpd编译]"
-			if grep -q "+uhttpd" ${file}; then
-				sed -i 's/+uhttpd //g' ${file}
-			fi
-			
-			# 取消uhttpd-mod-ubus依赖
-			if grep -q "+uhttpd-mod-ubus" ${file}; then
-				sed -i 's/+uhttpd-mod-ubus //g' ${file}
-			fi
-		fi
-	}
+	# 设置light插件
+	setLightPlugin $1
 	
-	# 删除luci-light插件
-	{
-		file="${source_path}/feeds/luci/collections/luci-light"
-		if [ -d ${file} ]; then
-			print_log "INFO" "custom config" "[删除插件luci-light]"
-			rm -rf ${file}
-		fi
-	}
-	
-	# 取消luci-ssl对luci-light依赖
-	{
-		file="${source_path}/feeds/luci/collections/luci-ssl/Makefile"
-		if [ -e ${file} ]; then
-			print_log "INFO" "custom config" "[修改插件luci-ssl]"
-			
-			if grep -q "+luci-light" ${file}; then
-				sed -i 's/+luci-light //g' ${file}
-			fi
-		fi
-	}
-	
-	# 取消luci-ssl-openssl对luci-light依赖
-	{
-		file="${source_path}/feeds/luci/collections/luci-ssl-openssl/Makefile"
-		if [ -e ${file} ]; then
-			print_log "INFO" "custom config" "[修改插件luci-ssl-openssl]"
-			
-			if grep -q "+luci-light" ${file}; then
-				sed -i 's/+luci-light //g' ${file}
-			fi
-		fi
-	}
-	
-	# 取消luci-nginx对luci-theme-bootstrap依赖
-	{
-		file="${source_path}/feeds/luci/collections/luci-nginx/Makefile"
-		if [ -e ${file} ]; then
-			print_log "INFO" "custom config" "[修改插件luci-nginx]"
-			
-			if grep -q "+luci-theme-bootstrap" ${file}; then
-				sed -i 's/+luci-theme-bootstrap //g' ${file}
-			fi
-		fi	
-	}
-	
-	# 取消luci-ssl-nginx对luci-theme-bootstrap依赖
-	{
-		file="${source_path}/feeds/luci/collections/luci-ssl-nginx/Makefile"
-		if [ -e ${file} ]; then
-			print_log "INFO" "custom config" "[修改插件luci-ssl-nginx]"
-			
-			if grep -q "+luci-theme-bootstrap" ${file}; then
-				sed -i 's/+luci-theme-bootstrap //g' ${file}
-			fi
-		fi	
-	}
+	# 设置nginx插件
+	setNginxPlugin $1
 }
