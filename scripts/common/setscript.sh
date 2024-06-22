@@ -258,14 +258,23 @@ getUserConfig()
 			reutrn 1
 		fi
 		
-		# 缺省IP
-		USERCONFIG_ARRAY["defaultip"]="${fields_array["user_ip"]}"
+		# feeds配置名称
+		USERCONFIG_ARRAY["feedsname"]="${fields_array["feeds_name"]}"
+		
+		# 时区
+		USERCONFIG_ARRAY["timezone"]="${fields_array["time_zone"]}"
+		
+		# 时区名称
+		USERCONFIG_ARRAY["zonename"]="${fields_array["zone_name"]}"
 		
 		# 缺省名称
 		USERCONFIG_ARRAY["defaultname"]="${fields_array["user_name"]}"
 		
-		# feeds配置名称
-		USERCONFIG_ARRAY["feedsname"]="${fields_array["feeds_name"]}"
+		# 缺省密码
+		USERCONFIG_ARRAY["defaultpasswd"]="${fields_array["user_passwd"]}"
+		
+		# 缺省IP
+		USERCONFIG_ARRAY["defaultip"]="${fields_array["user_ip"]}"
 	}
 	
 	return 0

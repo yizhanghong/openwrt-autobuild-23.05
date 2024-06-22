@@ -109,6 +109,20 @@ setDefaultCompile()
 	}
 }
 
+# 设置缺省密码
+setDefaultPasswd()
+{
+	# 设置用户密码
+	{
+		print_log "INFO" "custom config" "[设置用户缺省密码]"
+		file="${source_path}/package/base-files/files/etc/shadow"
+		
+		if [ -e ${file} ]; then
+			default_passwd="${USERCONFIG_ARRAY["defaultpasswd"]}"
+		fi
+	}
+}
+
 #********************************************************************************#
 # 设置Official插件
 setOfficialPlugins()

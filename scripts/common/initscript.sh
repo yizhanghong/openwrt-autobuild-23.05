@@ -291,12 +291,6 @@ initLinuxEnv()
 		exit 1
 	fi
 	
-	# 时区
-	USERCONFIG_ARRAY["timezone"]="CST-8"
-	
-	# 时区名称
-	USERCONFIG_ARRAY["zonename"]="Asia/Shanghai"
-	
 	# 工作目录
 	USERCONFIG_ARRAY["workdir"]="openwrt"
 	
