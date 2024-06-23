@@ -119,6 +119,27 @@ setDefaultPasswd()
 		
 		if [ -e ${file} ]; then
 			default_passwd="${USERCONFIG_ARRAY["defaultpasswd"]}"
+			if [ -z "${default_passwd}" ]; then
+				default_passwd="password"
+			fi
+			
+			#SALT=$(openssl rand -hex 8)
+			#if [ $? -ne 0 ]; then
+			#	return
+			#fi
+			
+			#HASH=$(echo -n "${default_passwd}${SALT}" | openssl dgst -md5 -binary | openssl enc -base64)
+			#if [ $? -ne 0 ]; then
+			#	return
+			#fi
+			
+			user_passwd=$(openssl passwd -1 ${default_passwd})
+			if [ -z "${user_passwd}" ]; then
+				print_log "ERROR" "custom config" "生成密文数据失败, 请检查!"
+				return
+			fi
+			echo $user_passwd
+			sed -i "/^root:/s/:\([^:]*\):[^:]*/:${user_passwd}:0/" ${file}
 		fi
 	}
 }
@@ -192,6 +213,9 @@ setOfficialThemes()
 # 设置Official配置
 setOfficialConfig()
 {
+	# 设置缺省密码
+	setDefaultPasswd $1
+	
 	# 设置缺省编译
 	setDefaultCompile $1
 	
