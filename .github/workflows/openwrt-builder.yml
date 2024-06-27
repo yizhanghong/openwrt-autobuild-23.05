@@ -28,5 +28,5 @@ jobs:
         with:
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           repository: ${{ github.repository }}
-          retain_days: 2
+          retain_days: 1
           keep_minimum_runs: 1   
