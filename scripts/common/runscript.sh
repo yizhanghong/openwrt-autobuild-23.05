@@ -7,7 +7,7 @@ getOpenWrtFirmware()
 	print_log "TRACE" "get firmware" "正在获取OpenWrt固件，请等待..."
 	
 	local source_path=""
-	if ! getFirmwareInfo $1 ${source_path}; then
+	if ! get_firmware_info $1 ${source_path}; then
 		return
 	fi
 	
@@ -19,7 +19,7 @@ getOpenWrtFirmware()
 	# 进入固件目录
 	cd ${source_path}/bin/targets/*/*
 	
-	if [ ${USERCONFIG_ARRAY["mode"]} -eq ${COMPILE_MODE[local_compile]} ]; then
+	if [ ${USER_CONFIG_ARRAY["mode"]} -eq ${COMPILE_MODE[local_compile]} ]; then
 		dir_date=$(date +"%Y%m%d")
 		
 		if [ -n "$(find . -mindepth 1)" ]; then
@@ -30,12 +30,12 @@ getOpenWrtFirmware()
 			fi
 			
 			# 固件路径
-			firmware_path="${version_date_path}/${USERCONFIG_ARRAY["firmwarename"]}"
+			firmware_path="${version_date_path}/${USER_CONFIG_ARRAY["firmwarename"]}"
 			if [ ! -d "${firmware_path}" ]; then
 				mkdir "${firmware_path}"
 			fi
 			
-			USERCONFIG_ARRAY["firmwarepath"]="${firmware_path}"
+			USER_CONFIG_ARRAY["firmwarepath"]="${firmware_path}"
 			# 固件输出文件
 			firmware_output_file="${firmware_path}.zip"
 			
@@ -57,10 +57,10 @@ getOpenWrtFirmware()
 		fi
 	else
 		rm -rf packages
-		USERCONFIG_ARRAY["firmwarepath"]="$PWD"
+		USER_CONFIG_ARRAY["firmwarepath"]="$PWD"
 		
-		OPENWRT_FIRMWARE_NAME=${USERCONFIG_ARRAY["firmwarename"]}
-		OPENWRT_FIRMWARE_PATH=${USERCONFIG_ARRAY["firmwarepath"]}
+		OPENWRT_FIRMWARE_NAME=${USER_CONFIG_ARRAY["firmwarename"]}
+		OPENWRT_FIRMWARE_PATH=${USER_CONFIG_ARRAY["firmwarepath"]}
 	fi
 	
 	print_log "TRACE" "get firmware" "完成获取OpenWrt固件!"
@@ -154,7 +154,7 @@ setMenuOptions()
 	fi
 	
 	# feeds配置文件
-	feeds_file="${OPENWRT_CONFIG_PATH}/${USERCONFIG_ARRAY["feedsname"]}"
+	feeds_file="${OPENWRT_CONFIG_PATH}/${USER_CONFIG_ARRAY["feedsname"]}"
 	
 	if [ -e "${feeds_file}" ]; then
 		cp -rf "${feeds_file}" "${path}/.config"
@@ -166,7 +166,7 @@ setMenuOptions()
 	# 设置信号捕捉来在退出时执行popd
 	trap 'popd > /dev/null' EXIT
 	
-	if [ ${USERCONFIG_ARRAY["mode"]} -ne ${COMPILE_MODE[local_compile]} ]; then
+	if [ ${USER_CONFIG_ARRAY["mode"]} -ne ${COMPILE_MODE[local_compile]} ]; then
 		make defconfig
 	else
 		make menuconfig; ret=$?	
@@ -189,13 +189,13 @@ setCustomConfig()
 	print_log "TRACE" "custom config" "正在设置自定义配置，请等待..."
 
 	# 增加第三方插件
-	addOpenWrtPlugins $1
+	set_openwrt_plugins $1
 	
 	# 增加自定义主题
-	addOpenWrtThemes $1
+	set_openwrt_themes $1
 	
 	# 设置openwrt缺省配置
-	setOpenWrtConfig $1
+	set_openwrt_config $1
 	
 	print_log "TRACE" "custom config" "完成设置自定义配置!"
 	return 0
@@ -306,7 +306,7 @@ cloneOpenWrtSrc()
 		${NETWORK_PROXY_CMD} git -C ${path} pull
 	fi
 	
-	if [ ${USERCONFIG_ARRAY["mode"]} -eq ${COMPILE_MODE[local_compile]} ]; then
+	if [ ${USER_CONFIG_ARRAY["mode"]} -eq ${COMPILE_MODE[local_compile]} ]; then
 		ln -sf ${path}  ${SCRIPT_CUR_PATH}
 	else
 		ln -sf ${path} ${GITHUB_WORKSPACE}/${OPENWRT_SOURCEDIR_NAME}

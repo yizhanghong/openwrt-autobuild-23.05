@@ -64,10 +64,10 @@ setCmdMenu()
 		local -n source_array1="$1"
 		
 		# 显示命令目录
-		showCmdMenu cmd_array[@] source_array1
+		show_cmd_menu cmd_array[@] source_array1
 		
 		# 获取用户输入
-		index=`getUserIndex`
+		index=`get_user_index`
 		
 		# 判断输入值是否有效
 		if [ $index -lt 0 ] || [ $index -gt ${#cmd_array[@]} ]; then
@@ -97,10 +97,10 @@ setSourceMenu()
 		local source_name_array=("${@}")
 		
 		# 显示源码目录
-		showSourceMenu ${source_name_array[@]}
+		show_source_menu ${source_name_array[@]}
 		
 		# 获取用户输入
-		index=`getUserIndex`
+		index=`get_user_index`
 		
 		# 判断输入值是否有效
 		if [ $index -lt 0 ] || [ $index -gt ${#source_name_array[@]} ]; then
@@ -118,7 +118,7 @@ setSourceMenu()
 		source_type=${SOURCE_TYPE[${source_name}]}
 		
 		declare -A source_array
-		get_struct_field SOURCE_ARRAY ${source_type} source_array
+		get_struct_field SOURCE_CONFIG_ARRAY ${source_type} source_array
 		
 		if [ ${#source_array[@]} -eq 0 ]; then
 			clear; print_log "WARNING" "source menu" "获取源码配置有误, 请检查!"
@@ -141,14 +141,14 @@ runLinuxEnv()
 	print_log "TRACE" "run linux" "正在运行linux环境，请等待..."
 	
 	source_name_array=()
-	enum_struct_field SOURCE_ARRAY "Name" source_name_array
+	enum_struct_field SOURCE_CONFIG_ARRAY "Name" source_name_array
 
 	if [ ${#source_name_array[@]} -eq 0 ]; then
 		print_log "ERROR" "run linux" "获取配置信息失败, 请检查!"
 		return
 	fi
 
-	if [ ${USERCONFIG_ARRAY["mode"]} -eq ${COMPILE_MODE[local_compile]} ]; then
+	if [ ${USER_CONFIG_ARRAY["mode"]} -eq ${COMPILE_MODE[local_compile]} ]; then
 		# 设置源码目录 
 		setSourceMenu ${source_name_array[@]}
 	else
@@ -160,7 +160,7 @@ runLinuxEnv()
 			source_type=${SOURCE_TYPE[${source_name}]}
 
 			declare -A source_array
-			get_struct_field SOURCE_ARRAY ${source_type} source_array
+			get_struct_field SOURCE_CONFIG_ARRAY ${source_type} source_array
 			if [ ${#source_array[@]} -eq 0 ]; then
 				continue
 			fi
@@ -184,7 +184,7 @@ setLinuxEnv()
 		sudo mkdir -p $OPENWRT_WORK_PATH
 	fi
 	
-	if [ ${USERCONFIG_ARRAY["mode"]} -eq ${COMPILE_MODE[local_compile]} ]; then
+	if [ ${USER_CONFIG_ARRAY["mode"]} -eq ${COMPILE_MODE[local_compile]} ]; then
 		if [ ! -d $OPENWRT_CONFIG_PATH ]; then
 			sudo mkdir -p $OPENWRT_CONFIG_PATH
 		fi
@@ -210,7 +210,7 @@ updateLinuxEnv()
 	print_log "TRACE" "update linux" "正在更新linux环境，请等待..."
 	
 	set +e
-	if [ ${USERCONFIG_ARRAY["mode"]} -ne ${COMPILE_MODE[local_compile]} ]; then
+	if [ ${USER_CONFIG_ARRAY["mode"]} -ne ${COMPILE_MODE[local_compile]} ]; then
 
 		# 列出前100个比较大的包
 		dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100
@@ -242,7 +242,7 @@ updateLinuxEnv()
 	
 	df -hT
 	
-	sudo timedatectl set-timezone "${USERCONFIG_ARRAY["zonename"]}"
+	sudo timedatectl set-timezone "${USER_CONFIG_ARRAY["zonename"]}"
 	print_log "TRACE" "update linux" "完成linux环境的更新!"
 }
 
@@ -253,7 +253,7 @@ initLinuxEnv()
 
 	if [ $# == 0 ] || [ $1 == 0 ]; then
 		# 0:本地编译环境
-		USERCONFIG_ARRAY["mode"]=${COMPILE_MODE[local_compile]}
+		USER_CONFIG_ARRAY["mode"]=${COMPILE_MODE[local_compile]}
 		
 		# 当前脚本路径
 		SCRIPT_CUR_PATH=$(cd `dirname "$0}"` >/dev/null 2>&1; pwd)
@@ -262,7 +262,7 @@ initLinuxEnv()
 		OPENWRT_WORK_PATH="$SCRIPT_CUR_PATH/$OPENWRT_WORKDIR_NAME"
 	else
 		# 1:远程编译环境
-		USERCONFIG_ARRAY["mode"]=${COMPILE_MODE[remote_compile]}
+		USER_CONFIG_ARRAY["mode"]=${COMPILE_MODE[remote_compile]}
 		
 		# 当前脚本路径
 		SCRIPT_CUR_PATH="$GITHUB_WORKSPACE"
@@ -287,30 +287,30 @@ initLinuxEnv()
 	OPENWRT_SEED_FILE="${OPENWRT_CONFIG_PATH}/seed.config"
 
 	# 获取用户配置
-	if ! getUserConfig "${OPENWRT_CONF_FILE}"; then
+	if ! get_user_config "${OPENWRT_CONF_FILE}"; then
 		exit 1
 	fi
 	
 	# 工作目录
-	USERCONFIG_ARRAY["workdir"]="openwrt"
+	USER_CONFIG_ARRAY["workdir"]="openwrt"
 	
 	# 缺省配置名称
-	USERCONFIG_ARRAY["defaultconf"]=".config"
+	USER_CONFIG_ARRAY["defaultconf"]=".config"
 	
 	# 插件名称
-	USERCONFIG_ARRAY["plugins"]="wl"
+	USER_CONFIG_ARRAY["plugins"]="wl"
 	
 	# 版本号
-	USERCONFIG_ARRAY["versionnum"]=""
+	USER_CONFIG_ARRAY["versionnum"]=""
 	
 	# 设备名称
-	USERCONFIG_ARRAY["devicename"]=""
+	USER_CONFIG_ARRAY["devicename"]=""
 	
 	# 固件名称
-	USERCONFIG_ARRAY["firmwarename"]=""
+	USER_CONFIG_ARRAY["firmwarename"]=""
 	
 	# 固件路径
-	USERCONFIG_ARRAY["firmwarepath"]=""
+	USER_CONFIG_ARRAY["firmwarepath"]=""
 	
 	print_log "TRACE" "init linux" "完成linux环境的初始化!"
 }

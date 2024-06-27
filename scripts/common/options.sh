@@ -39,10 +39,13 @@ SOURCE_TYPE[immortalwrt]=1
 SOURCE_TYPE[coolsnowwolf]=2
 
 # 源码项目
-declare -gA SOURCE_ARRAY
+declare -gA SOURCE_CONFIG_ARRAY
 
 # 用户配置
-declare -gA USERCONFIG_ARRAY
+declare -gA USER_CONFIG_ARRAY
+
+# 网络配置
+declare -gA NETWORK_CONFIG_ARRAY
 
 # 命令类型
 declare -A CMD_TYPE

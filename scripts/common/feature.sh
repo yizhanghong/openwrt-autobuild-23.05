@@ -12,7 +12,7 @@ pause()
 }
 
 # 获取命令序号
-getUserIndex()
+get_user_index()
 {
 	stty erase ^H
 	read value
@@ -77,7 +77,7 @@ print_log()
 
 #********************************************************************************#
 # 获取文件section
-getConfigSection()
+get_config_section()
 {
 	# section名称
 	section=$1	
@@ -107,7 +107,7 @@ getConfigSection()
 }
 
 # 获取section的配置
-getConfigInfo()
+get_config_info()
 {
 	# section名称
 	section=$1
@@ -403,7 +403,7 @@ get_remote_spec_contents()
 }
 
 # 显示源码目录
-showSourceMenu()
+show_source_menu()
 {
 	local source_array=("${@}")
 	
@@ -418,7 +418,7 @@ showSourceMenu()
 }
 
 # 显示命令目录
-showCmdMenu()
+show_cmd_menu()
 {
 	local cmd_array=("${!1}")	# ${@}
 	local -n local_source_array="$2"
