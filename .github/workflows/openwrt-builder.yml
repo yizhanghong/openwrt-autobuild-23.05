@@ -22,11 +22,63 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@master
+        
+      - name: Initialization compile environment
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          scripts_path="${GITHUB_WORKSPACE}/scripts"  
+          if [ ! -d "${scripts_path}" ]; then
+              echo "script path does not exist, please check!"  
+              exit 1
+          fi
+          
+          find $GITHUB_WORKSPACE/scripts -exec chmod +x {} \;
+          
+          scripts_file="${GITHUB_WORKSPACE}/scripts/${BUILD_SCRIPT}"
+          if [ ! -e "${scripts_file}" ]; then
+            echo "script files does not exist, please check!"
+            exit 1
+          fi
+          
+          df -hT
+          
+          echo "scripts_path=${scripts_path}" >> $GITHUB_ENV
+          echo "scripts_file=${scripts_file}" >> $GITHUB_ENV
+
+      - name: Run compile scripts
+        run: |
+          scripts_path=${{ env.scripts_path }}
+          scripts_file=${{ env.scripts_file }}
+          
+          if [ -x "${scripts_file}" ]; then
+          
+              cd ${scripts_path}
+              source ${scripts_file} 1
+              
+              if [ -z ${OPENWRT_FIRMWARE_NAME} ] || [ -z ${OPENWRT_FIRMWARE_PATH} ]; then
+                  echo "the environment variable is empty, please check!"
+                  exit 1
+              fi
+              
+              echo "FIRMWARE_NAME=${OPENWRT_FIRMWARE_NAME}" >> $GITHUB_ENV
+              echo "FIRMWARE_PATH=${OPENWRT_FIRMWARE_PATH}" >> $GITHUB_ENV
+          fi
+
+      - name: Upload firmware directory
+        uses: actions/upload-artifact@master
+        if: env.UPLOAD_FIRMWARE == 'true' &&
+            env.FIRMWARE_NAME != '' &&
+            env.FIRMWARE_PATH != '' &&
+            !cancelled()
+        with:
+          name: ${{ env.FIRMWARE_NAME }}
+          path: ${{ env.FIRMWARE_PATH }}   
           
       - name: Delete workflow runs
         uses: Mattraks/delete-workflow-runs@v2  # main
         with:
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           repository: ${{ github.repository }}
-          retain_days: 1
-          keep_minimum_runs: 1   
+          retain_days: 0
+          keep_minimum_runs: 0   
