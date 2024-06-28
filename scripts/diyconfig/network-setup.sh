@@ -23,7 +23,7 @@ set_network_addr()
 	
 	# 配置网络接口
 	{
-		file="${source_path}/package/base-files/files/etc/uci-defaults/99-network-settings"
+		file="${source_path}/package/base-files/files/etc/uci-defaults/99-defaults-settings"
 		print_log "INFO" "custom config" "[设置网络接口地址]"
 		
 		# 配置lan接口
@@ -62,6 +62,23 @@ set_network_addr()
 			else
 				lan_dhcp_number="${NETWORK_CONFIG_ARRAY["landhcpnumber"]}"
 			fi
+			
+			cat >> ${file} <<-EOF
+			
+				uci -q batch << EOI
+				set network.lan.proto='static'
+				set network.lan.ipaddr='${lan_ipaddr}'
+				set network.lan.netmask='${lan_netmask}'
+				set network.lan.broadcast='${lan_broadcast}'
+				commit network
+
+				uci set dhcp.lan.ignore='${lan_ignore_dhcp}'
+				set dhcp.lan.start='${lan_dhcp_start}'
+				set dhcp.lan.limit='${lan_dhcp_number}'
+				set dhcp.lan.leasetime='12h'
+				uci commit dhcp
+				EOI
+			EOF
 		}
 		
 		# 配置wan接口
@@ -95,33 +112,20 @@ set_network_addr()
 			if [ -z "${wan_dnsaddr}" ]; then
 				wan_dnsaddr="192.168.1.1"
 			fi
+			
+			cat >> ${file} <<-EOF
+			
+				uci -q batch << EOI
+				set network.wan.proto='static'
+				set network.wan.ipaddr='${wan_ipaddr}'
+				set network.wan.netmask='${wan_netmask}'
+				set network.wan.broadcast='${wan_broadcast}'
+				set network.wan.gateway='${wan_gateway}'
+				set network.wan.dns='${wan_dnsaddr}'
+				commit network
+				EOI
+			EOF
 		}
-		
-		cat > ${file} <<-EOF
-			uci -q batch << EOI
-			set network.lan.proto='static'
-			set network.lan.type='bridge'
-			#set network.lan.ifname='eth1'
-			set network.lan.ipaddr='${lan_ipaddr}'
-			set network.lan.netmask='${lan_netmask}'
-			set network.lan.broadcast='${lan_broadcast}'
-
-			set network.wan.proto='static'
-			#set network.wan.ifname='eth0'
-			set network.wan.ipaddr='${wan_ipaddr}'
-			set network.wan.netmask='${wan_netmask}'
-			set network.wan.broadcast='${wan_broadcast}'
-			set network.wan.gateway='${wan_gateway}'
-			set network.wan.dns='${wan_dnsaddr}'
-			commit network
-
-			uci set dhcp.lan.ignore='${lan_ignore_dhcp}'
-			set dhcp.lan.start='${lan_dhcp_start}'
-			set dhcp.lan.limit='${lan_dhcp_number}'
-			set dhcp.lan.leasetime='12h'
-			uci commit dhcp
-			EOI
-		EOF
 	}
 }
 

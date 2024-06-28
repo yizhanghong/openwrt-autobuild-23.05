@@ -85,6 +85,29 @@ set_user_passwd()
 	}
 }
 
+# 设置默认中文
+set_default_chinese()
+{
+	source_path=$1
+	print_log "INFO" "custom config" "[设置缺省中文]"
+	
+	{
+		file="${source_path}/feeds/luci/modules/luci-base/root/etc/config/luci"
+		if [ -e ${file} ]; then
+			sed -i "/option lang/s/auto/zh_cn/" ${file}
+		fi
+	}
+	
+	{
+		file="${source_path}/package/base-files/files/etc/uci-defaults/99-defaults-settings"
+		
+		cat > ${file} <<-EOF
+			uci set luci.main.lang=zh_cn
+			uci commit luci
+		EOF
+	}	
+}
+
 # 设置时区
 set_system_timezone()
 {
@@ -184,6 +207,9 @@ set_user_config()
 	{
 		# 设置用户密码
 		set_user_passwd ${source_path}
+		
+		# 设置默认中文
+		set_default_chinese ${source_path}
 		
 		# 设置时区
 		set_system_timezone ${source_path}
