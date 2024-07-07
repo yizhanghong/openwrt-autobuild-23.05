@@ -14,7 +14,7 @@ pause()
 # 获取命令序号
 get_user_index()
 {
-	stty erase ^H
+	#stty erase ^H
 	read value
 	
 	echo "$value"|[ -n "`sed -n '/^[0-9][0-9]*$/p'`" ]
