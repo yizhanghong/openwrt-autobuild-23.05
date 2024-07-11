@@ -1,0 +1,9 @@
+[other_config]
+luci-app-alist
+luci-app-ddns-go
+luci-app-diskman
+luci-app-filetransfer
+luci-app-poweroff
+luci-app-ramfree
+luci-app-socat
+luci-app-oaf

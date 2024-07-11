@@ -4,15 +4,17 @@
 # 下载other package
 download_other_package()
 {
-	plugins_path=$1
+	source_path=$1
+	plugins_path=$2
 	
 	{
 		print_log "INFO" "custom config" "获取otherpackage仓库代码..."
 		
-		if [ ! -d "${plugins_path}/otherpackage" ] || [ -z "$(ls -A "${plugins_path}/otherpackage")" ]; then
-			url="https://github.com/lysgwl/openwrt-package.git/otherpackage?ref=master"
-			get_remote_spec_contents $url "otherpackage" ${plugins_path} ${NETWORK_PROXY_CMD}
-		fi
+		local user_array=("${plugins_path}")
+		remove_plugin_package "other_config" "${source_path}" "${OPENWRT_PLUGIN_FILE}" user_array
+		
+		url="https://github.com/lysgwl/openwrt-package.git/otherpackage?ref=master"	
+		get_remote_spec_contents "$url" "other" ${plugins_path} ${NETWORK_PROXY_CMD}
 	}
 }
 
@@ -40,7 +42,7 @@ download_shidahuilang_package()
 		
 		if [ ! -d "${plugins_path}/shidahuilang" ] || [ -z "$(ls -A "${plugins_path}/shidahuilang")" ]; then
 			url="https://github.com/lysgwl/openwrt-package.git/shidahuilang?ref=master"
-			get_remote_spec_contents $url "shidahuilang" ${plugins_path} ${NETWORK_PROXY_CMD}
+			get_remote_spec_contents $url ${plugins_path} ${NETWORK_PROXY_CMD}
 		fi
 	}
 }
@@ -55,7 +57,7 @@ download_kiddin9_package()
 		
 		if [ ! -d "${plugins_path}/kiddin9" ] || [ -z "$(ls -A "${plugins_path}/kiddin9")" ]; then
 			url="https://github.com/lysgwl/openwrt-package.git/kiddin9/master?ref=master"
-			get_remote_spec_contents $url "kiddin9" ${plugins_path} ${NETWORK_PROXY_CMD}
+			get_remote_spec_contents $url ${plugins_path} ${NETWORK_PROXY_CMD}
 		fi
 	}
 }
@@ -206,5 +208,5 @@ set_user_plugins()
 	plugins_path=$3
 	
 	# other package
-	download_other_package ${plugins_path}
+	download_other_package ${source_path} ${plugins_path}
 }

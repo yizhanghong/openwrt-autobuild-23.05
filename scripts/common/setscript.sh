@@ -5,6 +5,8 @@
 . diyconfig/system-setup.sh
 . diyconfig/network-setup.sh
 
+# 脚本运行参数
+SCRIPT_CMD_ARGS=$1
 #********************************************************************************#
 # 自定义插件
 set_openwrt_plugins()
@@ -78,7 +80,7 @@ get_source_config()
 		
 		for section in "${section_array[@]}"; do
 			declare -A source_array
-			if ! get_config_info "${section}" "${file}" source_array; then
+			if ! get_config_list "${section}" "${file}" source_array; then
 				continue
 			fi
 
@@ -122,7 +124,7 @@ get_diy_config()
 	# diyconfig
 	{
 		declare -A fields_array
-		if ! get_config_info "diyconfig" "${file}" fields_array; then
+		if ! get_config_list "diyconfig" "${file}" fields_array; then
 			print_log "ERROR" "user config" "无法获取diyconfig配置信息, 请检查!"
 			reutrn 1
 		fi
@@ -152,7 +154,7 @@ get_network_config()
 	# lanconfig
 	{
 		declare -A fields_array
-		if ! get_config_info "lanconfig" "${file}" fields_array; then
+		if ! get_config_list "lanconfig" "${file}" fields_array; then
 			print_log "ERROR" "user config" "无法获取lanconfig配置信息, 请检查!"
 			reutrn 1
 		fi
@@ -176,7 +178,7 @@ get_network_config()
 	# wanconfig
 	{
 		declare -A fields_array
-		if ! get_config_info "wanconfig" "${file}" fields_array; then
+		if ! get_config_list "wanconfig" "${file}" fields_array; then
 			print_log "ERROR" "user config" "无法获取wanconfig配置信息, 请检查!"
 			reutrn 1
 		fi
@@ -224,6 +226,77 @@ get_user_config()
 	return 0
 }
 
+# 初始用户配置
+init_user_config()
+{
+	if [ -z "${SCRIPT_CMD_ARGS}" ]; then
+		# 0:本地编译环境
+		USER_CONFIG_ARRAY["mode"]=${COMPILE_MODE[local_compile]}
+		
+		# 当前脚本路径
+		SCRIPT_CUR_PATH=$(cd `dirname "$0}"` >/dev/null 2>&1; pwd)
+		
+		# openwrt工作路径
+		OPENWRT_WORK_PATH="$SCRIPT_CUR_PATH/$OPENWRT_WORKDIR_NAME"
+	else
+		# 1:远程编译环境
+		USER_CONFIG_ARRAY["mode"]=${COMPILE_MODE[remote_compile]}
+		
+		# 当前脚本路径
+		SCRIPT_CUR_PATH="$GITHUB_WORKSPACE"
+		
+		# openwrt工作路径
+		OPENWRT_WORK_PATH="/$OPENWRT_WORKDIR_NAME"
+	fi
+	
+	# 输出路径
+	OPENWRT_OUTPUT_PATH="${SCRIPT_CUR_PATH}/output"
+
+	# 配置路径
+	OPENWRT_CONFIG_PATH="${SCRIPT_CUR_PATH}/config"
+	
+	# 脚本配置文件
+	OPENWRT_CONF_FILE="${OPENWRT_CONFIG_PATH}/basic.conf"
+	
+	# 脚本种子配置文件
+	OPENWRT_FEEDS_CONF_FILE="${OPENWRT_CONFIG_PATH}/feeds.conf.default"
+
+	# 种子文件
+	OPENWRT_SEED_FILE="${OPENWRT_CONFIG_PATH}/seed.config"
+	
+	# 插件列表文件
+	OPENWRT_PLUGIN_FILE="${OPENWRT_CONFIG_PATH}/plugin_list"
+	
+	# 获取用户配置
+	if ! get_user_config "${OPENWRT_CONF_FILE}"; then
+		print_log "ERROR" "user config" "获取用户配置失败, 请检查!"
+		return 1
+	else	
+		# 工作目录
+		USER_CONFIG_ARRAY["workdir"]="openwrt"
+		
+		# 缺省配置名称
+		USER_CONFIG_ARRAY["defaultconf"]=".config"
+		
+		# 插件名称
+		USER_CONFIG_ARRAY["plugins"]="wl"
+		
+		# 版本号
+		USER_CONFIG_ARRAY["versionnum"]=""
+		
+		# 设备名称
+		USER_CONFIG_ARRAY["devicename"]=""
+		
+		# 固件名称
+		USER_CONFIG_ARRAY["firmwarename"]=""
+		
+		# 固件路径
+		USER_CONFIG_ARRAY["firmwarepath"]=""
+	fi
+	
+	return 0
+}
+
 # 获取固件信息
 get_firmware_info()
 {
@@ -264,4 +337,44 @@ get_firmware_info()
 	
 	local_source_path=${source_path}
 	return 0
+}
+
+# 移除插件包
+remove_plugin_package()
+{
+	local section_name=$1
+	local source_path=$2
+	
+	local conf_file=$3
+	local -n fields_array=$4
+	
+	if [ ! -e "${conf_file}" ]; then
+		print_log "ERROR" "user config" "插件配置文件不存在, 请检查!"
+		return
+	fi
+	
+	local plugin_array=()
+	if ! get_config_list "${section_name}" "${conf_file}" plugin_array; then
+		return
+	fi
+	
+	# 查找要排除的部分
+	exclude_expr=""
+	
+	if [ ${#fields_array[@]} -gt 0 ]; then
+		for path in "${fields_array[@]}"; do
+			exclude_expr+=" -path ${path} -o"
+		done
+		
+		# 去掉最后一个 '-o'
+		exclude_expr="${exclude_expr% -o}"
+	fi
+	
+	for value in "${plugin_array[@]}"; do
+		if [ -z "${exclude_expr}" ]; then
+			find ${source_path} -name "${value}" | xargs rm -rf;
+		else
+			find ${source_path} \( ${exclude_expr} \) -prune -o -name ${value} -print0 | xargs -0 rm -rf;
+		fi
+	done
 }

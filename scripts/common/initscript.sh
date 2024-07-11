@@ -251,66 +251,14 @@ initLinuxEnv()
 {
 	print_log "TRACE" "init linux" "正在初始化linux环境，请等待..."
 
-	if [ $# == 0 ] || [ $1 == 0 ]; then
-		# 0:本地编译环境
-		USER_CONFIG_ARRAY["mode"]=${COMPILE_MODE[local_compile]}
-		
-		# 当前脚本路径
-		SCRIPT_CUR_PATH=$(cd `dirname "$0}"` >/dev/null 2>&1; pwd)
-		
-		# openwrt工作路径
-		OPENWRT_WORK_PATH="$SCRIPT_CUR_PATH/$OPENWRT_WORKDIR_NAME"
-	else
-		# 1:远程编译环境
-		USER_CONFIG_ARRAY["mode"]=${COMPILE_MODE[remote_compile]}
-		
-		# 当前脚本路径
-		SCRIPT_CUR_PATH="$GITHUB_WORKSPACE"
-		
-		# openwrt工作路径
-		OPENWRT_WORK_PATH="/$OPENWRT_WORKDIR_NAME"
-	fi
- 
-	# 输出路径
-	OPENWRT_OUTPUT_PATH="${SCRIPT_CUR_PATH}/output"
-
-	# 配置路径
-	OPENWRT_CONFIG_PATH="${SCRIPT_CUR_PATH}/config"
-	
-	# 脚本配置文件
-	OPENWRT_CONF_FILE="${OPENWRT_CONFIG_PATH}/basic.conf"
-	
-	# 脚本种子配置文件
-	OPENWRT_FEEDS_CONF_FILE="${OPENWRT_CONFIG_PATH}/feeds.conf.default"
-
-	# 种子文件
-	OPENWRT_SEED_FILE="${OPENWRT_CONFIG_PATH}/seed.config"
-
-	# 获取用户配置
-	if ! get_user_config "${OPENWRT_CONF_FILE}"; then
+	if ! init_user_config "${OPENWRT_CONF_FILE}"; then
 		exit 1
 	fi
 	
-	# 工作目录
-	USER_CONFIG_ARRAY["workdir"]="openwrt"
-	
-	# 缺省配置名称
-	USER_CONFIG_ARRAY["defaultconf"]=".config"
-	
-	# 插件名称
-	USER_CONFIG_ARRAY["plugins"]="wl"
-	
-	# 版本号
-	USER_CONFIG_ARRAY["versionnum"]=""
-	
-	# 设备名称
-	USER_CONFIG_ARRAY["devicename"]=""
-	
-	# 固件名称
-	USER_CONFIG_ARRAY["firmwarename"]=""
-	
-	# 固件路径
-	USER_CONFIG_ARRAY["firmwarepath"]=""
+	# 判断插件列表文件
+	if [ ! -f "${OPENWRT_PLUGIN_FILE}" ]; then
+		touch "${OPENWRT_PLUGIN_FILE}"
+	fi
 	
 	print_log "TRACE" "init linux" "完成linux环境的初始化!"
 }
@@ -320,7 +268,7 @@ initLinuxEnv()
 runAppLinux()
 {
 	# 初始化linux环境
-	initLinuxEnv $1
+	initLinuxEnv
 	
 	# 更新linux环境
 	updateLinuxEnv

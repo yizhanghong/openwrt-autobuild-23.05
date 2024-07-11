@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# 脚本运行参数
+SCRIPT_CMD_ARGS=""
+
 # 工作目录
 OPENWRT_WORKDIR_NAME="workdir"
 
@@ -23,6 +26,9 @@ OPENWRT_FEEDS_CONF_FILE=""
 
 # 种子文件
 OPENWRT_SEED_FILE=""
+
+# 插件列表文件
+OPENWRT_PLUGIN_FILE=""
 
 # 网络代理命令
 NETWORK_PROXY_CMD=""

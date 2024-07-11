@@ -107,7 +107,7 @@ get_config_section()
 }
 
 # 获取section的配置
-get_config_info()
+get_config_list()
 {
 	# section名称
 	section=$1
@@ -115,17 +115,13 @@ get_config_info()
 	# 配置文件
 	confile=$2
 	
+	# 传出结果数组
+	local -n result=$3
+	
+	# 判断配置文件
 	if [ ! -e "${confile}" ]; then
 		return 1
 	fi
-	
-	# 判断参数3是否是关联数组
-	if [ ! "$(declare -p "$3" 2>/dev/null | grep -o 'declare \-A')" == "declare -A" ]; then
-		return 1
-	fi
-	
-	# 用于传出结果的关联数组
-	local -n result="$3"
 	
 	# 清空结果数组
 	result=()
@@ -138,17 +134,33 @@ get_config_info()
 			' "${confile}")
 	
 	#echo "\"$content\""
-	#clean_content=$(echo "$content" | awk '{ sub(/[[:space:]]+$/, ""); print }')	
-	
+	#clean_content=$(echo "$content" | awk '{ sub(/[[:space:]]+$/, ""); print }')
+
 	if [ -z "${content}" ]; then
 		return 1
 	fi
 	
-	while IFS='=' read -r key value; do
-		if [ -n "${key}" ]; then
-			result["$key"]="$value"
+	tmp_declare=$(declare -p "${3}" 2>/dev/null)
+	
+	# 判断关联数组
+	#if [ "$(declare -p "${3}" 2>/dev/null | grep -o 'declare \-A')" == "declare -A" ]; then
+	if [[ "${tmp_declare}" =~ "declare -A" ]]; then
+		if [[ ! "${content}" =~ = ]]; then
+			return 1
 		fi
-	done <<< "$content"
+		
+		while IFS='=' read -r key value; do
+			if [ -n "${key}" ]; then
+				result["$key"]="$value"
+			fi
+		done <<< "$content"
+	else
+		while IFS=' ' read -r value; do
+			if [ -n "${value}" ]; then
+				result+=("${value}")
+			fi
+		done <<< "$content"
+	fi	
 	
 	return 0
 }
@@ -326,14 +338,14 @@ clone_repo_contents()
 get_remote_spec_contents()
 {
 	local remote_repo=$1        # 远程仓库URL
-	local remote_alias=$2       # 远程仓库别名
+	local remote_alias=$2		# 远程仓库别名
 	local local_path=$3    		# 本地指定路径
 	local proxy_cmd=$4			# 代理命令
 	
 	# 获取.git的前缀和后缀字符
 	git_prefix="${remote_repo%%.git*}"
 	git_suffix="${remote_repo#*.git}"
-	
+
 	if [ -z "${git_prefix}" ] || [ -z "${git_suffix}" ]; then
 		return
 	fi
@@ -341,14 +353,14 @@ get_remote_spec_contents()
 	# 获取?的前缀和后缀字符
 	suffix_before_mark="${git_suffix%%\?*}"	#
 	suffix_after_mark="${git_suffix#*\?}"	#
-	
+
 	if [ -z "${suffix_before_mark}" ] || [ -z "${suffix_after_mark}" ]; then
 		return
 	fi
 	
-	repo_url="${git_prefix}.git"
-	repo_path="${suffix_before_mark}"
-	repo_branch=$(echo ${suffix_after_mark} | awk -F '=' '{print $2; exit}')
+	repo_url="${git_prefix}.git"			# url地址
+	repo_path="${suffix_before_mark}"		# 指定路径
+	repo_branch=$(echo ${suffix_after_mark} | awk -F '=' '{print $2; exit}')	# 远程分支名称
 	
 	# 临时目录，用于克隆远程仓库
 	local temp_dir=$(mktemp -d)
@@ -373,13 +385,13 @@ get_remote_spec_contents()
 	fi
 	
 	echo "${repo_path}" >> ${sparse_file}
-	echo "Pulling from $remote_alias branch $branch..."
+	echo "Pulling from $remote_alias branch $repo_branch..."
 	
 	# 从远程将目标目录或文件拉取下来
 	${proxy_cmd} git pull ${remote_alias} ${repo_branch}
 
 	# 目标路径
-	local target_path="${local_path}/${remote_alias}"
+	local target_path="${local_path}"
 	if [ ! -d "${target_path}" ]; then
 		mkdir -p "${target_path}"
 	fi

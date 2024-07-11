@@ -17,4 +17,4 @@
 . common/setscript.sh
 
 # 运行linux脚本
-runAppLinux $1
+runAppLinux
