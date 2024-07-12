@@ -28,7 +28,7 @@ download_golang()
 		print_log "INFO" "custom config" "获取golang仓库代码..."
 		
 		url="https://github.com/sbwml/packages_lang_golang.git?ref=22.x"
-		clone_repo_contents $url "${source_path}/feeds/packages/lang/golang" ${NETWORK_PROXY_CMD}
+		clone_repo_contents "$url" "${source_path}/feeds/packages/lang/golang" ${NETWORK_PROXY_CMD}
 	}
 }
 
@@ -42,7 +42,7 @@ download_shidahuilang_package()
 		
 		if [ ! -d "${plugins_path}/shidahuilang" ] || [ -z "$(ls -A "${plugins_path}/shidahuilang")" ]; then
 			url="https://github.com/lysgwl/openwrt-package.git/shidahuilang?ref=master"
-			get_remote_spec_contents $url ${plugins_path} ${NETWORK_PROXY_CMD}
+			get_remote_spec_contents "$url" ${plugins_path} ${NETWORK_PROXY_CMD}
 		fi
 	}
 }
@@ -57,7 +57,7 @@ download_kiddin9_package()
 		
 		if [ ! -d "${plugins_path}/kiddin9" ] || [ -z "$(ls -A "${plugins_path}/kiddin9")" ]; then
 			url="https://github.com/lysgwl/openwrt-package.git/kiddin9/master?ref=master"
-			get_remote_spec_contents $url ${plugins_path} ${NETWORK_PROXY_CMD}
+			get_remote_spec_contents "$url" ${plugins_path} ${NETWORK_PROXY_CMD}
 		fi
 	}
 }
@@ -72,7 +72,7 @@ download_siropboy_package()
 		
 		if [ ! -d "${plugins_path}/sirpdboy-package" ] || [ -z "$(ls -A "${plugins_path}/sirpdboy-package")" ]; then
 			url="https://github.com/sirpdboy/sirpdboy-package.git?ref=main"
-			clone_repo_contents $url "${plugins_path}" ${NETWORK_PROXY_CMD}
+			clone_repo_contents "$url" "${plugins_path}" ${NETWORK_PROXY_CMD}
 		fi
 	}
 }
@@ -209,4 +209,7 @@ set_user_plugins()
 	
 	# other package
 	download_other_package ${source_path} ${plugins_path}
+	
+	# golang
+	download_golang ${source_path}
 }

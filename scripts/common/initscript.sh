@@ -67,7 +67,7 @@ setCmdMenu()
 		show_cmd_menu cmd_array[@] source_array1
 		
 		# 获取用户输入
-		index=`get_user_index`
+		index=`input_user_index`
 		
 		# 判断输入值是否有效
 		if [ $index -lt 0 ] || [ $index -gt ${#cmd_array[@]} ]; then
@@ -100,7 +100,7 @@ setSourceMenu()
 		show_source_menu ${source_name_array[@]}
 		
 		# 获取用户输入
-		index=`get_user_index`
+		index=`input_user_index`
 		
 		# 判断输入值是否有效
 		if [ $index -lt 0 ] || [ $index -gt ${#source_name_array[@]} ]; then

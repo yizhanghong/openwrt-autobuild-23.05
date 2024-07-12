@@ -153,28 +153,41 @@ setMenuOptions()
 		return 1
 	fi
 	
-	# feeds配置文件
-	feeds_file="${OPENWRT_CONFIG_PATH}/${USER_CONFIG_ARRAY["feedsname"]}"
+	# 缺省feeds配置文件
+	default_feeds_file="${path}/${USER_CONFIG_ARRAY["defaultconf"]}"
 	
-	if [ -e "${feeds_file}" ]; then
-		cp -rf "${feeds_file}" "${path}/.config"
-	fi
+	# 自定义feeds配置文件
+	custom_feeds_file="${OPENWRT_CONFIG_PATH}/${USER_CONFIG_ARRAY["feedsname"]}"
 	
 	# 进入源码目录
 	pushd ${path} > /dev/null
 	
 	# 设置信号捕捉来在退出时执行popd
 	trap 'popd > /dev/null' EXIT
-	
+
 	if [ ${USER_CONFIG_ARRAY["mode"]} -ne ${COMPILE_MODE[local_compile]} ]; then
-		make defconfig
-	else
-		make menuconfig; ret=$?	
-		if [ ${ret} -ne 0 ]; then
-			print_log "ERROR" "menu config" "设置配置选项失败(Err:${ret}), 请检查!"
-			return ${ret}
+		if [ ! -f "${custom_feeds_file}" ]; then
+			print_log "ERROR" "menu config" "自定义feeds配置文件不存在, 请检查!"
+			return 1
 		fi
 		
+		cp -rf "${custom_feeds_file}" "${default_feeds_file}"
+		make defconfig
+	else
+		if [ ! -f "${custom_feeds_file}" ]; then
+			make menuconfig
+		else
+			if [ -f "${default_feeds_file}" ]; then
+				if input_prompt_confirm "是否使用自定义feeds配置?"; then
+					cp -rf "${custom_feeds_file}" "${default_feeds_file}"
+				fi
+			else
+				cp -rf "${custom_feeds_file}" "${default_feeds_file}"
+			fi
+			
+			make menuconfig
+		fi
+
 		make defconfig
 		./scripts/diffconfig.sh > seed.config
 	fi
