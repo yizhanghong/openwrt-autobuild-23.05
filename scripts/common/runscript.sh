@@ -93,10 +93,12 @@ compile_openwrt_firmware()
 			make -j$(nproc) || make -j1 V=s
 		else
 			${NETWORK_PROXY_CMD} make -j1 V=s
-		fi
+		fi || return 1
+		
+		return 0
 	}
 	
-	if ! execute_command_retry 3 5 run_make_command; then
+	if ! execute_command_retry ${USER_CONFIG_ARRAY["retrycount"]} ${USER_CONFIG_ARRAY["waittimeout"]} run_make_command; then
 		print_log "ERROR" "compile firmware" "编译OpenWrt固件失败(Err:${ret}), 请检查!"
 		return 1
 	fi
@@ -128,13 +130,18 @@ download_0penwrt_package()
 	
 	run_make_command() {
 		# 下载软件包
-		${NETWORK_PROXY_CMD} make download -j$(nproc) V=s
+		${NETWORK_PROXY_CMD} make download -j$(nproc) V=s || return 1
+
+		# 查找文件并列出（ls）
+		find dl -size -1024c -exec ls -l {} \; || return 1
 		
-		find dl -size -1024c -exec ls -l {} \;
-		find dl -size -1024c -exec rm -f {} \;
+		# 查找文件并删除（rm）
+		find dl -size -1024c -exec rm -f {} \; || return 1
+
+		return 0
 	}
 	
-	if ! execute_command_retry 3 5 run_make_command; then
+	if ! execute_command_retry ${USER_CONFIG_ARRAY["retrycount"]} ${USER_CONFIG_ARRAY["waittimeout"]} run_make_command; then
 		print_log "ERROR" "download package" "下载OpenWrt软件包失败(Err:${ret}), 请检查!"
 		return 1
 	fi
@@ -236,14 +243,18 @@ update_openwrt_feeds()
 	
 	# Update feeds configuration
 	print_log "INFO" "update feeds" "更新Feeds源码!"
-	if ! execute_command_retry 3 5 "${NETWORK_PROXY_CMD} ${path}/scripts/feeds update -a"; then
+	
+	command="${NETWORK_PROXY_CMD} ${path}/scripts/feeds update -a"
+	if ! execute_command_retry ${USER_CONFIG_ARRAY["retrycount"]} ${USER_CONFIG_ARRAY["waittimeout"]} "${command}"; then
 		print_log "ERROR" "update feeds" "更新本地源失败, 请检查!"
 		return 1
 	fi
 
 	# Install feeds configuration
 	print_log "INFO" "update feeds" "安装Feds源码!"
-	if ! execute_command_retry 3 5 "${NETWORK_PROXY_CMD} ${path}/scripts/feeds install -a"; then
+	
+	command="${NETWORK_PROXY_CMD} ${path}/scripts/feeds install -a"
+	if ! execute_command_retry ${USER_CONFIG_ARRAY["retrycount"]} ${USER_CONFIG_ARRAY["waittimeout"]} "${command}"; then
 		print_log "ERROR" "update feeds" "安装本地源失败, 请检查!"
 		return 1
 	fi
@@ -312,14 +323,16 @@ clone_openwrt_source()
 	if [ ! -d "${path}" ]; then
 		print_log "INFO" "clone sources" "克隆源码文件!"
 		
-		if ! execute_command_retry 3 5 "${NETWORK_PROXY_CMD} git clone ${url} -b ${branch} --depth=1 ${path}"; then
+		command="${NETWORK_PROXY_CMD} git clone ${url} -b ${branch} --depth=1 ${path}"
+		if ! execute_command_retry ${USER_CONFIG_ARRAY["retrycount"]} ${USER_CONFIG_ARRAY["waittimeout"]} "${command}"; then
 			print_log "ERROR" "clone sources" "Git获取源码失败, 请检查!"
 			return 1
 		fi
 	else
 		print_log "INFO" "clone sources" "更新源码文件!"
 		
-		if ! execute_command_retry 3 5 "${NETWORK_PROXY_CMD} git -C ${path} pull"; then
+		command="${NETWORK_PROXY_CMD} git -C ${path} pull"
+		if ! execute_command_retry ${USER_CONFIG_ARRAY["retrycount"]} ${USER_CONFIG_ARRAY["waittimeout"]} "${command}"; then
 			print_log "ERROR" "clone sources" "更新源码失败, 请检查!"
 		fi
 	fi

@@ -408,8 +408,10 @@ clone_repo_contents()
 	
 	while true; do
 		echo "Cloning branch code... ${repo_branch}"
+		
 		# 克隆远程仓库到临时目录 ${proxy_cmd}
-		if ! execute_command_retry 3 5 "${proxy_cmd} git clone --depth 1 --branch ${repo_branch} ${repo_url} ${temp_dir}"; then
+		command="${proxy_cmd} git clone --depth 1 --branch ${repo_branch} ${repo_url} ${temp_dir}"
+		if ! execute_command_retry ${USER_CONFIG_ARRAY["retrycount"]} ${USER_CONFIG_ARRAY["waittimeout"]} "${command}"; then
 			ret=1
 			break
 		fi
@@ -510,7 +512,8 @@ get_remote_spec_contents()
 	
 	while true; do
 		# 从远程将目标目录或文件拉取下来
-		if ! execute_command_retry 3 5 "${proxy_cmd} git pull ${remote_alias} ${repo_branch}"; then
+		command="${proxy_cmd} git pull ${remote_alias} ${repo_branch}"
+		if ! execute_command_retry ${USER_CONFIG_ARRAY["retrycount"]} ${USER_CONFIG_ARRAY["waittimeout"]} "${command}"; then
 			ret=1
 			break
 		fi

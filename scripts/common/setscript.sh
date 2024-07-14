@@ -292,6 +292,12 @@ init_user_config()
 		
 		# 固件路径
 		USER_CONFIG_ARRAY["firmwarepath"]=""
+		
+		# 等待超时
+		USER_CONFIG_ARRAY["waittimeout"]=5
+		
+		# 尝试次数
+		USER_CONFIG_ARRAY["retrycount"]=5
 	fi
 	
 	return 0
