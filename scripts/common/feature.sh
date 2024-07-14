@@ -11,6 +11,24 @@ pause()
 	fi
 }
 
+# 超时计数提示
+timeout_with_count()
+{
+	local wait_seconds=$1
+	local prompt_msg=$2
+
+	while [ ${wait_seconds} -ne 0 ]; do
+		# 每秒显示当前倒计时和提示信息
+        echo -ne "\r${prompt_msg} ${wait_seconds} ..."
+		
+		# 等待1秒
+		sleep 1
+		
+		# 倒计时减1
+        ((wait_seconds--))
+	done
+}
+
 # 获取命令序号
 input_user_index()
 {
@@ -36,7 +54,7 @@ input_prompt_confirm()
 	
 	while true; do
 		printf "\033[1;33m%s\033[0m" "${prompt} (y/n):"
-        read -r input
+        read -r -e input
 		
 		case "${input}" in
 			[Yy])
@@ -50,6 +68,54 @@ input_prompt_confirm()
 				;;
 		esac
 	done
+}
+
+# 循环执行命令
+execute_command_retry()
+{
+	# 最大尝试次数
+	local max_attempts=$1
+	
+	# 等待时间
+	local wait_seconds=$2
+	
+	# 运行命令
+	local run_command=$3
+	
+	# 尝试次数
+	local attempts=0
+	
+	until eval "${run_command}"; do
+		if [ $? -eq 0 ]; then
+            break
+        else
+			if [ "$attempts" -ge "$max_attempts" ]; then
+				printf "\033[1;33m%s\033[0m\n" "命令尝试次数已达最大次数, 即将退出运行!"
+				return 1
+			else
+				printf "\033[1;33m%s\033[0m\n" "命令执行失败, 是否需要再次尝试? (y/n):"
+				read -t ${wait_seconds} input
+			
+				if [ -z "$input" ]; then
+					input="y"
+					printf "\033[1;31m%s\033[0m\n" "超时未输入，执行默认操作..."
+				fi
+			fi
+
+			case "$input" in
+				y|Y )
+					attempts=$((attempts+1))
+					continue ;;
+				n|N )
+					return 1 ;;
+				* )
+					attempts=$((attempts+1))
+					continue ;;
+			esac
+		fi
+	done
+	
+	return 0
 }
 
 #  打印日志信息
@@ -321,7 +387,7 @@ clone_repo_contents()
 	git_suffix="${remote_repo#*.git}"
 	
 	if [ -z "${git_prefix}" ] || [ -z "${git_suffix}" ]; then
-		return
+		return 1
 	fi
 	
 	# 获取?前缀和后缀字符
@@ -337,12 +403,17 @@ clone_repo_contents()
 	# 临时目录，用于克隆远程仓库
 	local temp_dir=$(mktemp -d)
 	
-	echo "Cloning branch code... ${repo_branch}"
-
-	# 克隆远程仓库到临时目录 ${proxy_cmd}
-	${proxy_cmd} git clone --depth 1 --branch ${repo_branch} ${repo_url} ${temp_dir}
+	# 函数返回值
+	local ret=0
 	
-	if [ $? -eq 0 ]; then
+	while true; do
+		echo "Cloning branch code... ${repo_branch}"
+		# 克隆远程仓库到临时目录 ${proxy_cmd}
+		if ! execute_command_retry 3 5 "${proxy_cmd} git clone --depth 1 --branch ${repo_branch} ${repo_url} ${temp_dir}"; then
+			ret=1
+			break
+		fi
+		
 		local target_path="${local_path}"
 		
 		if [ ! -d "${target_path}" ]; then
@@ -359,10 +430,13 @@ clone_repo_contents()
 		
 		# 复制克隆的内容到目标路径
 		cp -r ${temp_dir}/* "${local_path}"
-	fi
-	
+		break
+	done
+
 	# 清理临时目录
 	rm -rf ${temp_dir}
+	
+	return ${ret}
 }
 
 # 添加获取远程仓库指定内容
@@ -385,7 +459,7 @@ get_remote_spec_contents()
 	git_suffix="${remote_repo#*.git}"
 
 	if [ -z "${git_prefix}" ] || [ -z "${git_suffix}" ]; then
-		return
+		return 1
 	fi
 	
 	# 获取?前缀和后缀字符
@@ -393,7 +467,7 @@ get_remote_spec_contents()
 	suffix_after_mark="${git_suffix#*\?}"	#
 
 	if [ -z "${suffix_before_mark}" ] || [ -z "${suffix_after_mark}" ]; then
-		return
+		return 1
 	fi
 	
 	# url地址
@@ -431,10 +505,16 @@ get_remote_spec_contents()
 	echo "${repo_path}" >> ${sparse_file}
 	echo "Pulling from $remote_alias branch $repo_branch..."
 	
-	# 从远程将目标目录或文件拉取下来
-	${proxy_cmd} git pull ${remote_alias} ${repo_branch}
-
-	if [ $? -eq 0 ]; then
+	# 函数返回值
+	local ret=0
+	
+	while true; do
+		# 从远程将目标目录或文件拉取下来
+		if ! execute_command_retry 3 5 "${proxy_cmd} git pull ${remote_alias} ${repo_branch}"; then
+			ret=1
+			break
+		fi
+		
 		local target_path="${local_path}"
 		
 		if [ ! -d "${target_path}" ]; then
@@ -451,13 +531,17 @@ get_remote_spec_contents()
 		if [ -e "${temp_dir}/${repo_path}" ]; then
 			cp -rf ${temp_dir}/${repo_path}/* ${target_path}
 		fi
-	fi
+		
+		break
+	done
 	
 	# 返回原始目录
     popd > /dev/null
 	
 	# 清理临时目录
 	rm -rf ${temp_dir}
+	
+	return ${ret}
 }
 
 # 显示源码目录

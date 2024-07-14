@@ -2,7 +2,7 @@
 
 #********************************************************************************#
 # 获取OpenWrt固件
-getOpenWrtFirmware()
+get_openwrt_firmware()
 {
 	print_log "TRACE" "get firmware" "正在获取OpenWrt固件，请等待..."
 	
@@ -67,7 +67,7 @@ getOpenWrtFirmware()
 }
 
 # 编译openwrt源码
-compileOpenWrtFirmware()
+compile_openwrt_firmware()
 {
 	print_log "TRACE" "compile firmware" "正在编译OpenWrt固件，请等待..."
 	
@@ -87,16 +87,18 @@ compileOpenWrtFirmware()
 	# 设置信号捕捉来在退出时执行popd
 	trap 'popd > /dev/null' EXIT
 	
-	# 编译openwrt源码
-	if [ -z "${NETWORK_PROXY_CMD}" ]; then
-		make -j$(nproc) || make -j1 V=s; ret=$?
-	else
-		${NETWORK_PROXY_CMD} make -j1 V=s; ret=$?
-	fi
+	run_make_command() {
+		# 编译openwrt源码
+		if [ -z "${NETWORK_PROXY_CMD}" ]; then
+			make -j$(nproc) || make -j1 V=s
+		else
+			${NETWORK_PROXY_CMD} make -j1 V=s
+		fi
+	}
 	
-	if [ ${ret} -ne 0 ]; then
+	if ! execute_command_retry 3 5 run_make_command; then
 		print_log "ERROR" "compile firmware" "编译OpenWrt固件失败(Err:${ret}), 请检查!"
-		return ${ret}
+		return 1
 	fi
 	
 	print_log "TRACE" "compile firmware" "完成编译OpenWrt固件!"
@@ -104,7 +106,7 @@ compileOpenWrtFirmware()
 }
 
 # 下载openwrt包
-downloadOpenWrtPackage()
+download_0penwrt_package()
 {
 	print_log "TRACE" "download package" "正在下载OpenWrt软件包，请等待..."
 	
@@ -124,22 +126,25 @@ downloadOpenWrtPackage()
 	# 设置信号捕捉来在退出时执行popd
 	trap 'popd > /dev/null' EXIT
 	
-	# 下载软件包
-	$NETWORK_PROXY_CMD make download -j$(nproc) V=s; ret=$?
-	if [ ${ret} -ne 0 ]; then
+	run_make_command() {
+		# 下载软件包
+		${NETWORK_PROXY_CMD} make download -j$(nproc) V=s
+		
+		find dl -size -1024c -exec ls -l {} \;
+		find dl -size -1024c -exec rm -f {} \;
+	}
+	
+	if ! execute_command_retry 3 5 run_make_command; then
 		print_log "ERROR" "download package" "下载OpenWrt软件包失败(Err:${ret}), 请检查!"
-		return ${ret}
+		return 1
 	fi
-	
-	find dl -size -1024c -exec ls -l {} \;
-	find dl -size -1024c -exec rm -f {} \;
-	
+
 	print_log "TRACE" "download package" "完成下载OpenWrt软件包!"
 	return 0
 }
 
 # 设置功能选项
-setMenuOptions()
+set_menu_options()
 {
 	print_log "TRACE" "menu config" "正在设置软件包目录，请等待..."
 	
@@ -197,7 +202,7 @@ setMenuOptions()
 }
 
 # 设置自定义配置
-setCustomConfig()
+set_custom_config()
 {
 	print_log "TRACE" "custom config" "正在设置自定义配置，请等待..."
 
@@ -215,7 +220,7 @@ setCustomConfig()
 }
 
 # 更新 openwrt feeds源
-updateOpenWrtFeeds()
+update_openwrt_feeds()
 {
 	print_log "TRACE" "update feeds" "正在更新OpenWrt Feeds源，请等待..."
 	
@@ -231,26 +236,24 @@ updateOpenWrtFeeds()
 	
 	# Update feeds configuration
 	print_log "INFO" "update feeds" "更新Feeds源码!"
-	${NETWORK_PROXY_CMD} ${path}/scripts/feeds update -a; ret=$?
-	if [ $ret -ne 0 ]; then
-		print_log "ERROR" "update feeds" "更新本地源失败(Err:$ret), 请检查!"
-		return $ret
+	if ! execute_command_retry 3 5 "${NETWORK_PROXY_CMD} ${path}/scripts/feeds update -a"; then
+		print_log "ERROR" "update feeds" "更新本地源失败, 请检查!"
+		return 1
 	fi
-	
+
 	# Install feeds configuration
 	print_log "INFO" "update feeds" "安装Feds源码!"
-	${NETWORK_PROXY_CMD} ${path}/scripts/feeds install -a; ret=$?
-	if [ $ret -ne 0 ]; then
-		print_log "ERROR" "update feeds" "安装本地源失败(Err:$ret), 请检查!"
-		return $ret
+	if ! execute_command_retry 3 5 "${NETWORK_PROXY_CMD} ${path}/scripts/feeds install -a"; then
+		print_log "ERROR" "update feeds" "安装本地源失败, 请检查!"
+		return 1
 	fi
-	
+
 	print_log "TRACE" "update feeds" "完成更新OpenWrt Feeds源!"
 	return 0
 }
 
 # 设置 openwrt feeds源
-setOpenWrtFeeds()
+set_openwrt_feeds()
 {
 	print_log "TRACE" "setting feeds" "正在设置OpenWrt Feeds源，请等待..."
 	
@@ -285,7 +288,7 @@ setOpenWrtFeeds()
 }
 
 # 克隆openwrt源码
-cloneOpenWrtSrc()
+clone_openwrt_source()
 {
 	print_log "TRACE" "clone sources" "正在获取OpenWrt源码，请等待..."
 	
@@ -309,14 +312,16 @@ cloneOpenWrtSrc()
 	if [ ! -d "${path}" ]; then
 		print_log "INFO" "clone sources" "克隆源码文件!"
 		
-		${NETWORK_PROXY_CMD} git clone ${url} -b ${branch} --depth=1 ${path}; ret=$?
-		if [ ${ret} -ne 0 ]; then
-			print_log "ERROR" "clone sources" "Git获取源码失败(Err:${ret}), 请检查!"
-			return ${ret}
+		if ! execute_command_retry 3 5 "${NETWORK_PROXY_CMD} git clone ${url} -b ${branch} --depth=1 ${path}"; then
+			print_log "ERROR" "clone sources" "Git获取源码失败, 请检查!"
+			return 1
 		fi
 	else
 		print_log "INFO" "clone sources" "更新源码文件!"
-		${NETWORK_PROXY_CMD} git -C ${path} pull
+		
+		if ! execute_command_retry 3 5 "${NETWORK_PROXY_CMD} git -C ${path} pull"; then
+			print_log "ERROR" "clone sources" "更新源码失败, 请检查!"
+		fi
 	fi
 	
 	if [ ${USER_CONFIG_ARRAY["mode"]} -eq ${COMPILE_MODE[local_compile]} ]; then
@@ -331,41 +336,41 @@ cloneOpenWrtSrc()
 
 #********************************************************************************#
 # 自动编译openwrt
-autoCompileOpenwrt()
+auto_compile_openwrt()
 {
 	# 克隆openwrt源码
-	if ! cloneOpenWrtSrc $1; then
+	if ! clone_openwrt_source $1; then
 		return
 	fi
 	
 	# 设置 openwrt feeds源
-	if ! setOpenWrtFeeds $1; then
+	if ! set_openwrt_feeds $1; then
 		return
 	fi
 	
 	# 更新 openwrt feeds源
-	if ! updateOpenWrtFeeds $1; then
+	if ! update_openwrt_feeds $1; then
 		return
 	fi
 	
 	# 设置自定义配置
-	setCustomConfig $1
+	set_custom_config $1
 	
 	# 设置功能选项
-	if ! setMenuOptions $1; then
+	if ! set_menu_options $1; then
 		return
 	fi
 	
 	# 下载openwrt包
-	if ! downloadOpenWrtPackage $1; then
+	if ! download_0penwrt_package $1; then
 		return
 	fi
 	
 	# 编译openwrt源码
-	if ! compileOpenWrtFirmware $1; then
+	if ! compile_openwrt_firmware $1; then
 		return
 	fi
 	
 	# 获取OpenWrt固件
-	getOpenWrtFirmware $1
+	get_openwrt_firmware $1
 }

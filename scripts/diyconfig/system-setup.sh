@@ -197,6 +197,27 @@ set_plugin_depends()
 	}
 }
 
+# 设置插件UI 
+set_plugin_webui()
+{
+	source_type=$1
+	source_path=$2
+	
+	# upnp插件
+	{
+		case ${source_type} in
+		${SOURCE_TYPE[openwrt]} | ${SOURCE_TYPE[immortalwrt]})
+			file="${source_path}/feeds/luci/applications/luci-app-upnp/root/usr/share/luci/menu.d/luci-app-upnp.json"
+			if [ -e ${file} ]; then
+				sed -i 's/services/network/g' ${file}
+			fi
+			;;
+		*)
+			;;	
+		esac
+	}
+}
+
 #********************************************************************************#
 # 设置自定义配置
 set_user_config()
@@ -231,4 +252,7 @@ set_user_config()
 	
 	# 设置插件依赖
 	set_plugin_depends ${source_type} ${source_path}
+	
+	# 设置插件UI
+	set_plugin_webui ${source_type} ${source_path}
 }

@@ -11,8 +11,11 @@ download_other_package()
 		print_log "INFO" "custom config" "获取otherpackage仓库代码..."
 		
 		local user_array=("${plugins_path}")
-		remove_plugin_package "other_config" "${source_path}" "${OPENWRT_PLUGIN_FILE}" user_array
+		remove_plugin_package "other_config" "${source_path}/package" "${OPENWRT_PLUGIN_FILE}" user_array
 		
+		user_array=()
+		remove_plugin_package "other_config" "${source_path}/feeds" "${OPENWRT_PLUGIN_FILE}" user_array
+	
 		url="https://github.com/lysgwl/openwrt-package.git/otherpackage?ref=master"	
 		get_remote_spec_contents "$url" "other" ${plugins_path} ${NETWORK_PROXY_CMD}
 	}

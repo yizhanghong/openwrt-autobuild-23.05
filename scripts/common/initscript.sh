@@ -8,39 +8,39 @@ exeCmdShell()
 	case ${cmd} in
 	${CMD_TYPE[autoCompileOpenwrt]})
 		# 自动编译openwrt
-		autoCompileOpenwrt $2; ret=$?
+		auto_compile_openwrt $2; ret=$?
 		;;
 	${CMD_TYPE[cloneOpenWrtSrc]})
 		# 获取OpenWrt源码
-		cloneOpenWrtSrc $2; ret=$?
+		clone_openwrt_source $2; ret=$?
 		;;
 	${CMD_TYPE[setOpenWrtFeeds]})
 		# 设置OpenWrt feeds源 
-		setOpenWrtFeeds $2; ret=$?
+		set_openwrt_feeds $2; ret=$?
 		;;
 	${CMD_TYPE[updateOpenWrtFeeds]})
 		# 更新OpenWrt feeds源
-		updateOpenWrtFeeds $2; ret=$?
+		update_openwrt_feeds $2; ret=$?
 		;;
 	${CMD_TYPE[setCustomConfig]})
 		# 设置自定义配置
-		setCustomConfig $2; ret=$?
+		set_custom_config $2; ret=$?
 		;;
 	${CMD_TYPE[setMenuOptions]})
 		# 设置软件包目录
-		setMenuOptions $2; ret=$?
+		set_menu_options $2; ret=$?
 		;;
 	${CMD_TYPE[downloadOpenWrtPackage]})
 		# 下载openwrt包
-		downloadOpenWrtPackage $2; ret=$?
+		download_0penwrt_package $2; ret=$?
 		;;
 	${CMD_TYPE[compileOpenWrtFirmware]})
 		# 编译OpenWrt固件
-		compileOpenWrtFirmware $2; ret=$?
+		compile_openwrt_firmware $2; ret=$?
 		;;
 	${CMD_TYPE[getOpenWrtFirmware]})
 		# 获取OpenWrt固件
-		getOpenWrtFirmware $2; ret=$?
+		get_openwrt_firmware $2; ret=$?
 		;;
 	*)
 		ret=1; print_log "TRACE" "" "输入的命令参数有误, 请检查!"
