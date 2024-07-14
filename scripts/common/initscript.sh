@@ -167,7 +167,7 @@ runLinuxEnv()
 
 			if [ ${source_array["Action"]} -eq 1 ]; then
 				# 自动编译openwrt
-				autoCompileOpenwrt source_array
+				auto_compile_openwrt source_array
 				break
 			fi
 		done
