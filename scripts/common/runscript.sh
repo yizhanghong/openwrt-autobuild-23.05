@@ -89,16 +89,20 @@ compile_openwrt_firmware()
 	
 	run_make_command() {
 		# 编译openwrt源码
-		if [ -z "${NETWORK_PROXY_CMD}" ]; then
+		if [ ${USER_CONFIG_ARRAY["mode"]} -eq ${COMPILE_MODE[remote_compile]} ]; then
 			make -j$(nproc) || make -j1 V=s
 		else
-			${NETWORK_PROXY_CMD} make -j1 V=s
+			if [ ${USER_STATUS_ARRAY["autocompile"]} -eq 0 ]; then
+				${NETWORK_PROXY_CMD} make -j1 V=s
+			else
+				${NETWORK_PROXY_CMD} make -j$(nproc) || ${NETWORK_PROXY_CMD} make -j1 V=s
+			fi
 		fi || return 1
-		
+		 
 		return 0
 	}
 	
-	if ! execute_command_retry ${USER_CONFIG_ARRAY["retrycount"]} ${USER_CONFIG_ARRAY["waittimeout"]} run_make_command; then
+	if ! execute_command_retry ${USER_STATUS_ARRAY["retrycount"]} ${USER_STATUS_ARRAY["waittimeout"]} run_make_command; then
 		print_log "ERROR" "compile firmware" "编译OpenWrt固件失败(Err:${ret}), 请检查!"
 		return 1
 	fi
@@ -108,7 +112,7 @@ compile_openwrt_firmware()
 }
 
 # 下载openwrt包
-download_0penwrt_package()
+download_openwrt_package()
 {
 	print_log "TRACE" "download package" "正在下载OpenWrt软件包，请等待..."
 	
@@ -141,7 +145,7 @@ download_0penwrt_package()
 		return 0
 	}
 	
-	if ! execute_command_retry ${USER_CONFIG_ARRAY["retrycount"]} ${USER_CONFIG_ARRAY["waittimeout"]} run_make_command; then
+	if ! execute_command_retry ${USER_STATUS_ARRAY["retrycount"]} ${USER_STATUS_ARRAY["waittimeout"]} run_make_command; then
 		print_log "ERROR" "download package" "下载OpenWrt软件包失败(Err:${ret}), 请检查!"
 		return 1
 	fi
@@ -177,29 +181,37 @@ set_menu_options()
 	# 设置信号捕捉来在退出时执行popd
 	trap 'popd > /dev/null' EXIT
 
-	if [ ${USER_CONFIG_ARRAY["mode"]} -ne ${COMPILE_MODE[local_compile]} ]; then
+	# 远端编译
+	if [ ${USER_CONFIG_ARRAY["mode"]} -eq ${COMPILE_MODE[remote_compile]} ]; then
 		if [ ! -f "${custom_feeds_file}" ]; then
 			print_log "ERROR" "menu config" "自定义feeds配置文件不存在, 请检查!"
 			return 1
 		fi
-		
+
 		cp -rf "${custom_feeds_file}" "${default_feeds_file}"
 		make defconfig
-	else
-		if [ ! -f "${custom_feeds_file}" ]; then
-			make menuconfig
-		else
-			if [ -f "${default_feeds_file}" ]; then
-				if input_prompt_confirm "是否使用自定义feeds配置?"; then
-					cp -rf "${custom_feeds_file}" "${default_feeds_file}"
+	else  # 本地编译
+		if [ -f "${default_feeds_file}" ]; then
+			if [ ${USER_STATUS_ARRAY["autocompile"]} -eq 0 ]; then
+				if [ -f "${custom_feeds_file}" ]; then
+					if input_prompt_confirm "是否使用自定义feeds配置?"; then
+						cp -rf "${custom_feeds_file}" "${default_feeds_file}"
+					fi
 				fi
+
+				make menuconfig		
+			fi
+		else
+			if [ ! -f "${custom_feeds_file}" ]; then
+				make menuconfig
 			else
 				cp -rf "${custom_feeds_file}" "${default_feeds_file}"
+				if [ ${USER_STATUS_ARRAY["autocompile"]} -eq 0 ]; then
+					make menuconfig
+				fi
 			fi
-			
-			make menuconfig
 		fi
-
+		
 		make defconfig
 		./scripts/diffconfig.sh > seed.config
 	fi
@@ -245,7 +257,7 @@ update_openwrt_feeds()
 	print_log "INFO" "update feeds" "更新Feeds源码!"
 	
 	command="${NETWORK_PROXY_CMD} ${path}/scripts/feeds update -a"
-	if ! execute_command_retry ${USER_CONFIG_ARRAY["retrycount"]} ${USER_CONFIG_ARRAY["waittimeout"]} "${command}"; then
+	if ! execute_command_retry ${USER_STATUS_ARRAY["retrycount"]} ${USER_STATUS_ARRAY["waittimeout"]} "${command}"; then
 		print_log "ERROR" "update feeds" "更新本地源失败, 请检查!"
 		return 1
 	fi
@@ -254,7 +266,7 @@ update_openwrt_feeds()
 	print_log "INFO" "update feeds" "安装Feds源码!"
 	
 	command="${NETWORK_PROXY_CMD} ${path}/scripts/feeds install -a"
-	if ! execute_command_retry ${USER_CONFIG_ARRAY["retrycount"]} ${USER_CONFIG_ARRAY["waittimeout"]} "${command}"; then
+	if ! execute_command_retry ${USER_STATUS_ARRAY["retrycount"]} ${USER_STATUS_ARRAY["waittimeout"]} "${command}"; then
 		print_log "ERROR" "update feeds" "安装本地源失败, 请检查!"
 		return 1
 	fi
@@ -324,7 +336,7 @@ clone_openwrt_source()
 		print_log "INFO" "clone sources" "克隆源码文件!"
 		
 		command="${NETWORK_PROXY_CMD} git clone ${url} -b ${branch} --depth=1 ${path}"
-		if ! execute_command_retry ${USER_CONFIG_ARRAY["retrycount"]} ${USER_CONFIG_ARRAY["waittimeout"]} "${command}"; then
+		if ! execute_command_retry ${USER_STATUS_ARRAY["retrycount"]} ${USER_STATUS_ARRAY["waittimeout"]} "${command}"; then
 			print_log "ERROR" "clone sources" "Git获取源码失败, 请检查!"
 			return 1
 		fi
@@ -332,7 +344,7 @@ clone_openwrt_source()
 		print_log "INFO" "clone sources" "更新源码文件!"
 		
 		command="${NETWORK_PROXY_CMD} git -C ${path} pull"
-		if ! execute_command_retry ${USER_CONFIG_ARRAY["retrycount"]} ${USER_CONFIG_ARRAY["waittimeout"]} "${command}"; then
+		if ! execute_command_retry ${USER_STATUS_ARRAY["retrycount"]} ${USER_STATUS_ARRAY["waittimeout"]} "${command}"; then
 			print_log "ERROR" "clone sources" "更新源码失败, 请检查!"
 		fi
 	fi
@@ -351,6 +363,9 @@ clone_openwrt_source()
 # 自动编译openwrt
 auto_compile_openwrt()
 {
+	# 设置自动编译状态
+	USER_STATUS_ARRAY["autocompile"]=1
+	
 	# 克隆openwrt源码
 	if ! clone_openwrt_source $1; then
 		return

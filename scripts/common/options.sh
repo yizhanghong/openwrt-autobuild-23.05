@@ -44,7 +44,7 @@ SOURCE_TYPE[openwrt]=0
 SOURCE_TYPE[immortalwrt]=1
 SOURCE_TYPE[coolsnowwolf]=2
 
-# 源码项目
+# 项目配置
 declare -gA SOURCE_CONFIG_ARRAY
 
 # 用户配置
@@ -52,6 +52,9 @@ declare -gA USER_CONFIG_ARRAY
 
 # 网络配置
 declare -gA NETWORK_CONFIG_ARRAY
+
+# 用户状态
+declare -gA USER_STATUS_ARRAY
 
 # 命令类型
 declare -A CMD_TYPE

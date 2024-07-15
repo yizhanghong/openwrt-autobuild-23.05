@@ -226,6 +226,19 @@ get_user_config()
 	return 0
 }
 
+# 设置用户状态
+set_user_status()
+{
+	# 等待超时
+	USER_STATUS_ARRAY["waittimeout"]=5
+	
+	# 尝试次数
+	USER_STATUS_ARRAY["retrycount"]=5
+	
+	# 自动编译
+	USER_STATUS_ARRAY["autocompile"]=0
+}
+
 # 初始用户配置
 init_user_config()
 {
@@ -292,14 +305,10 @@ init_user_config()
 		
 		# 固件路径
 		USER_CONFIG_ARRAY["firmwarepath"]=""
-		
-		# 等待超时
-		USER_CONFIG_ARRAY["waittimeout"]=5
-		
-		# 尝试次数
-		USER_CONFIG_ARRAY["retrycount"]=5
 	fi
 	
+	# 设置用户状态
+	set_user_status
 	return 0
 }
 

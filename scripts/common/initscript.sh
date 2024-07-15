@@ -32,7 +32,7 @@ exeCmdShell()
 		;;
 	${CMD_TYPE[downloadOpenWrtPackage]})
 		# 下载openwrt包
-		download_0penwrt_package $2; ret=$?
+		download_openwrt_package $2; ret=$?
 		;;
 	${CMD_TYPE[compileOpenWrtFirmware]})
 		# 编译OpenWrt固件
@@ -47,6 +47,8 @@ exeCmdShell()
 		;;
 	esac
 	
+	# 关闭自动编译状态
+	USER_STATUS_ARRAY["autocompile"]=0
 	return $ret
 }
 
