@@ -92,18 +92,14 @@ compile_openwrt_firmware()
 		if [ ${USER_CONFIG_ARRAY["mode"]} -eq ${COMPILE_MODE[remote_compile]} ]; then
 			make -j$(nproc) || make -j1 V=s
 		else
-			if [ ${USER_STATUS_ARRAY["autocompile"]} -eq 0 ]; then
-				${NETWORK_PROXY_CMD} make -j1 V=s
-			else
-				${NETWORK_PROXY_CMD} make -j$(nproc) || ${NETWORK_PROXY_CMD} make -j1 V=s
-			fi
+			${NETWORK_PROXY_CMD} make -j1 V=s
 		fi || return 1
 		 
 		return 0
 	}
 	
 	if ! execute_command_retry ${USER_STATUS_ARRAY["retrycount"]} ${USER_STATUS_ARRAY["waittimeout"]} run_make_command; then
-		print_log "ERROR" "compile firmware" "编译OpenWrt固件失败(Err:${ret}), 请检查!"
+		print_log "ERROR" "compile firmware" "编译OpenWrt固件失败, 请检查!"
 		return 1
 	fi
 	
@@ -146,7 +142,7 @@ download_openwrt_package()
 	}
 	
 	if ! execute_command_retry ${USER_STATUS_ARRAY["retrycount"]} ${USER_STATUS_ARRAY["waittimeout"]} run_make_command; then
-		print_log "ERROR" "download package" "下载OpenWrt软件包失败(Err:${ret}), 请检查!"
+		print_log "ERROR" "download package" "下载OpenWrt软件包失败, 请检查!"
 		return 1
 	fi
 
