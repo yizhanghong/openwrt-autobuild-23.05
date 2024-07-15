@@ -390,7 +390,7 @@ auto_compile_openwrt()
 	fi
 	
 	# 下载openwrt包
-	if ! download_0penwrt_package $1; then
+	if ! download_openwrt_package $1; then
 		return
 	fi
 	
