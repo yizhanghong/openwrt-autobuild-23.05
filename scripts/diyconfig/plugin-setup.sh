@@ -202,7 +202,88 @@ set_nginx_plugin()
 	}
 }
 
+# 设置插件依赖
+set_plugin_depends()
+{
+	source_type=$1
+	source_path=$2
+	
+	{
+		case ${source_type} in
+		${SOURCE_TYPE[openwrt]} | ${SOURCE_TYPE[immortalwrt]})
+			# 设置light插件
+			set_light_plugin ${source_path}
+			;;
+		${SOURCE_TYPE[coolsnowwolf]})
+			# 设置uhttpd插件依赖
+			set_uhttpd_plugin ${source_path}
+			;;
+		*)
+			;;	
+		esac
+		
+		# 设置bootstrap插件
+		set_bootstrap_plugin ${source_path}
+	}
+}
+
+# 设置插件UI 
+set_plugin_webui()
+{
+	source_type=$1
+	source_path=$2
+	
+	# upnp插件
+	{
+		case ${source_type} in
+		${SOURCE_TYPE[openwrt]} | ${SOURCE_TYPE[immortalwrt]})
+			file="${source_path}/feeds/luci/applications/luci-app-upnp/root/usr/share/luci/menu.d/luci-app-upnp.json"
+			if [ -e ${file} ]; then
+				sed -i 's/services/network/g' ${file}
+			fi
+			;;
+		*)
+			;;	
+		esac
+	}
+}
+
 #********************************************************************************#
+# 下载插件
+download_user_plugin()
+{
+	source_path=$
+	plugins_path=$2
+	
+	if [ ${USER_STATUS_ARRAY["autocompile"]} -eq 0 ]; then
+		if ! input_prompt_confirm "是否需要下载用户插件?"; then
+			return
+		fi
+	fi
+	
+	# other package
+	download_other_package ${source_path} ${plugins_path}
+	
+	# golang
+	download_golang ${source_path}
+}
+
+# 设置插件配置
+set_plugin_config()
+{
+	source_type=$1
+	source_path=$2
+	
+	# 设置nginx插件
+	set_nginx_plugin ${source_path}
+	
+	# 设置插件依赖
+	set_plugin_depends ${source_type} ${source_path}
+	
+	# 设置插件UI
+	set_plugin_webui ${source_type} ${source_path}
+}
+
 # 设置自定义插件
 set_user_plugins()
 {
@@ -210,9 +291,9 @@ set_user_plugins()
 	source_path=$2
 	plugins_path=$3
 	
-	# other package
-	download_other_package ${source_path} ${plugins_path}
+	# 下载插件
+	download_user_plugin ${source_path} ${plugins_path}
 	
-	# golang
-	download_golang ${source_path}
+	# 设置插件配置
+	set_plugin_config ${source_type} ${source_path}
 }

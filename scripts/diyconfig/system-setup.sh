@@ -172,87 +172,91 @@ set_compile_option()
 	}
 }
 
-# 设置插件依赖
-set_plugin_depends()
+# 设置PWM FAN
+set_pwm_fan()
 {
 	source_type=$1
 	source_path=$2
 	
 	{
-		case ${source_type} in
-		${SOURCE_TYPE[openwrt]} | ${SOURCE_TYPE[immortalwrt]})
-			# 设置light插件
-			set_light_plugin ${source_path}
-			;;
-		${SOURCE_TYPE[coolsnowwolf]})
-			# 设置uhttpd插件依赖
-			set_uhttpd_plugin ${source_path}
-			;;
-		*)
-			;;	
-		esac
+		# fa-rk3328-pwmfan
+		path="${source_path}/target/linux/rockchip/armv8/base-files/etc/init.d/"
+		file="${path}/fa-rk3328-pwmfan"
 		
-		# 设置bootstrap插件
-		set_bootstrap_plugin ${source_path}
+		url="https://github.com/friendlyarm/friendlywrt/raw/master-v19.07.1/target/linux/rockchip-rk3328/base-files/etc/init.d/fa-rk3328-pwmfan"
+		if [ ! -f "${file}" ]; then
+			${NETWORK_PROXY_CMD} wget -P ${path} ${url}
+		fi
+		
+		# start-rk3328-pwm-fan.sh
+		path="${source_path}/target/linux/rockchip/armv8/base-files/usr/bin/"
+		file="${path}/start-rk3328-pwm-fan.sh"
+		
+		url="https://github.com/friendlyarm/friendlywrt/raw/master-v19.07.1/target/linux/rockchip-rk3328/base-files/usr/bin/start-rk3328-pwm-fan.sh"
+		if [ ! -f "${file}" ]; then
+			${NETWORK_PROXY_CMD} wget -P ${path} ${url}
+		fi
 	}
-}
-
-# 设置插件UI 
-set_plugin_webui()
-{
-	source_type=$1
-	source_path=$2
 	
-	# upnp插件
 	{
-		case ${source_type} in
-		${SOURCE_TYPE[openwrt]} | ${SOURCE_TYPE[immortalwrt]})
-			file="${source_path}/feeds/luci/applications/luci-app-upnp/root/usr/share/luci/menu.d/luci-app-upnp.json"
-			if [ -e ${file} ]; then
-				sed -i 's/services/network/g' ${file}
-			fi
-			;;
-		*)
-			;;	
-		esac
+		file="${source_path}/package/base-files/files/etc/uci-defaults/99-defaults-settings"
+	
+		cat >> ${file} <<-EOF
+		
+		if [ -f "/etc/init.d/fa-rk3328-pwmfan" ]; then
+		    chmod 777 /etc/init.d/fa-rk3328-pwmfan
+		fi
+		
+		if [ -f "/usr/bin/start-rk3328-pwm-fan.sh" ]; then
+		    chmod 777 /usr/bin/start-rk3328-pwm-fan.sh
+		fi
+		
+		EOF
 	}
 }
 
 #********************************************************************************#
+# 设置系统配置
+set_system_config()
+{
+	source_type=$1
+	source_path=$2
+	
+	# 设置用户密码
+	set_user_passwd ${source_path}
+	
+	# 设置默认中文
+	set_default_chinese ${source_path}
+	
+	# 设置时区
+	set_system_timezone ${source_path}
+	
+	# 设置主机名称
+	set_host_name ${source_type} ${source_path}
+	
+	# 设置默认编译
+	set_compile_option ${source_type} ${source_path}
+}
+
+# 设置系统脚本
+set_system_script()
+{
+	source_type=$1
+	source_path=$2
+	
+	# 设置PWM FAN
+	set_pwm_fan ${source_type} ${source_path}
+}
+
 # 设置自定义配置
 set_user_config()
 {
 	source_type=$1
 	source_path=$2
+
+	# 设置系统配置
+	set_system_config ${source_type} ${source_path}
 	
-	{
-		# 设置用户密码
-		set_user_passwd ${source_path}
-		
-		# 设置默认中文
-		set_default_chinese ${source_path}
-		
-		# 设置时区
-		set_system_timezone ${source_path}
-		
-		# 设置主机名称
-		set_host_name ${source_type} ${source_path}
-	}
-	
-	{
-		# 设置默认主题
-		set_default_themes ${source_type} ${source_path}
-		
-		# 设置默认编译
-		set_compile_option ${source_type} ${source_path}
-		
-		# 设置nginx插件
-		set_nginx_plugin ${source_path}
-	}
-	
-	# 设置插件依赖
-	set_plugin_depends ${source_type} ${source_path}
-	
-	# 设置插件UI
-	set_plugin_webui ${source_type} ${source_path}
+	# 设置系统脚本
+	set_system_script ${source_type} ${source_path}
 }

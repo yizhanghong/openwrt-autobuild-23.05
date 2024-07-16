@@ -75,6 +75,33 @@ set_default_themes()
 }
 
 #********************************************************************************#
+# 下载用户主题
+download_user_themes()
+{
+	source_type=$1
+	source_path=$2
+	plugins_path=$3
+	
+	if [ ${USER_STATUS_ARRAY["autocompile"]} -eq 0 ]; then
+		if ! input_prompt_confirm "是否需要下载用户主题?"; then
+			return
+		fi
+	fi
+	
+	# 下载 argon 主题
+	download_themes_argon ${source_type} ${source_path} ${plugins_path}
+}
+
+# 设置主题配置
+set_themes_config()
+{
+	source_type=$1
+	source_path=$2
+	
+	# 设置默认主题
+	set_default_themes ${source_type} ${source_path}
+}
+
 # 设置自定义主题
 set_user_themes()
 {
@@ -82,6 +109,9 @@ set_user_themes()
 	source_path=$2
 	plugins_path=$3
 	
-	# argon主题
-	download_themes_argon ${source_type} ${source_path} ${plugins_path}
+	# 下载用户主题
+	download_user_themes ${source_type} ${source_path} ${plugins_path}
+	
+	# 设置主题配置
+	set_themes_config ${source_type} ${source_path}
 }
