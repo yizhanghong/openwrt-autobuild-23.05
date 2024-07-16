@@ -178,6 +178,7 @@ set_pwm_fan()
 	source_type=$1
 	source_path=$2
 	
+	print_log "INFO" "custom config" "[设置PWM风扇]"
 	{
 		# fa-rk3328-pwmfan
 		path="${source_path}/target/linux/rockchip/armv8/base-files/etc/init.d/"
@@ -215,6 +216,23 @@ set_pwm_fan()
 	}
 }
 
+#  设置系统功能
+set_system_func()
+{
+	source_type=$1
+	source_path=$2
+	
+	# irqbalance 
+	{
+		file="${source_path}/feeds/packages/utils/irqbalance/files/irqbalance.config"
+		print_log "INFO" "custom config" "[设置irqbalance]"
+		
+		if [ -f "${file}" ]; then
+			sed -i "s/enabled '0'/enabled '1'/g" ${file}
+		fi
+	}
+}
+
 #********************************************************************************#
 # 设置系统配置
 set_system_config()
@@ -246,6 +264,9 @@ set_system_script()
 	
 	# 设置PWM FAN
 	set_pwm_fan ${source_type} ${source_path}
+	
+	#  设置系统功能
+	set_system_func ${source_type} ${source_path}
 }
 
 # 设置自定义配置
