@@ -180,36 +180,39 @@ set_pwm_fan()
 	
 	print_log "INFO" "custom config" "[设置PWM风扇]"
 	{
-		# fa-rk3328-pwmfan
+		# rk3328-pwmfan
 		path="${source_path}/target/linux/rockchip/armv8/base-files/etc/init.d/"
-		file="${path}/fa-rk3328-pwmfan"
-		
-		url="https://github.com/friendlyarm/friendlywrt/raw/master-v19.07.1/target/linux/rockchip-rk3328/base-files/etc/init.d/fa-rk3328-pwmfan"
-		if [ ! -f "${file}" ]; then
-			${NETWORK_PROXY_CMD} wget -P ${path} ${url}
+		if [ ! -f "${path}/rk3328-pwmfan" ]; then
+			if [ ! -f "${OPENWRT_CONFIG_PATH}/pwm-fan/rk3328-pwmfan" ]; then
+				url="https://github.com/friendlyarm/friendlywrt/raw/master-v19.07.1/target/linux/rockchip-rk3328/base-files/etc/init.d/fa-rk3328-pwmfan"
+				${NETWORK_PROXY_CMD} wget -P "${path}" -O "${path}/rk3328-pwmfan" "${url}"
+			else
+				cp -rf "${OPENWRT_CONFIG_PATH}/pwm-fan/rk3328-pwmfan"  "${path}"
+			fi
 		fi
 		
-		# start-rk3328-pwm-fan.sh
+		# rk3328-pwm-fan.sh
 		path="${source_path}/target/linux/rockchip/armv8/base-files/usr/bin/"
-		file="${path}/start-rk3328-pwm-fan.sh"
-		
-		url="https://github.com/friendlyarm/friendlywrt/raw/master-v19.07.1/target/linux/rockchip-rk3328/base-files/usr/bin/start-rk3328-pwm-fan.sh"
-		if [ ! -f "${file}" ]; then
-			${NETWORK_PROXY_CMD} wget -P ${path} ${url}
+		if [ ! -f "${path}/rk3328-pwm-fan.sh" ]; then
+			if [ ! -f "${OPENWRT_CONFIG_PATH}/pwm-fan/rk3328-pwm-fan.sh" ]; then
+				url="https://github.com/friendlyarm/friendlywrt/raw/master-v19.07.1/target/linux/rockchip-rk3328/base-files/usr/bin/start-rk3328-pwm-fan.sh"
+				${NETWORK_PROXY_CMD} wget -P "${path}" -O "${path}/rk3328-pwm-fan.sh" "${url}"
+			else
+				cp -rf "${OPENWRT_CONFIG_PATH}/pwm-fan/rk3328-pwm-fan.sh"  "${path}"
+			fi
 		fi
 	}
 	
 	{
 		file="${source_path}/package/base-files/files/etc/uci-defaults/99-defaults-settings"
-	
 		cat >> ${file} <<-EOF
 		
-		if [ -f "/etc/init.d/fa-rk3328-pwmfan" ]; then
-		    chmod 777 /etc/init.d/fa-rk3328-pwmfan
+		if [ -f "/etc/init.d/rk3328-pwmfan" ]; then
+		    chmod 777 /etc/init.d/rk3328-pwmfan
 		fi
 		
-		if [ -f "/usr/bin/start-rk3328-pwm-fan.sh" ]; then
-		    chmod 777 /usr/bin/start-rk3328-pwm-fan.sh
+		if [ -f "/usr/bin/rk3328-pwm-fan.sh" ]; then
+		    chmod 777 /usr/bin/rk3328-pwm-fan.sh
 		fi
 		
 		EOF
