@@ -293,18 +293,6 @@ init_user_config()
 		
 		# 插件名称
 		USER_CONFIG_ARRAY["plugins"]="wl"
-		
-		# 版本号
-		USER_CONFIG_ARRAY["versionnum"]=""
-		
-		# 设备名称
-		USER_CONFIG_ARRAY["devicename"]=""
-		
-		# 固件名称
-		USER_CONFIG_ARRAY["firmwarename"]=""
-		
-		# 固件路径
-		USER_CONFIG_ARRAY["firmwarepath"]=""
 	fi
 	
 	# 设置用户状态
@@ -315,42 +303,49 @@ init_user_config()
 # 获取固件信息
 get_firmware_info()
 {
-	local -n local_source_array="$1"
-	local local_source_path="$2"
+	# 源码数组
+	local -n set_source_array="$1"
 	
-	source_name=${local_source_array["Name"]}
+	# 传出结果数组
+	local -n result=$2
+	
+	# 清空结果数组
+	result=()
+	
 	source_path=${local_source_array["Path"]}
-	if [ -z "${source_name}" ] || [ -z "${source_path}" ]; then
-		print_log "ERROR" "custom config" "获取源码路径失败, 请检查!"
+	source_type=${local_source_array["Type"]}
+	
+	# 缺省配置文件
+	defaultconf="${USER_CONFIG_ARRAY["defaultconf"]}"
+	if [ ! -f "${source_path}/${defaultconf}" ]; then
+		print_log "ERROR" "custom config" "配置文件不存在, 请检查!"
 		return 1
 	fi
 	
-	defaultconf="${USER_CONFIG_ARRAY["defaultconf"]}"
-	
 	# 获取版本号
-	if [ "${source_name}" == "coolsnowwolf" ]; then
-		USER_CONFIG_ARRAY["versionnum"]=$(sed -n "s/echo \"DISTRIB_REVISION='\([^\']*\)'.*$/\1/p" ${source_path}/package/lean/default-settings/files/zzz-default-settings)
+	if [ ${source_type} -eq ${SOURCE_TYPE[coolsnowwolf]} ]; then
+		file="${source_path}/package/lean/default-settings/files/zzz-default-settings"
+		if [ -e ${file} ]; then
+			result["versionnum"]=$(sed -n "s/echo \"DISTRIB_REVISION='\([^\']*\)'.*$/\1/p" $file)
+		fi
 	fi
 	
 	# 获取设备名称
-	if [ -e "${source_path}/${defaultconf}" ]; then
-		USER_CONFIG_ARRAY["devicename"]=$(grep '^CONFIG_TARGET.*DEVICE.*=y' ${source_path}/.config | sed -r 's/.*DEVICE_(.*)=y/\1/')
-	fi
+	result["devicename"]=$(grep '^CONFIG_TARGET.*DEVICE.*=y' ${source_path}/${defaultconf} | sed -r 's/.*DEVICE_(.*)=y/\1/')
 	
 	# 获取固件名称
 	file_date=$(date +"%Y%m%d%H%M")
-	if [ -z "${USER_CONFIG_ARRAY["devicename"]}" ]; then
-		USER_CONFIG_ARRAY["firmwarename"]="openwrt_firmware_${file_date}"
+	if [ -z "${result["devicename"]}" ]; then
+		result["firmwarename"]="openwrt_firmware_${file_date}"
 	else
-		USER_CONFIG_ARRAY["firmwarename"]="openwrt_firmware_${USER_CONFIG_ARRAY["devicename"]}_${file_date}"
+		result["firmwarename"]="openwrt_firmware_${result["devicename"]}_${file_date}"
 	fi
 	
-	if [ -n "${USER_CONFIG_ARRAY["versionnum"]}" ]; then
-		firmwarename="${USER_CONFIG_ARRAY["firmwarename"]}_${USER_CONFIG_ARRAY["versionnum"]}"
-		USER_CONFIG_ARRAY["firmwarename"]="${firmwarename}"
+	if [ -n "${result["versionnum"]}" ]; then
+		firmwarename="${result["firmwarename"]}_${result["versionnum"]}"
+		result["firmwarename"]="${firmwarename}"
 	fi
 	
-	local_source_path=${source_path}
 	return 0
 }
 

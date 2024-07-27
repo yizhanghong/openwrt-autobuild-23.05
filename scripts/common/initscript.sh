@@ -63,10 +63,10 @@ setCmdMenu()
 	
 	clear
 	while [ 1 ]; do
-		local -n source_array1="$1"
+		local -n cmd_source_array="$1"
 		
 		# 显示命令目录
-		show_cmd_menu cmd_array[@] source_array1
+		show_cmd_menu cmd_array[@] cmd_source_array
 		
 		# 获取用户输入
 		index=`input_user_index`
@@ -81,7 +81,7 @@ setCmdMenu()
 		[ $index -eq 0 ] && { ret=0; break; }
 		
 		# 执行命令功能
-		exeCmdShell ${index} source_array1
+		exeCmdShell ${index} cmd_source_array
 		
 		if [ $? -ne 0 ]; then
 			pause "press any key to continue..."

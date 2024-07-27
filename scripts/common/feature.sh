@@ -118,7 +118,7 @@ execute_command_retry()
 	return 0
 }
 
-#  打印日志信息
+# 打印日志信息
 print_log()
 {
 	if [ "$#" -lt 3 ] || [ -z "$1" ]; then
