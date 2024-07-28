@@ -24,7 +24,11 @@ set_openwrt_plugins()
 	fi
 	
 	# 设置自定义插件
-	set_user_plugins ${source_type} ${source_path} ${plugins_path}
+	if ! set_user_plugins ${source_type} ${source_path} ${plugins_path}; then
+		return 1
+	fi
+
+	return 0
 }
 
 # 自定义主题
@@ -43,7 +47,11 @@ set_openwrt_themes()
 	fi
 	
 	# 设置自定义主题
-	set_user_themes ${source_type} ${source_path} ${plugins_path}
+	if ! set_user_themes ${source_type} ${source_path} ${plugins_path}; then
+		return 1
+	fi
+	
+	return 0
 }
 
 # 自定义配置
@@ -233,7 +241,7 @@ set_user_status()
 	USER_STATUS_ARRAY["waittimeout"]=5
 	
 	# 尝试次数
-	USER_STATUS_ARRAY["retrycount"]=5
+	USER_STATUS_ARRAY["retrycount"]=2
 	
 	# 自动编译
 	USER_STATUS_ARRAY["autocompile"]=0

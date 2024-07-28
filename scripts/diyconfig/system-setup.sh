@@ -194,6 +194,9 @@ set_pwm_fan()
 		# rk3328-pwm-fan.sh
 		path="${source_path}/target/linux/rockchip/armv8/base-files/usr/bin/"
 		if [ ! -f "${path}/rk3328-pwm-fan.sh" ]; then
+			# 创建目录
+			mkdir -p ${path}
+			
 			if [ ! -f "${OPENWRT_CONFIG_PATH}/pwm-fan/rk3328-pwm-fan.sh" ]; then
 				url="https://github.com/friendlyarm/friendlywrt/raw/master-v19.07.1/target/linux/rockchip-rk3328/base-files/usr/bin/start-rk3328-pwm-fan.sh"
 				${NETWORK_PROXY_CMD} wget -P "${path}" -O "${path}/rk3328-pwm-fan.sh" "${url}"

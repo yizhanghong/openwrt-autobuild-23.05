@@ -7,18 +7,21 @@ download_other_package()
 	source_path=$1
 	plugins_path=$2
 	
-	{
-		print_log "INFO" "custom config" "获取otherpackage仓库代码..."
+	print_log "INFO" "custom config" "获取otherpackage仓库代码..."
 		
-		local user_array=("${plugins_path}")
-		remove_plugin_package "other_config" "${source_path}/package" "${OPENWRT_PLUGIN_FILE}" user_array
-		
-		user_array=()
-		remove_plugin_package "other_config" "${source_path}/feeds" "${OPENWRT_PLUGIN_FILE}" user_array
+	local user_array=("${plugins_path}")
+	remove_plugin_package "other_config" "${source_path}/package" "${OPENWRT_PLUGIN_FILE}" user_array
 	
-		url="https://github.com/lysgwl/openwrt-package.git/otherpackage?ref=master"	
-		get_remote_spec_contents "$url" "other" ${plugins_path} ${NETWORK_PROXY_CMD}
-	}
+	user_array=()
+	remove_plugin_package "other_config" "${source_path}/feeds" "${OPENWRT_PLUGIN_FILE}" user_array
+
+	url="https://github.com/lysgwl/openwrt-package.git/otherpackage?ref=master"	
+	if ! get_remote_spec_contents "$url" "other" ${plugins_path} ${NETWORK_PROXY_CMD}; then
+		print_log "ERROR" "custom config" "获取otherpackage仓库代码失败, 请检查!"
+		return 1
+	fi
+	
+	return 0
 }
 
 # 下载golang
@@ -26,58 +29,61 @@ download_golang()
 {
 	source_path=$1
 	
-	{
-		rm -rf ${source_path}/feeds/packages/lang/golang
-		print_log "INFO" "custom config" "获取golang仓库代码..."
-		
-		url="https://github.com/sbwml/packages_lang_golang.git?ref=22.x"
-		clone_repo_contents "$url" "${source_path}/feeds/packages/lang/golang" ${NETWORK_PROXY_CMD}
-	}
+	rm -rf ${source_path}/feeds/packages/lang/golang
+	print_log "INFO" "custom config" "获取golang仓库代码..."
+	
+	url="https://github.com/sbwml/packages_lang_golang.git?ref=22.x"
+	if ! clone_repo_contents "$url" "${source_path}/feeds/packages/lang/golang" ${NETWORK_PROXY_CMD}; then
+		print_log "ERROR" "custom config" "获取golang仓库代码失败, 请检查!"
+		return 1
+	fi
+	
+	return 0
 }
 
 # 下载shidahuilang package
 download_shidahuilang_package()
 {
 	plugins_path=$1
-	
-	{
-		print_log "INFO" "custom config" "获取shidahuilang仓库代码..."
+	print_log "INFO" "custom config" "获取shidahuilang仓库代码..."
 		
-		if [ ! -d "${plugins_path}/shidahuilang" ] || [ -z "$(ls -A "${plugins_path}/shidahuilang")" ]; then
-			url="https://github.com/lysgwl/openwrt-package.git/shidahuilang?ref=master"
-			get_remote_spec_contents "$url" ${plugins_path} ${NETWORK_PROXY_CMD}
-		fi
-	}
+	url="https://github.com/lysgwl/openwrt-package.git/shidahuilang?ref=master"
+	if ! get_remote_spec_contents "$url" ${plugins_path} ${NETWORK_PROXY_CMD}; then
+		print_log "ERROR" "custom config" "获取shidahuilang仓库代码失败, 请检查!"
+		return 1
+	fi
+	
+	return 0
 }
 
 # 下载kiddin9 package
 download_kiddin9_package()
 {
 	plugins_path=$1
-	
-	{
-		print_log "INFO" "custom config" "获取kiddin9仓库代码..."
+	print_log "INFO" "custom config" "获取kiddin9仓库代码..."
 		
-		if [ ! -d "${plugins_path}/kiddin9" ] || [ -z "$(ls -A "${plugins_path}/kiddin9")" ]; then
-			url="https://github.com/lysgwl/openwrt-package.git/kiddin9/master?ref=master"
-			get_remote_spec_contents "$url" ${plugins_path} ${NETWORK_PROXY_CMD}
-		fi
-	}
+	url="https://github.com/lysgwl/openwrt-package.git/kiddin9/master?ref=master"
+	if ! get_remote_spec_contents "$url" ${plugins_path} ${NETWORK_PROXY_CMD}; then
+		print_log "ERROR" "custom config" "获取kiddin9仓库代码失败, 请检查!"
+		return 1
+	fi
+		
+	return 0		
 }
 
 # 下载siropboy package
 download_siropboy_package()
 {
 	plugins_path=$1
-	
-	{
-		print_log "INFO" "custom config" "获取sirpdboy-package仓库代码..."
+	print_log "INFO" "custom config" "获取sirpdboy-package仓库代码..."
 		
-		if [ ! -d "${plugins_path}/sirpdboy-package" ] || [ -z "$(ls -A "${plugins_path}/sirpdboy-package")" ]; then
-			url="https://github.com/sirpdboy/sirpdboy-package.git?ref=main"
-			clone_repo_contents "$url" "${plugins_path}" ${NETWORK_PROXY_CMD}
-		fi
-	}
+	url="https://github.com/sirpdboy/sirpdboy-package.git?ref=main"
+	if ! clone_repo_contents "$url" "${plugins_path}" ${NETWORK_PROXY_CMD}; then
+		print_log "ERROR" "custom config" "获取sirpdboy-package仓库代码失败, 请检查!"
+		return 1
+	fi
+	
+	return 0
 }
 
 #********************************************************************************#
@@ -252,20 +258,26 @@ set_plugin_webui()
 # 下载插件
 download_user_plugin()
 {
-	source_path=$
+	source_path=$1
 	plugins_path=$2
 	
 	if [ ${USER_STATUS_ARRAY["autocompile"]} -eq 0 ]; then
 		if ! input_prompt_confirm "是否需要下载用户插件?"; then
-			return
+			return 0
 		fi
 	fi
 	
 	# other package
-	download_other_package ${source_path} ${plugins_path}
-	
+	if ! download_other_package ${source_path} ${plugins_path}; then
+		return 1
+	fi
+
 	# golang
-	download_golang ${source_path}
+	if ! download_golang ${source_path}; then
+		return 1
+	fi
+	
+	return 0
 }
 
 # 设置插件配置
@@ -292,8 +304,12 @@ set_user_plugins()
 	plugins_path=$3
 	
 	# 下载插件
-	download_user_plugin ${source_path} ${plugins_path}
+	if ! download_user_plugin ${source_path} ${plugins_path}; then
+		return 1
+	fi
 	
 	# 设置插件配置
 	set_plugin_config ${source_type} ${source_path}
+	
+	return 0
 }

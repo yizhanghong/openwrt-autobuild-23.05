@@ -254,11 +254,15 @@ set_custom_config()
 	print_log "TRACE" "custom config" "正在设置自定义配置，请等待..."
 
 	# 增加第三方插件
-	set_openwrt_plugins $1
+	if ! set_openwrt_plugins $1; then
+		return 1
+	fi
 	
 	# 增加自定义主题
-	set_openwrt_themes $1
-	
+	if ! set_openwrt_themes $1; then
+		return 1
+	fi
+
 	# 设置openwrt缺省配置
 	set_openwrt_config $1
 	
@@ -355,7 +359,7 @@ clone_openwrt_source()
 	# 获取路径
 	path=${local_source_array["Path"]}
 	
-	if [ -z "${url}" ] || [ -z "${branch}" ] || [ -z "${path}" ]; then
+	if [ -z "${url}" ] || [ -z "${path}" ]; then
 		print_log "ERROR" "clone sources" "获取源码路径失败, 请检查!"
 		return 1
 	fi
@@ -363,7 +367,12 @@ clone_openwrt_source()
 	if [ ! -d "${path}" ]; then
 		print_log "INFO" "clone sources" "克隆源码文件!"
 		
-		command="${NETWORK_PROXY_CMD} git clone ${url} -b ${branch} --depth=1 ${path}"
+		if [ -n "${branch}" ]; then
+			command="${NETWORK_PROXY_CMD} git clone ${url} -b ${branch} --depth=1 ${path}"
+		else
+			command="${NETWORK_PROXY_CMD} git clone ${url} --depth=1 ${path}"
+		fi
+		
 		if ! execute_command_retry ${USER_STATUS_ARRAY["retrycount"]} ${USER_STATUS_ARRAY["waittimeout"]} "${command}"; then
 			print_log "ERROR" "clone sources" "Git获取源码失败, 请检查!"
 			return 1
@@ -396,17 +405,17 @@ auto_compile_openwrt()
 	
 	# 克隆openwrt源码
 	if ! clone_openwrt_source $1; then
-		return
+		return 1
 	fi
 	
 	# 设置 openwrt feeds源
 	if ! set_openwrt_feeds $1; then
-		return
+		return 1
 	fi
 	
 	# 更新 openwrt feeds源
 	if ! update_openwrt_feeds $1; then
-		return
+		return 1
 	fi
 	
 	# 设置自定义配置
@@ -414,19 +423,21 @@ auto_compile_openwrt()
 	
 	# 设置功能选项
 	if ! set_menu_options $1; then
-		return
+		return 1
 	fi
 	
 	# 下载openwrt包
 	if ! download_openwrt_package $1; then
-		return
+		return 1
 	fi
 	
 	# 编译openwrt源码
 	if ! compile_openwrt_firmware $1; then
-		return
+		return 1
 	fi
 	
 	# 获取OpenWrt固件
 	get_openwrt_firmware $1
+	
+	return 0
 }

@@ -19,7 +19,10 @@ download_themes_argon()
 			url="https://github.com/jerrykuku/luci-theme-argon.git?ref=18.06"
 		fi
 		
-		clone_repo_contents $url "${plugins_path}/luci-theme-argon" ${NETWORK_PROXY_CMD}
+		if ! clone_repo_contents $url "${plugins_path}/luci-theme-argon" ${NETWORK_PROXY_CMD}; then
+			print_log "ERROR" "custom config" "获取luci-theme-argons仓库代码失败, 请检查!"
+			return 1
+		fi
 	}
 	
 	# luci-theme-argon-config
@@ -33,8 +36,13 @@ download_themes_argon()
 			url="https://github.com/jerrykuku/luci-app-argon-config.git?ref=18.06"
 		fi
 		
-		clone_repo_contents $url "${plugins_path}/luci-theme-argon-config" ${NETWORK_PROXY_CMD}
+		if ! clone_repo_contents $url "${plugins_path}/luci-theme-argon-config" ${NETWORK_PROXY_CMD}; then
+			print_log "ERROR" "custom config" "获取luci-theme-argon-config仓库代码失败, 请检查!"
+			return 1
+		fi
 	}
+	
+	return 0
 }
 
 # 下载 edge主题
@@ -49,8 +57,13 @@ download_themes_edge()
 		print_log "INFO" "custom config" "获取luci-theme-edge仓库代码..."
 		
 		url="https://github.com/kiddin9/luci-theme-edge.git?ref=18.06"
-		clone_repo_contents $url "${plugins_path}/luci-theme-edge" ${NETWORK_PROXY_CMD}
+		if ! clone_repo_contents $url "${plugins_path}/luci-theme-edge" ${NETWORK_PROXY_CMD}; then
+			print_log "ERROR" "custom config" "获取luci-theme-edge仓库代码失败, 请检查!"
+			return 1
+		fi
 	}
+	
+	return 0
 }
 
 #********************************************************************************#
@@ -84,12 +97,16 @@ download_user_themes()
 	
 	if [ ${USER_STATUS_ARRAY["autocompile"]} -eq 0 ]; then
 		if ! input_prompt_confirm "是否需要下载用户主题?"; then
-			return
+			return 0
 		fi
 	fi
 	
 	# 下载 argon 主题
-	download_themes_argon ${source_type} ${source_path} ${plugins_path}
+	if ! download_themes_argon ${source_type} ${source_path} ${plugins_path}; then
+		return 1
+	fi
+	
+	return 0
 }
 
 # 设置主题配置
@@ -110,8 +127,12 @@ set_user_themes()
 	plugins_path=$3
 	
 	# 下载用户主题
-	download_user_themes ${source_type} ${source_path} ${plugins_path}
+	if ! download_user_themes ${source_type} ${source_path} ${plugins_path}; then
+		return 1
+	fi
 	
 	# 设置主题配置
 	set_themes_config ${source_type} ${source_path}
+	
+	return 0
 }
