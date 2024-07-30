@@ -342,17 +342,17 @@ get_firmware_info()
 	result["devicename"]=$(grep '^CONFIG_TARGET.*DEVICE.*=y' ${source_path}/${defaultconf} | sed -r 's/.*DEVICE_(.*)=y/\1/')
 	
 	# 获取固件名称
-	file_date=$(date +"%Y%m%d%H%M")
-	if [ -z "${result["devicename"]}" ]; then
-		result["firmwarename"]="openwrt_firmware_${file_date}"
-	else
-		result["firmwarename"]="openwrt_firmware_${result["devicename"]}_${file_date}"
+	result["firmwarename"]="openwrt"
+	if [ -n "${result["versionnum"]}" ]; then
+		result["firmwarename"]="${result["firmwarename"]}-${result["versionnum"]}"
 	fi
 	
-	if [ -n "${result["versionnum"]}" ]; then
-		firmwarename="${result["firmwarename"]}_${result["versionnum"]}"
-		result["firmwarename"]="${firmwarename}"
+	if [ -n "${result["devicename"]}" ]; then
+		result["firmwarename"]="${result["firmwarename"]}-${result["devicename"]}"
 	fi
+	
+	file_date=$(date +"%Y%m%d%H%M")
+	result["firmwarename"]="${result["firmwarename"]}-${file_date}"
 	
 	return 0
 }
