@@ -320,8 +320,8 @@ get_firmware_info()
 	# 清空结果数组
 	result=()
 	
-	source_path=${local_source_array["Path"]}
-	source_type=${local_source_array["Type"]}
+	source_path=${set_source_array["Path"]}
+	source_type=${set_source_array["Type"]}
 	
 	# 缺省配置文件
 	defaultconf="${USER_CONFIG_ARRAY["defaultconf"]}"
@@ -334,33 +334,40 @@ get_firmware_info()
 	if [ ${source_type} -eq ${SOURCE_TYPE[coolsnowwolf]} ]; then
 		file="${source_path}/package/lean/default-settings/files/zzz-default-settings"
 		if [ -e ${file} ]; then
-			result["versionnum"]=$(sed -n "s/echo \"DISTRIB_REVISION='\([^\']*\)'.*$/\1/p" $file)
+			version_num=$(sed -n "s/echo \"DISTRIB_REVISION='\([^\']*\)'.*$/\1/p" $file)
 		fi
 	else
 		file="${source_path}/include/version.mk"
 		if [ -e ${file} ]; then
 			line=$(awk -F ':=' '/^VERSION_NUMBER:/ {line=$2} END {print line}' $file)
 			if [ -n "${line}" ]; then
-				result["versionnum"]=$(echo $line | sed -E 's/.*\(([^,]+),[^,]+,([^)]*)\).*/\2/')
+				version_num=$(echo $line | sed -E 's/.*\(([^,]+),[^,]+,([^)]*)\).*/\2/')
 			fi
 		fi
 	fi
 	
 	# 获取设备名称
-	result["devicename"]=$(grep '^CONFIG_TARGET.*DEVICE.*=y' ${source_path}/${defaultconf} | sed -r 's/.*DEVICE_(.*)=y/\1/')
-	
-	# 获取固件名称
-	result["firmwarename"]="openwrt"
-	if [ -n "${result["versionnum"]}" ]; then
-		result["firmwarename"]="${result["firmwarename"]}-${result["versionnum"]}"
-	fi
-	
-	if [ -n "${result["devicename"]}" ]; then
-		result["firmwarename"]="${result["firmwarename"]}-${result["devicename"]}"
-	fi
-	
-	file_date=$(date +"%Y%m%d%H%M")
-	result["firmwarename"]="${result["firmwarename"]}-${file_date}"
+	while IFS= read -r line; do
+		if [[ ! $line =~ ^CONFIG_TARGET.*DEVICE.*=y ]]; then
+			continue
+		fi
+		
+		device_name=$(echo "$line" | sed -r 's/.*DEVICE_(.*)=y/\1/')
+		if [ -z "${device_name}" ]; then
+			continue
+		fi
+		
+		# 获取固件名称
+		firmware_name="openwrt"
+		if [ -n "${version_num}" ]; then
+			firmware_name="${firmware_name}-${version_num}"
+		fi
+		
+		file_date=$(date +"%Y%m%d%H%M")
+		firmware_name="${firmware_name}-${device_name}-${file_date}"
+		
+		result+=("${device_name}:${firmware_name}")
+	done < "${source_path}/${defaultconf}"
 	
 	return 0
 }

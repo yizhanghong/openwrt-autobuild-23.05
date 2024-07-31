@@ -16,48 +16,35 @@ get_openwrt_firmware()
 		return 1
 	fi
 	
-	# 获取固件信息
-	declare -A fields_array
-	if ! get_firmware_info local_source_array fields_array; then
+	if [ ! -d "${path}/bin/targets" ] || ! find "${path}/bin/targets/" -mindepth 2 -maxdepth 2 -type d -name '*' | grep -q '.'; then
+		print_log "ERROR" "compile firmware" "固件目录不存在, 请检查!"
 		return 1
 	fi
 	
-	if ! find "${path}/bin/targets/" -mindepth 2 -maxdepth 2 -type d -name '*' | grep -q '.'; then
-		print_log "ERROR" "compile firmware" "固件目录不存在, 请检查!"
-		return
+	# 获取固件信息
+	fields_array=()
+	if ! get_firmware_info local_source_array fields_array; then
+		return 1
 	fi
 	
 	# 进入固件目录
 	cd ${source_path}/bin/targets/*/*
 	
-	# 设备名称
-	OPENWRT_DEVICE_NAME="${fields_array["devicename"]}"
+	if [ ! -n "$(find . -mindepth 1)" ]; then
+		print_log "ERROR" "compile firmware" "固件目录为空, 请检查!"
+		return 1
+	fi
 	
-	# 固件生成名称
-	OPENWRT_FIRMWARE_NAME="${fields_array["firmwarename"]}"
-	
-	# 固件生成路径
-	OPENWRT_FIRMWARE_PATH="$PWD"
-	
-	if [ ${USER_CONFIG_ARRAY["mode"]} -eq ${COMPILE_MODE[remote_compile]} ]; then
-		rm -rf packages
-	else
-		if [ ! -n "$(find . -mindepth 1)" ]; then
-			print_log "ERROR" "compile firmware" "固件目录为空, 请检查!"
-			return 1
-		fi
+	for value in "${fields_array[@]}"; do
+		IFS=':' read -r device_name firmware_name <<< "$value"
 		
-		# 日期目录
-		date_dir=$(date +"%Y%m%d")
-		
-		# 版本日期路径
-		ver_date_path="${OPENWRT_OUTPUT_PATH}/${date_dir}"
-		if [ ! -d "${ver_date_path}" ]; then
-			mkdir -p "${ver_date_path}"
+		if [ -z "${device_name}" ] || [ -z "${firmware_name}" ]; then
+			continue
 		fi
 		
 		# 固件路径
-		firmware_path="${ver_date_path}/${fields_array["firmwarename"]}"
+		firmware_path="${OPENWRT_OUTPUT_PATH}/$(date +"%Y%m%d")/${firmware_name}"
+		
 		if [ ! -d "${firmware_path}" ]; then
 			mkdir -p "${firmware_path}"
 		fi
@@ -65,25 +52,15 @@ get_openwrt_firmware()
 		# 固件生成文件
 		firmware_output_file="${firmware_path}.zip"
 		
-		#rsync -av  \
-			--exclude='packages/' \
-			--include='*r5s*.img.gz' \
-			--exclude='*.img.gz' \
-			--include='*r5s*.manifest' \
-			--exclude='*.manifest' \
-			--include='*' \
-			--exclude='*' \
-			${OPENWRT_FIRMWARE_PATH}/ ${firmware_path}/
-
 		# 拷贝文件	
 		rsync -av \
 			--exclude='packages/' \
-			--include="*${OPENWRT_DEVICE_NAME}*.img.gz" \
-			--include="*${OPENWRT_DEVICE_NAME}*.manifest" \
+			--include="*${device_name}*.img.gz" \
+			--include="*${device_name}*.manifest" \
 			--exclude='*.img.gz' \
 			--exclude='*.manifest' \
 			--include='*' \
-			${OPENWRT_FIRMWARE_PATH}/ ${firmware_path}/	
+			${PWD}/ ${firmware_path}/
 			
 		if [ "$(find "${firmware_path}" -mindepth 1)" ]; then
 			# 压缩打包文件
@@ -92,7 +69,11 @@ get_openwrt_firmware()
 		
 		# 删除缓存文件
 		rm -rf "${firmware_path}"
-	fi
+		
+		#if [ ${USER_CONFIG_ARRAY["mode"]} -eq ${COMPILE_MODE[local_compile]} ]; then
+		#else
+		#fi
+	done
 	
 	print_log "TRACE" "get firmware" "完成获取OpenWrt固件!"
 	return 0
