@@ -52,6 +52,7 @@ jobs:
           scripts_file=${{ env.scripts_file }}
           
           echo $PWD
+          ls -al $PWD
           
           #if [ -x "${scripts_file}" ]; then
           #
