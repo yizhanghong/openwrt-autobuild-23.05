@@ -121,18 +121,18 @@ compile_openwrt_firmware()
 	
 	run_make_command() {
 		# 编译openwrt源码
+		: '
 		if ! make -j $(($(nproc)+1)) || make -j1 || make -j1 V=s; then
 			return 1
 		fi
+		'
 		
-		: '
 		if [ ${USER_CONFIG_ARRAY["mode"]} -eq ${COMPILE_MODE[remote_compile]} ]; then
 			make -j$(nproc) || make -j1 V=s
 		else
 			${NETWORK_PROXY_CMD} make -j1 V=s
 		fi || return 1
-		'
-		 
+		
 		return 0
 	}
 	
