@@ -51,8 +51,7 @@ jobs:
           scripts_path=${{ env.scripts_path }}
           scripts_file=${{ env.scripts_file }}
           
-          echo $PWD
-          ls -al $PWD
+          echo "this is a test!" > 1.txt
           
           #if [ -x "${scripts_file}" ]; then
           #
@@ -73,8 +72,8 @@ jobs:
         if: env.UPLOAD_FIRMWARE == 'true' &&
             !cancelled()
         with:
-          name: ${{ env.FIRMWARE_NAME }}
-          path: ${{ env.FIRMWARE_PATH }}   
+          name: test
+          path: 1.txt   
           
       - name: Delete workflow runs
         uses: Mattraks/delete-workflow-runs@v2  # main
