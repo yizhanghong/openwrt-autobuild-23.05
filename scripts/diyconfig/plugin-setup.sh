@@ -107,11 +107,10 @@ set_light_plugin()
 		file="${source_path}/feeds/luci/collections/luci-ssl/Makefile"
 		print_log "INFO" "custom config" "[修改插件luci-ssl]"
 		
-		if [ -e ${file} ]; then	
-			if grep -q "+luci-light" ${file}; then
-				#sed -i 's/+luci-light//g' ${file}
-				sed -i 's/\+luci-light//g; s/^\s*//; s/\s*$//' ${file}
-			fi
+		if [ -e ${file} ] && grep -q "+luci-light" ${file}; then	
+			#sed -i 's/\s*+luci-light\s*//g' ${file}
+			#sed -i 's/\s\+luci-light\s\+//g' ${file}
+			sed -i 's/[[:space:]]*+luci-light[[:space:]]*//g' ${file}
 		fi
 	}
 	
@@ -120,11 +119,9 @@ set_light_plugin()
 		file="${source_path}/feeds/luci/collections/luci-ssl-openssl/Makefile"
 		print_log "INFO" "custom config" "[修改插件luci-ssl-openssl]"
 		
-		if [ -e ${file} ]; then	
-			if grep -q "+luci-light" ${file}; then
-				#sed -i 's/+luci-light//g' ${file}
-				sed -i 's/\+luci-light//g; s/^\s*//; s/\s*$//' ${file}
-			fi
+		if [ -e ${file} ] && grep -q "+luci-light" ${file}; then	
+			#sed -i 's/\s*+luci-light\s*//g' ${file}
+			sed -i 's/[[:space:]]*+luci-light[[:space:]]*//g' ${file}
 		fi
 	}
 }
@@ -138,16 +135,18 @@ set_uhttpd_plugin()
 		file="${source_path}/feeds/luci/collections/luci/Makefile"
 		print_log "INFO" "custom config" "[修改uhttpd编译]"
 		
-		# 取消uhttpd依赖
-		if grep -q "+uhttpd" ${file}; then
-			#sed -i 's/+uhttpd //g' ${file}
-			sed -i 's/\+uhttpd//g; s/^\s*//; s/\s*$//' ${file}
-		fi
-		
-		# 取消uhttpd-mod-ubus依赖
-		if grep -q "+uhttpd" ${file}; then
-			#sed -i 's/+uhttpd-mod-ubus //g' ${file}
-			sed -i 's/\+uhttpd-mod-ubus//g; s/^\s*//; s/\s*$//' ${file}
+		if [ -e ${file} ]; then
+			# 取消uhttpd依赖
+			if grep -q "+uhttpd" ${file}; then
+				#sed -i 's/\+uhttpd//g; s/^\s*//; s/\s*$//' ${file}
+				sed -i 's/\+\(uhttpd\)[[:space:]]\+//g' ${file}
+			fi
+			
+			# 取消uhttpd-mod-ubus依赖
+			if grep -q "+uhttpd" ${file}; then
+				#sed -i 's/[[:space:]]*+uhttpd-mod-ubus[[:space:]]*//g' ${file}
+				sed -i 's/\+\(uhttpd-mod-ubus\)[[:space:]]\+//g' ${file}
+			fi
 		fi
 	}
 }
@@ -162,11 +161,9 @@ set_bootstrap_plugin()
 		file="${source_path}/feeds/luci/collections/luci-nginx/Makefile"
 		print_log "INFO" "custom config" "[修改插件luci-nginx]"
 		
-		if [ -e ${file} ]; then	
-			if grep -q "+luci-theme-bootstrap" ${file}; then
-				#sed -i 's/+luci-theme-bootstrap //g' ${file}
-				sed -i 's/\+luci-theme-bootstrap//g; s/^\s*//; s/\s*$//' ${file}
-			fi
+		if [ -e ${file} ] && grep -q "+luci-theme-bootstrap" ${file}; then	
+			#sed -i 's/\s*+luci-theme-bootstrap//g' ${file}
+			sed -i 's/[[:space:]]*+luci-theme-bootstrap//g' ${file}
 		fi	
 	}
 	
@@ -177,8 +174,8 @@ set_bootstrap_plugin()
 		
 		if [ -e ${file} ]; then	
 			if grep -q "+luci-theme-bootstrap" ${file}; then
-				#sed -i 's/+luci-theme-bootstrap //g' ${file}
-				sed -i 's/\+luci-theme-bootstrap//g; s/^\s*//; s/\s*$//' ${file}
+				#sed -i 's/\s*+luci-theme-bootstrap//g' ${file}
+				sed -i 's/[[:space:]]*+luci-theme-bootstrap//g' ${file}
 			fi
 		fi	
 	}

@@ -336,6 +336,14 @@ get_firmware_info()
 		if [ -e ${file} ]; then
 			result["versionnum"]=$(sed -n "s/echo \"DISTRIB_REVISION='\([^\']*\)'.*$/\1/p" $file)
 		fi
+	else
+		file="${source_path}/include/version.mk"
+		if [ -e ${file} ]; then
+			line=$(awk -F ':=' '/^VERSION_NUMBER:/ {line=$2} END {print line}' $file)
+			if [ -n "${line}" ]; then
+				result["versionnum"]=$(echo $line | sed -E 's/.*\(([^,]+),[^,]+,([^)]*)\).*/\2/')
+			fi
+		fi
 	fi
 	
 	# 获取设备名称

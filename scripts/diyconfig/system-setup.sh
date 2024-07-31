@@ -246,6 +246,9 @@ set_system_config()
 	source_type=$1
 	source_path=$2
 	
+	# 设置主机名称
+	set_host_name ${source_type} ${source_path}
+	
 	# 设置用户密码
 	set_user_passwd ${source_path}
 	
@@ -254,9 +257,6 @@ set_system_config()
 	
 	# 设置时区
 	set_system_timezone ${source_path}
-	
-	# 设置主机名称
-	set_host_name ${source_type} ${source_path}
 	
 	# 设置默认编译
 	set_compile_option ${source_type} ${source_path}
