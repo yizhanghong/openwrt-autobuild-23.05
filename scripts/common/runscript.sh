@@ -61,7 +61,7 @@ get_openwrt_firmware()
 		fi
 		
 		# 固件路径
-		firmware_path="${OPENWRT_OUTPUT_PATH}/$(date +"%Y%m%d")/${firmware_name}"
+		local firmware_path="${OPENWRT_OUTPUT_PATH}/$(date +"%Y%m%d")/${firmware_name}"
 		
 		if [ ! -d "${firmware_path}" ]; then
 			mkdir -p "${firmware_path}"
@@ -90,7 +90,7 @@ get_openwrt_firmware()
 			fi
 			
 			# 固件生成文件
-			firmware_output_file="${firmware_path}.zip"
+			local firmware_output_file="${firmware_path}.zip"
 			
 			# 压缩打包文件
 			if [ "$(find "${firmware_path}" -mindepth 1)" ]; then
@@ -292,6 +292,9 @@ update_openwrt_feeds()
 	# 传入源码信息
 	local -n local_source_array="$1"
 	
+	# 执行命令
+	local command=""
+	
 	# 获取路径
 	local path=${local_source_array["Path"]}
 	if [ -z "${path}" ]; then
@@ -372,6 +375,9 @@ clone_openwrt_source()
 	
 	# 获取路径
 	local path=${local_source_array["Path"]}
+	
+	# 执行命令
+	local command=""
 	
 	if [ -z "${url}" ] || [ -z "${path}" ]; then
 		print_log "ERROR" "clone sources" "获取源码路径失败, 请检查!"

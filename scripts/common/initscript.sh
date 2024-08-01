@@ -4,7 +4,10 @@
 # 执行功能
 exeCmdShell()
 {
-	cmd=$1
+	# 执行命令
+	local cmd=$1
+	local ret=0
+	
 	case ${cmd} in
 	${CMD_TYPE[autoCompileOpenwrt]})
 		# 自动编译openwrt
@@ -55,7 +58,7 @@ exeCmdShell()
 # 设置命令目录
 setCmdMenu()
 {
-	cmd_array=("${CMD_ARRAY[@]}")
+	local cmd_array=("${CMD_ARRAY[@]}")
 	if [ ${#cmd_array[@]} -eq 0 ]; then
 		print_log "ERROR" "command menu" "命令信息配置有误, 请检查!"
 		return 1
@@ -69,7 +72,7 @@ setCmdMenu()
 		show_cmd_menu cmd_array[@] cmd_source_array
 		
 		# 获取用户输入
-		index=`input_user_index`
+		local index=`input_user_index`
 		
 		# 判断输入值是否有效
 		if [ $index -lt 0 ] || [ $index -gt ${#cmd_array[@]} ]; then
@@ -102,7 +105,7 @@ setSourceMenu()
 		show_source_menu ${source_name_array[@]}
 		
 		# 获取用户输入
-		index=`input_user_index`
+		lcaol index=`input_user_index`
 		
 		# 判断输入值是否有效
 		if [ $index -lt 0 ] || [ $index -gt ${#source_name_array[@]} ]; then
@@ -114,10 +117,10 @@ setSourceMenu()
 		[ $index -eq 0 ] && { break; }
 		
 		# 获取源码名称
-		source_name=${source_name_array[$index-1]}
+		local source_name=${source_name_array[$index-1]}
 		
 		# 获取源码类型
-		source_type=${SOURCE_TYPE[${source_name}]}
+		local source_type=${SOURCE_TYPE[${source_name}]}
 		
 		declare -A source_array
 		get_struct_field SOURCE_CONFIG_ARRAY ${source_type} source_array

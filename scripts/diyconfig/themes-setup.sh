@@ -4,9 +4,11 @@
 # 下载 argon主题
 download_themes_argon()
 {
-	source_type=$1
-	source_path=$2
-	plugins_path=$3
+	local source_type=$1
+	local source_path=$2
+	
+	local plugins_path=$3
+	local url=""
 	
 	# luci-theme-argon
 	{
@@ -48,8 +50,10 @@ download_themes_argon()
 # 下载 edge主题
 download_themes_edge()
 {
-	source_path=$1
-	plugins_path=$2
+	local source_path=$1
+	local plugins_path=$2
+	
+	local url=""
 	
 	# luci-theme-edge
 	{
@@ -70,11 +74,11 @@ download_themes_edge()
 # 设置默认主题
 set_default_themes()
 {
-	source_type=$1
-	source_path=$2
+	local source_type=$1
+	local source_path=$2
 	
 	{
-		file="${source_path}/feeds/luci/collections/luci/Makefile"
+		local file="${source_path}/feeds/luci/collections/luci/Makefile"
 		print_log "INFO" "custom config" "[修改默认主题]"
 		
 		if [ -e ${file} ]; then
@@ -91,9 +95,10 @@ set_default_themes()
 # 下载用户主题
 download_user_themes()
 {
-	source_type=$1
-	source_path=$2
-	plugins_path=$3
+	local source_type=$1
+	local source_path=$2
+	
+	local plugins_path=$3
 	
 	if [ ${USER_STATUS_ARRAY["autocompile"]} -eq 0 ]; then
 		if ! input_prompt_confirm "是否需要下载用户主题?"; then
@@ -112,8 +117,8 @@ download_user_themes()
 # 设置主题配置
 set_themes_config()
 {
-	source_type=$1
-	source_path=$2
+	local source_type=$1
+	local source_path=$2
 	
 	# 设置默认主题
 	set_default_themes ${source_type} ${source_path}
@@ -122,9 +127,10 @@ set_themes_config()
 # 设置自定义主题
 set_user_themes()
 {
-	source_type=$1
-	source_path=$2
-	plugins_path=$3
+	local source_type=$1
+	local source_path=$2
+	
+	local plugins_path=$3
 	
 	# 下载用户主题
 	if ! download_user_themes ${source_type} ${source_path} ${plugins_path}; then

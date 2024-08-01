@@ -170,10 +170,10 @@ print_log()
 get_config_section()
 {
 	# section名称
-	section=$1	
+	local section=$1	
 	
 	# 配置文件
-	confile=$2
+	local confile=$2
 	
 	if [ ! -e "${confile}" ]; then
 		return
@@ -185,7 +185,7 @@ get_config_section()
 		local -n field_array="$3"
 		
 		# 查找所有section的信息
-		sections=$(awk -F '[][]' '/\[.*'"$section"'\]/{print $2}' ${confile})
+		local sections=$(awk -F '[][]' '/\[.*'"$section"'\]/{print $2}' ${confile})
 		#echo "\"$sections\""
 		
 		# 枚举获取每个section段
@@ -200,10 +200,10 @@ get_config_section()
 get_config_list()
 {
 	# section名称
-	section=$1
+	local section=$1
 	
 	# 配置文件
-	confile=$2
+	local confile=$2
 	
 	# 传出结果数组
 	local -n result=$3
@@ -217,7 +217,7 @@ get_config_list()
 	result=()
 	
 	#获取section的内容
-	content=$(awk -v section="$section" '
+	local content=$(awk -v section="$section" '
 			/^\['"$section"'\]/ { flag = 1; next }
 			 /^\[.*\]/ { flag = 0 }
 			flag && NF { sub(/[[:space:]]+$/, "", $0); print }
@@ -230,7 +230,7 @@ get_config_list()
 		return 1
 	fi
 	
-	tmp_declare=$(declare -p "${3}" 2>/dev/null)
+	local tmp_declare=$(declare -p "${3}" 2>/dev/null)
 	
 	# 判断关联数组
 	#if [ "$(declare -p "${3}" 2>/dev/null | grep -o 'declare \-A')" == "declare -A" ]; then
@@ -383,22 +383,22 @@ clone_repo_contents()
 	local proxy_cmd=$3
 	
 	# 获取.git前缀和后缀字符
-	git_prefix="${remote_repo%%.git*}"
-	git_suffix="${remote_repo#*.git}"
+	local git_prefix="${remote_repo%%.git*}"
+	local git_suffix="${remote_repo#*.git}"
 	
 	if [ -z "${git_prefix}" ] || [ -z "${git_suffix}" ]; then
 		return 1
 	fi
 	
 	# 获取?前缀和后缀字符
-	suffix_before_mark="${git_suffix%%\?*}"
-	suffix_after_mark="${git_suffix#*\?}"
+	local suffix_before_mark="${git_suffix%%\?*}"
+	local suffix_after_mark="${git_suffix#*\?}"
 	
 	# url地址
-	repo_url="${git_prefix}.git"
+	local repo_url="${git_prefix}.git"
 
 	# 远程分支名称
-	repo_branch=$(echo ${suffix_after_mark} | awk -F '=' '{print $2; exit}')
+	local repo_branch=$(echo ${suffix_after_mark} | awk -F '=' '{print $2; exit}')
 	
 	# 临时目录，用于克隆远程仓库
 	local temp_dir=$(mktemp -d)
@@ -410,7 +410,7 @@ clone_repo_contents()
 		echo "Cloning branch code... ${repo_branch}"
 		
 		# 克隆远程仓库到临时目录 ${proxy_cmd}
-		command="${proxy_cmd} git clone --depth 1 --branch ${repo_branch} ${repo_url} ${temp_dir}"
+		local command="${proxy_cmd} git clone --depth 1 --branch ${repo_branch} ${repo_url} ${temp_dir}"
 		if ! execute_command_retry ${USER_STATUS_ARRAY["retrycount"]} ${USER_STATUS_ARRAY["waittimeout"]} "${command}"; then
 			ret=1
 			break
@@ -457,29 +457,29 @@ get_remote_spec_contents()
 	local proxy_cmd=$4
 	
 	# 获取.git前缀和后缀字符
-	git_prefix="${remote_repo%%.git*}"
-	git_suffix="${remote_repo#*.git}"
+	local git_prefix="${remote_repo%%.git*}"
+	local git_suffix="${remote_repo#*.git}"
 
 	if [ -z "${git_prefix}" ] || [ -z "${git_suffix}" ]; then
 		return 1
 	fi
 	
 	# 获取?前缀和后缀字符
-	suffix_before_mark="${git_suffix%%\?*}"	#
-	suffix_after_mark="${git_suffix#*\?}"	#
+	local suffix_before_mark="${git_suffix%%\?*}"	#
+	local suffix_after_mark="${git_suffix#*\?}"	#
 
 	if [ -z "${suffix_before_mark}" ] || [ -z "${suffix_after_mark}" ]; then
 		return 1
 	fi
 	
 	# url地址
-	repo_url="${git_prefix}.git"
+	local repo_url="${git_prefix}.git"
 	
 	# 指定路径
-	repo_path="${suffix_before_mark}"
+	local repo_path="${suffix_before_mark}"
 	
 	# 远程分支名称
-	repo_branch=$(echo ${suffix_after_mark} | awk -F '=' '{print $2; exit}')
+	local repo_branch=$(echo ${suffix_after_mark} | awk -F '=' '{print $2; exit}')
 	
 	# 临时目录，用于克隆远程仓库
 	local temp_dir=$(mktemp -d)
@@ -498,7 +498,7 @@ get_remote_spec_contents()
 	git config core.sparsecheckout true
 	
 	# 配置要检出的目录或文件
-	sparse_file=".git/info/sparse-checkout"
+	local sparse_file=".git/info/sparse-checkout"
 	
 	if [ ! -e "${sparse_file}" ]; then
 		touch "${sparse_file}"

@@ -8,12 +8,12 @@ set_network_addr()
 	
 	# 设置缺省IP地址
 	{
-		file="${source_path}/package/base-files/files/bin/config_generate"
+		local file="${source_path}/package/base-files/files/bin/config_generate"
 		print_log "INFO" "custom config" "[设置Lan接口缺省IP地址]"
 		
 		if [ -e ${file} ]; then
-			ip_addr=$(sed -n 's/.*lan) ipad=\${ipaddr:-"\([0-9.]\+\)"}.*/\1/p' ${file})
-			default_ip="${NETWORK_CONFIG_ARRAY["lanaddr"]}"
+			local ip_addr=$(sed -n 's/.*lan) ipad=\${ipaddr:-"\([0-9.]\+\)"}.*/\1/p' ${file})
+			local default_ip="${NETWORK_CONFIG_ARRAY["lanaddr"]}"
 			
 			if [ "${ip_addr}" != "${default_ip}" ]; then
 				sed -i "s/lan) ipad=\${ipaddr:-\"$ip_addr\"}/lan) ipad=\${ipaddr:-\"${default_ip}\"}/" ${file}
@@ -23,31 +23,33 @@ set_network_addr()
 	
 	# 配置网络接口
 	{
-		file="${source_path}/package/base-files/files/etc/uci-defaults/99-defaults-settings"
+		local file="${source_path}/package/base-files/files/etc/uci-defaults/99-defaults-settings"
 		print_log "INFO" "custom config" "[设置网络接口地址]"
 		
 		# 配置lan接口
 		{
 			# lan地址
-			lan_ipaddr="${NETWORK_CONFIG_ARRAY["lanaddr"]}"
+			local lan_ipaddr="${NETWORK_CONFIG_ARRAY["lanaddr"]}"
 			if [ -z "${lan_ipaddr}" ]; then
 				lan_ipaddr="192.168.2.1"
 			fi
 			
 			# lan子网掩码
-			lan_netmask="${NETWORK_CONFIG_ARRAY["lannetmask"]}"
+			local lan_netmask="${NETWORK_CONFIG_ARRAY["lannetmask"]}"
 			if [ -z "${lan_netmask}" ]; then
 				lan_netmask="255.255.255.0"
 			fi
 			
 			# lan广播地址
-			lan_broadcast="${NETWORK_CONFIG_ARRAY["lanbroadcast"]}"
+			local lan_broadcast="${NETWORK_CONFIG_ARRAY["lanbroadcast"]}"
 			if [ -z "${lan_broadcast}" ]; then
 				lan_broadcast="192.168.2.255"
 			fi
 			
 			# dhcp服务开关
-			lan_ignore_dhcp=0
+			local lan_ignore_dhcp=0
+			local lan_dhcp_start=""
+			local lan_dhcp_number=""
 			
 			# dhcp起始地址
 			if [ -z "${NETWORK_CONFIG_ARRAY["landhcpstart"]}" ]; then
@@ -84,31 +86,31 @@ set_network_addr()
 		# 配置wan接口
 		{
 			# wan地址
-			wan_ipaddr="${NETWORK_CONFIG_ARRAY["wanaddr"]}"
+			local wan_ipaddr="${NETWORK_CONFIG_ARRAY["wanaddr"]}"
 			if [ -z "${wan_ipaddr}" ]; then
 				wan_ipaddr="192.168.1.1"
 			fi
 			
 			# wan子网掩码
-			wan_netmask="${NETWORK_CONFIG_ARRAY["wannetmask"]}"
+			local wan_netmask="${NETWORK_CONFIG_ARRAY["wannetmask"]}"
 			if [ -z "${wan_netmask}" ]; then
 				wan_netmask="255.255.255.0"
 			fi
 			
 			# wan广播地址
-			wan_broadcast="${NETWORK_CONFIG_ARRAY["wanbroadcast"]}"
+			local wan_broadcast="${NETWORK_CONFIG_ARRAY["wanbroadcast"]}"
 			if [ -z "${wan_broadcast}" ]; then
 				wan_broadcast="192.168.2.255"
 			fi
 			
 			# wan网关
-			wan_gateway="${NETWORK_CONFIG_ARRAY["wangateway"]}"
+			local wan_gateway="${NETWORK_CONFIG_ARRAY["wangateway"]}"
 			if [ -z "${wan_gateway}" ]; then
 				wan_gateway="192.168.1.1"
 			fi
 			
 			# wan的dns
-			wan_dnsaddr="${NETWORK_CONFIG_ARRAY["wandnsaddr"]}"
+			local wan_dnsaddr="${NETWORK_CONFIG_ARRAY["wandnsaddr"]}"
 			if [ -z "${wan_dnsaddr}" ]; then
 				wan_dnsaddr="192.168.1.1"
 			fi
@@ -133,8 +135,8 @@ set_network_addr()
 # 设置自定义网络
 set_user_network()
 {
-	source_type=$1
-	source_path=$2
+	local source_type=$1
+	local source_path=$2
 
 	# 设置网络地址
 	set_network_addr ${source_path} ${file}
