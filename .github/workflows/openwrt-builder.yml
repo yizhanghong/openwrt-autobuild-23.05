@@ -18,6 +18,9 @@ env:
 jobs:
   build:
     runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        items: ${{ fromJson(env.OPENWRT_FIRMWARE_ARRAY) }}
 
     steps:
       - name: Checkout
@@ -54,14 +57,13 @@ jobs:
               source ${scripts_file} 1
           fi
           
-          IFS=','
-          array_string="${OPENWRT_FIRMWARE_ARRAY[*]}"
-          echo "OPENWRT_FIRMWARE_ARRAY=$array_string" >> $GITHUB_ENV
+          array_json=$(echo "${OPENWRT_FIRMWARE_ARRAY}" | jq -c '.')
+          echo "OPENWRT_FIRMWARE_ARRAY=$array_json" >> $GITHUB_ENV
           
       - name: Upload firmware directory
         uses: actions/upload-artifact@master
         with:
-          {% for item in ${{ env.OPENWRT_FIRMWARE_ARRAY }} split(',') %}
+          {% for item in matrix.items %}
             {% set name_path = item.split(':') %}
             {% set name = name_path[0] %}
             {% set path = name_path[1] %}
