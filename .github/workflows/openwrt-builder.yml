@@ -54,6 +54,10 @@ jobs:
               source ${scripts_file} 1
           fi
           
+          
+          
+      - name: Upload firmware directory
+        run: |
           for value in "${OPENWRT_FIRMWARE_ARRAY[@]}"; do
               echo $value
           done

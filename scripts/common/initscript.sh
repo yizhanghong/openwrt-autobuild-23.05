@@ -105,7 +105,7 @@ setSourceMenu()
 		show_source_menu ${source_name_array[@]}
 		
 		# 获取用户输入
-		lcaol index=`input_user_index`
+		local index=`input_user_index`
 		
 		# 判断输入值是否有效
 		if [ $index -lt 0 ] || [ $index -gt ${#source_name_array[@]} ]; then
