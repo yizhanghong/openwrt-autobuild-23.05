@@ -87,7 +87,7 @@ get_source_config()
 		fi
 		
 		for section in "${section_array[@]}"; do
-			local declare -A source_array
+			declare -A source_array
 			
 			if ! get_config_list "${section}" "${file}" source_array; then
 				continue
@@ -132,7 +132,7 @@ get_diy_config()
 	
 	# diyconfig
 	{
-		local declare -A fields_array
+		declare -A fields_array
 		
 		if ! get_config_list "diyconfig" "${file}" fields_array; then
 			print_log "ERROR" "user config" "无法获取diyconfig配置信息, 请检查!"
@@ -163,7 +163,7 @@ get_network_config()
 	
 	# lanconfig
 	{
-		local declare -A fields_array
+		declare -A fields_array
 		
 		if ! get_config_list "lanconfig" "${file}" fields_array; then
 			print_log "ERROR" "user config" "无法获取lanconfig配置信息, 请检查!"
@@ -188,7 +188,7 @@ get_network_config()
 	
 	# wanconfig
 	{
-		local declare -A fields_array
+		declare -A fields_array
 		
 		if ! get_config_list "wanconfig" "${file}" fields_array; then
 			print_log "ERROR" "user config" "无法获取wanconfig配置信息, 请检查!"

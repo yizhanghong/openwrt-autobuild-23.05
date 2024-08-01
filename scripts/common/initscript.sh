@@ -161,7 +161,7 @@ runLinuxEnv()
 			# 获取源码类型
 			local source_type=${SOURCE_TYPE[${source_name}]}
 
-			local declare -A source_array
+			declare -A source_array
 			get_struct_field SOURCE_CONFIG_ARRAY ${source_type} source_array
 			if [ ${#source_array[@]} -eq 0 ]; then
 				continue
