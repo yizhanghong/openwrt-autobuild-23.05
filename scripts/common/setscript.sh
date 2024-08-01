@@ -14,11 +14,11 @@ set_openwrt_plugins()
 	local -n local_source_array="$1"
 	print_log "TRACE" "custom config" "正在获取第三方插件..."
 	
-	source_type=${local_source_array["Type"]}
-	source_path=${local_source_array["Path"]}
+	local source_type=${local_source_array["Type"]}
+	local source_path=${local_source_array["Path"]}
 	
 	# 自定义插件路径
-	plugins_path="${source_path}/package/${USER_CONFIG_ARRAY["plugins"]}/plugins" 
+	local plugins_path="${source_path}/package/${USER_CONFIG_ARRAY["plugins"]}/plugins" 
 	if [ ! -d "${plugins_path}" ]; then
 		mkdir -p "${plugins_path}"
 	fi
@@ -37,11 +37,11 @@ set_openwrt_themes()
 	local -n local_source_array="$1"
 	print_log "TRACE" "custom config" "正在设置自定义主题..."
 
-	source_type=${local_source_array["Type"]}
-	source_path=${local_source_array["Path"]}
+	local source_type=${local_source_array["Type"]}
+	local source_path=${local_source_array["Path"]}
 	
 	# 自定义插件路径
-	plugins_path="${source_path}/package/${USER_CONFIG_ARRAY["plugins"]}/themes" 
+	local plugins_path="${source_path}/package/${USER_CONFIG_ARRAY["plugins"]}/themes" 
 	if [ ! -d "${plugins_path}" ]; then
 		mkdir -p "${plugins_path}"
 	fi
@@ -60,8 +60,8 @@ set_openwrt_config()
 	local -n local_source_array="$1"
 	print_log "TRACE" "custom config" "正在设置缺省配置..."
 	
-	source_type=${local_source_array["Type"]}
-	source_path=${local_source_array["Path"]}
+	local source_type=${local_source_array["Type"]}
+	local source_path=${local_source_array["Path"]}
 	
 	# 设置自定义配置
 	set_user_config ${source_type} ${source_path}
@@ -78,7 +78,7 @@ get_source_config()
 	
 	# _config
 	{
-		section_array=()
+		local section_array=()
 		get_config_section "_config" "${file}" section_array
 		
 		if [ ${#section_array[@]} -eq 0 ]; then
@@ -87,23 +87,24 @@ get_source_config()
 		fi
 		
 		for section in "${section_array[@]}"; do
-			declare -A source_array
+			local declare -A source_array
+			
 			if ! get_config_list "${section}" "${file}" source_array; then
 				continue
 			fi
 
 			# 源码名称
-			source_name="${source_array["Name"]}"
+			local source_name="${source_array["Name"]}"
 			
 			# 源码别名
-			alias_name=${source_array["Alias"]}
+			local alias_name=${source_array["Alias"]}
 			
 			if [ -z ${source_name} ] || [ -z ${alias_name} ]; then
 				continue
 			fi
 			
 			# 获取源码类型
-			source_type=${SOURCE_TYPE[${source_name}]}
+			local source_type=${SOURCE_TYPE[${source_name}]}
 			
 			source_array["Type"]=${source_type}
 			
@@ -127,11 +128,12 @@ get_source_config()
 # 获取自定义配置
 get_diy_config()
 {
-	file=$1
+	local file=$1
 	
 	# diyconfig
 	{
-		declare -A fields_array
+		local declare -A fields_array
+		
 		if ! get_config_list "diyconfig" "${file}" fields_array; then
 			print_log "ERROR" "user config" "无法获取diyconfig配置信息, 请检查!"
 			reutrn 1
@@ -157,11 +159,12 @@ get_diy_config()
 # 获取network接口配置
 get_network_config()
 {
-	file=$1
+	local file=$1
 	
 	# lanconfig
 	{
-		declare -A fields_array
+		local declare -A fields_array
+		
 		if ! get_config_list "lanconfig" "${file}" fields_array; then
 			print_log "ERROR" "user config" "无法获取lanconfig配置信息, 请检查!"
 			reutrn 1
@@ -185,7 +188,8 @@ get_network_config()
 	
 	# wanconfig
 	{
-		declare -A fields_array
+		local declare -A fields_array
+		
 		if ! get_config_list "wanconfig" "${file}" fields_array; then
 			print_log "ERROR" "user config" "无法获取wanconfig配置信息, 请检查!"
 			reutrn 1
@@ -216,7 +220,7 @@ get_user_config()
 		return 1
 	fi
 	
-	conf_file=$1
+	local conf_file=$1
 	if [ ! -e "${conf_file}" ]; then
 		print_log "ERROR" "user config" "脚本配置文件不存在, 请检查!"
 		return 1
@@ -320,11 +324,11 @@ get_firmware_info()
 	# 清空结果数组
 	result=()
 	
-	source_path=${set_source_array["Path"]}
-	source_type=${set_source_array["Type"]}
+	local source_path=${set_source_array["Path"]}
+	local source_type=${set_source_array["Type"]}
 	
 	# 缺省配置文件
-	defaultconf="${USER_CONFIG_ARRAY["defaultconf"]}"
+	local defaultconf="${USER_CONFIG_ARRAY["defaultconf"]}"
 	if [ ! -f "${source_path}/${defaultconf}" ]; then
 		print_log "ERROR" "custom config" "配置文件不存在, 请检查!"
 		return 1
@@ -332,12 +336,12 @@ get_firmware_info()
 	
 	# 获取版本号
 	if [ ${source_type} -eq ${SOURCE_TYPE[coolsnowwolf]} ]; then
-		file="${source_path}/package/lean/default-settings/files/zzz-default-settings"
+		local file="${source_path}/package/lean/default-settings/files/zzz-default-settings"
 		if [ -e ${file} ]; then
 			version_num=$(sed -n "s/echo \"DISTRIB_REVISION='\([^\']*\)'.*$/\1/p" $file)
 		fi
 	else
-		file="${source_path}/include/version.mk"
+		local file="${source_path}/include/version.mk"
 		if [ -e ${file} ]; then
 			line=$(awk -F ':=' '/^VERSION_NUMBER:/ {line=$2} END {print line}' $file)
 			if [ -n "${line}" ]; then
@@ -352,18 +356,18 @@ get_firmware_info()
 			continue
 		fi
 		
-		device_name=$(echo "$line" | sed -r 's/.*DEVICE_(.*)=y/\1/')
+		local device_name=$(echo "$line" | sed -r 's/.*DEVICE_(.*)=y/\1/')
 		if [ -z "${device_name}" ]; then
 			continue
 		fi
 		
 		# 获取固件名称
-		firmware_name="openwrt"
+		local firmware_name="openwrt"
 		if [ -n "${version_num}" ]; then
 			firmware_name="${firmware_name}-${version_num}"
 		fi
 		
-		file_date=$(date +"%Y%m%d%H%M")
+		local file_date=$(date +"%Y%m%d%H%M")
 		firmware_name="${firmware_name}-${device_name}-${file_date}"
 		
 		result+=("${device_name}:${firmware_name}")
@@ -392,7 +396,7 @@ remove_plugin_package()
 	fi
 	
 	# 查找要排除的部分
-	exclude_expr=""
+	local exclude_expr=""
 	
 	if [ ${#fields_array[@]} -gt 0 ]; then
 		for path in "${fields_array[@]}"; do

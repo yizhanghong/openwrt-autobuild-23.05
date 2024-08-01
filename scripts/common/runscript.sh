@@ -115,7 +115,7 @@ compile_openwrt_firmware()
 	local -n local_source_array="$1"
 	
 	# 获取路径
-	path=${local_source_array["Path"]}
+	local path=${local_source_array["Path"]}
 	if [ -z "${path}" ]; then
 		print_log "ERROR" "compile firmware" "获取源码路径失败, 请检查!"
 		return 1
@@ -162,7 +162,7 @@ download_openwrt_package()
 	local -n local_source_array="$1"
 
 	# 获取路径
-	path=${local_source_array["Path"]}
+	local path=${local_source_array["Path"]}
 	if [ -z "${path}" ]; then
 		print_log "ERROR" "download package" "获取源码路径失败, 请检查!"
 		return 1
@@ -205,17 +205,17 @@ set_menu_options()
 	local -n local_source_array="$1"
 	
 	# 获取路径
-	path=${local_source_array["Path"]}
+	local path=${local_source_array["Path"]}
 	if [ -z "${path}" ]; then
 		print_log "ERROR" "menu config" "获取源码路径失败, 请检查!"
 		return 1
 	fi
 	
 	# 缺省feeds配置文件
-	default_feeds_file="${path}/${USER_CONFIG_ARRAY["defaultconf"]}"
+	local default_feeds_file="${path}/${USER_CONFIG_ARRAY["defaultconf"]}"
 	
 	# 自定义feeds配置文件
-	custom_feeds_file="${OPENWRT_CONFIG_PATH}/${USER_CONFIG_ARRAY["feedsname"]}"
+	local custom_feeds_file="${OPENWRT_CONFIG_PATH}/${USER_CONFIG_ARRAY["feedsname"]}"
 	
 	# 进入源码目录
 	pushd ${path} > /dev/null
@@ -293,7 +293,7 @@ update_openwrt_feeds()
 	local -n local_source_array="$1"
 	
 	# 获取路径
-	path=${local_source_array["Path"]}
+	local path=${local_source_array["Path"]}
 	if [ -z "${path}" ]; then
 		print_log "ERROR" "update feeds" "获取源码路径失败, 请检查!"
 		return 1
@@ -330,7 +330,7 @@ set_openwrt_feeds()
 	local -n local_source_array="$1"
 	
 	# 获取路径
-	path=${local_source_array["Path"]}
+	local path=${local_source_array["Path"]}
 	if [ -z "${path}" ]; then
 		print_log "ERROR" "setting feeds" "获取源码路径失败, 请检查!"
 		return 1
@@ -365,13 +365,13 @@ clone_openwrt_source()
 	local -n local_source_array="$1"
 
 	# 获取url
-	url=${local_source_array["URL"]}
+	local url=${local_source_array["URL"]}
 	
 	# 获取branch
-	branch=${local_source_array["Branch"]}
+	local branch=${local_source_array["Branch"]}
 	
 	# 获取路径
-	path=${local_source_array["Path"]}
+	local path=${local_source_array["Path"]}
 	
 	if [ -z "${url}" ] || [ -z "${path}" ]; then
 		print_log "ERROR" "clone sources" "获取源码路径失败, 请检查!"

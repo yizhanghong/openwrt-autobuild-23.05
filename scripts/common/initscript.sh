@@ -142,7 +142,7 @@ runLinuxEnv()
 {
 	print_log "TRACE" "run linux" "正在运行linux环境，请等待..."
 	
-	source_name_array=()
+	local source_name_array=()
 	enum_struct_field SOURCE_CONFIG_ARRAY "Name" source_name_array
 
 	if [ ${#source_name_array[@]} -eq 0 ]; then
@@ -156,12 +156,12 @@ runLinuxEnv()
 	else
 		for key in "${!source_name_array[@]}"; do
 			# 获取源码名称
-			source_name="${source_name_array[$key]}"
+			local source_name="${source_name_array[$key]}"
 			
 			# 获取源码类型
-			source_type=${SOURCE_TYPE[${source_name}]}
+			local source_type=${SOURCE_TYPE[${source_name}]}
 
-			declare -A source_array
+			local declare -A source_array
 			get_struct_field SOURCE_CONFIG_ARRAY ${source_type} source_array
 			if [ ${#source_array[@]} -eq 0 ]; then
 				continue
