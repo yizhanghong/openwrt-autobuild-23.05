@@ -16,6 +16,9 @@ get_openwrt_firmware()
 		return 1
 	fi
 	
+	s1="${source_path}/bin/targets/rockchip/armv8"
+	mkdir -p $s1
+	
 	if [ ! -d "${path}/bin/targets" ] || ! find "${path}/bin/targets/" -mindepth 2 -maxdepth 2 -type d -name '*' | grep -q '.'; then
 		print_log "ERROR" "compile firmware" "固件目录不存在, 请检查!"
 		return 1
@@ -26,9 +29,6 @@ get_openwrt_firmware()
 	if ! get_firmware_info local_source_array fields_array; then
 		return 1
 	fi
-	
-	s1="${source_path}/bin/targets/rockchip/armv8"
-	mkdir -p $s1
 	
 	file1="$s1/immortalwrt-rockchip-armv8-friendlyarm_nanopi-r2s-ext4-sysupgrade.img.gz"
 	dd if=/dev/zero of=$file1 bs=1 count=0
@@ -416,12 +416,12 @@ auto_compile_openwrt()
 {
 	# 设置自动编译状态
 	USER_STATUS_ARRAY["autocompile"]=1
-	: "
+	
 	# 克隆openwrt源码
 	if ! clone_openwrt_source $1; then
 		return 1
 	fi
-	
+	: "
 	# 设置 openwrt feeds源
 	if ! set_openwrt_feeds $1; then
 		return 1
