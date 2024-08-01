@@ -50,11 +50,8 @@ jobs:
         working-directory: ${{ env.scripts_path }}
         run: |
           scripts_file=${{ env.scripts_file }}
-          
           if [ -x "${scripts_file}" ]; then
-              #cd ${scripts_path}
-              #source ${scripts_file} 1
-              echo $PWD
+              source ${scripts_file} 1
           fi
           
       - name: Delete workflow runs
