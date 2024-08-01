@@ -18,9 +18,6 @@ env:
 jobs:
   build:
     runs-on: ubuntu-22.04
-    strategy:
-      matrix:
-        items: ${{ fromJson(env.OPENWRT_FIRMWARE_ARRAY) }}
 
     steps:
       - name: Checkout
@@ -40,8 +37,8 @@ jobs:
           
           scripts_file="${GITHUB_WORKSPACE}/scripts/${BUILD_SCRIPT}"
           if [ ! -e "${scripts_file}" ]; then
-            echo "script files does not exist, please check!"
-            exit 1
+              echo "script files does not exist, please check!"
+              exit 1
           fi
           
           df -hT
@@ -57,19 +54,21 @@ jobs:
               source ${scripts_file} 1
           fi
           
-          array_json=$(echo "${OPENWRT_FIRMWARE_ARRAY}" | jq -c '.')
-          echo "OPENWRT_FIRMWARE_ARRAY=$array_json" >> $GITHUB_ENV
+          if [ -z "${OPENWRT_FIRMWARE_JSON}" ]; then
+              echo "firmware does not exist, please check!"
+              exit 1
+          fi
+          
+          echo "FIRMWARE_JSON=$OPENWRT_FIRMWARE_JSON" >> $GITHUB_ENV
           
       - name: Upload firmware directory
         uses: actions/upload-artifact@master
+        if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
         with:
-          {% for item in matrix.items %}
-            {% set name_path = item.split(':') %}
-            {% set name = name_path[0] %}
-            {% set path = name_path[1] %}
-            name: "{{ name }}"
-            path: "{{ path }}"
-          {% endfor %}  
+          name: ${{ matrix.directory-name }}
+          path: ${{ matrix.directory-path }}
+        matrix:
+          directory: ${{ fromJson(env.FIRMWARE_JSON) }} 
           
       - name: Delete workflow runs
         uses: Mattraks/delete-workflow-runs@v2  # main

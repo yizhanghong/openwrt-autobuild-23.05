@@ -369,6 +369,41 @@ enum_struct_field()
 	fi
 }
 
+# 将数组转换为 JSON 对象
+array_to_json()
+{
+	local array=("$@")
+    local json="{"
+	
+	for item in "${array[@]}"; do
+        # 分割 name 和 path
+        IFS=":" read -r name path <<< "$item"
+
+        # 添加到 JSON 字符串
+        json+="\"$name\":\"$path\","
+    done
+	
+	# 去掉最后一个逗号，并关闭 JSON 对象
+    json="${json%,}}"
+	
+	echo "$json"
+}
+
+# 将 JSON 对象转换为数组
+json_to_array()
+{
+	local json_str="$1"
+    local array=()
+	
+	# 使用 jq 解析 JSON 对象
+	while IFS="=" read -r name path; do
+        array+=("$name:$path")
+    done < <(echo "$json_str" | jq -r 'to_entries[] | "\(.key)=\(.value)"')
+	
+	 # 输出数组
+    echo "${array[@]}"
+}
+
 #********************************************************************************#
 # 克隆仓库内容
 clone_repo_contents() 

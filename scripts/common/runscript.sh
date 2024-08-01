@@ -52,7 +52,7 @@ get_openwrt_firmware()
 	fi
 	
 	# 拷贝固件至目标路径
-	OPENWRT_FIRMWARE_ARRAY=()
+	local fireware_array=()
 	for value in "${fields_array[@]}"; do
 		IFS=':' read -r device_name firmware_name <<< "$value"
 		
@@ -77,12 +77,14 @@ get_openwrt_firmware()
 			--include='*' \
 			${PWD}/ ${firmware_path}/
 			
-		OPENWRT_FIRMWARE_ARRAY+=("${firmware_name}:${firmware_path}")
+		fireware_array+=("${firmware_name}:${firmware_path}")
 	done
+	
+	OPENWRT_FIRMWARE_JSON=$(array_to_json "${fireware_array[@]}")
 	
 	# 生成固件目标文件
 	if [ ${USER_CONFIG_ARRAY["mode"]} -eq ${COMPILE_MODE[local_compile]} ]; then
-		for value in "${OPENWRT_FIRMWARE_ARRAY[@]}"; do
+		for value in "${fireware_array[@]}"; do
 			IFS=':' read -r firmware_name firmware_path <<< "$value"
 			
 			if [ -z "${firmware_name}" ] || [ -z "${firmware_path}" ]; then
