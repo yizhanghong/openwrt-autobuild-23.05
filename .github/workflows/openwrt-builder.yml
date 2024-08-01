@@ -60,14 +60,7 @@ jobs:
               exit 1
           fi
           
-          #echo "FIRMWARE_JSON=$OPENWRT_FIRMWARE_JSON" >> $GITHUB_ENV
-          echo "::set-output name=firmware_json::$OPENWRT_FIRMWARE_JSON"
-          
-      - name: Prepare matrix
-        id: matrix
-        run: |
-          firmware_json="${{ steps.compile.outputs.firmware_json }}"
-          echo "::set-output name=matrix::$(echo $firmware_json | jq -r 'keys_unsorted[]')"
+          echo "FIRMWARE_JSON=$OPENWRT_FIRMWARE_JSON" >> $GITHUB_ENV
           
       - name: Upload firmware directory
         uses: actions/upload-artifact@master
@@ -75,8 +68,9 @@ jobs:
         with:
           name: ${{ matrix.directory-name }}
           path: ${{ matrix.directory-path }}
-        matrix:
-          directory: ${{ fromJson(steps.matrix.outputs.matrix) }} 
+        strategy:
+          matrix:
+            directory: ${{ fromJson(env.FIRMWARE_JSON) }} 
           
       - name: Delete workflow runs
         uses: Mattraks/delete-workflow-runs@v2  # main
