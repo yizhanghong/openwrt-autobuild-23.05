@@ -212,6 +212,7 @@ updateLinuxEnv()
 	print_log "TRACE" "update linux" "正在更新linux环境，请等待..."
 	
 	set +e
+	:'
 	if [ ${USER_CONFIG_ARRAY["mode"]} -ne ${COMPILE_MODE[local_compile]} ]; then
 
 		# 列出前100个比较大的包
@@ -241,7 +242,8 @@ updateLinuxEnv()
 	
 	sudo -E apt-get -qq autoremove --purge
 	sudo -E apt-get -qq clean
-	
+	'
+	sudo -E apt-get -qq install -y rsync
 	df -hT
 	
 	sudo timedatectl set-timezone "${USER_CONFIG_ARRAY["zonename"]}"
@@ -262,8 +264,6 @@ initLinuxEnv()
 		touch "${OPENWRT_PLUGIN_FILE}"
 	fi
 	
-	sudo -E apt-get -qq install -y rsync
-	
 	print_log "TRACE" "init linux" "完成linux环境的初始化!"
 }
 
@@ -275,7 +275,7 @@ runAppLinux()
 	initLinuxEnv
 	
 	# 更新linux环境
-	#updateLinuxEnv
+	updateLinuxEnv
 	
 	# 设置linux环境
 	setLinuxEnv

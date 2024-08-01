@@ -16,7 +16,7 @@ get_openwrt_firmware()
 		return 1
 	fi
 	
-	s1="${source_path}/bin/targets/rockchip/armv8"
+	s1="${path}/bin/targets/rockchip/armv8"
 	mkdir -p $s1
 	
 	if [ ! -d "${path}/bin/targets" ] || ! find "${path}/bin/targets/" -mindepth 2 -maxdepth 2 -type d -name '*' | grep -q '.'; then
@@ -43,7 +43,7 @@ get_openwrt_firmware()
 	dd if=/dev/zero of=$file4 bs=1 count=0
 	
 	# 进入固件目录
-	cd ${source_path}/bin/targets/*/*
+	cd ${path}/bin/targets/*/*
 	
 	# 判断目录是否为空
 	if [ ! -n "$(find . -mindepth 1)" ]; then
