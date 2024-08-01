@@ -10,13 +10,13 @@ get_openwrt_firmware()
 	local -n local_source_array="$1"
 	
 	# 获取路径
-	path=${local_source_array["Path"]}
+	local path=${local_source_array["Path"]}
 	if [ -z "${path}" ]; then
 		print_log "ERROR" "compile firmware" "获取源码路径失败, 请检查!"
 		return 1
 	fi
 	
-	s1="${path}/bin/targets/rockchip/armv8"
+	local s1="${path}/bin/targets/rockchip/armv8"
 	mkdir -p $s1
 	
 	if [ ! -d "${path}/bin/targets" ] || ! find "${path}/bin/targets/" -mindepth 2 -maxdepth 2 -type d -name '*' | grep -q '.'; then
@@ -25,21 +25,21 @@ get_openwrt_firmware()
 	fi
 	
 	# 获取固件信息
-	fields_array=()
+	local fields_array=()
 	if ! get_firmware_info local_source_array fields_array; then
 		return 1
 	fi
 	
-	file1="$s1/immortalwrt-rockchip-armv8-friendlyarm_nanopi-r2s-ext4-sysupgrade.img.gz"
+	local file1="$s1/immortalwrt-rockchip-armv8-friendlyarm_nanopi-r2s-ext4-sysupgrade.img.gz"
 	dd if=/dev/zero of=$file1 bs=1 count=0
 	
-	file2="$s1/immortalwrt-rockchip-armv8-friendlyarm_nanopi-r2s-squashfs-sysupgrade.img.gz"
+	local file2="$s1/immortalwrt-rockchip-armv8-friendlyarm_nanopi-r2s-squashfs-sysupgrade.img.gz"
 	dd if=/dev/zero of=$file2 bs=1 count=0
 	
-	file3="$s1/immortalwrt-rockchip-armv8-friendlyarm_nanopi-r5s-ext4-sysupgrade.img.gz"
+	local file3="$s1/immortalwrt-rockchip-armv8-friendlyarm_nanopi-r5s-ext4-sysupgrade.img.gz"
 	dd if=/dev/zero of=$file3 bs=1 count=0
 	
-	file4="$s1/immortalwrt-rockchip-armv8-friendlyarm_nanopi-r5s-squashfs-sysupgrade.img.gz"
+	local file4="$s1/immortalwrt-rockchip-armv8-friendlyarm_nanopi-r5s-squashfs-sysupgrade.img.gz"
 	dd if=/dev/zero of=$file4 bs=1 count=0
 	
 	# 进入固件目录
@@ -52,7 +52,7 @@ get_openwrt_firmware()
 	fi
 	
 	# 拷贝固件至目标路径
-	firmware_array=()
+	local firmware_array=()
 	for value in "${fields_array[@]}"; do
 		IFS=':' read -r device_name firmware_name <<< "$value"
 		
