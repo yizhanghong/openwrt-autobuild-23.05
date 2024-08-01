@@ -54,13 +54,20 @@ jobs:
               source ${scripts_file} 1
           fi
           
-          
+          IFS=','
+          array_string="${OPENWRT_FIRMWARE_ARRAY[*]}"
+          echo "OPENWRT_FIRMWARE_ARRAY=$array_string" >> $GITHUB_ENV
           
       - name: Upload firmware directory
-        run: |
-          for value in "${OPENWRT_FIRMWARE_ARRAY[@]}"; do
-              echo $value
-          done
+        uses: actions/upload-artifact@master
+        with:
+          {% for item in ${{ env.OPENWRT_FIRMWARE_ARRAY }} split(',') %}
+            {% set name_path = item.split(':') %}
+            {% set name = name_path[0] %}
+            {% set path = name_path[1] %}
+            name: "{{ name }}"
+            path: "{{ path }}"
+          {% endfor %}  
           
       - name: Delete workflow runs
         uses: Mattraks/delete-workflow-runs@v2  # main
