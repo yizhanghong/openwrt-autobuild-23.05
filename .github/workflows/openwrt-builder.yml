@@ -19,7 +19,7 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     outputs:
-      firmware-json: ${{ steps.set-env.outputs.firmware-json }}
+      firmware-json: ${{ steps.compile.outputs.firmware-json }}
 
     steps:
       - name: Checkout
