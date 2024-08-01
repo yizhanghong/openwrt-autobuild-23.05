@@ -61,16 +61,20 @@ jobs:
           fi
           
           echo "FIRMWARE_JSON=$OPENWRT_FIRMWARE_JSON" >> $GITHUB_ENV
-          
+  upload:
+    runs-on: ubuntu-22.04
+    needs: build
+    strategy:
+      matrix:
+        directory: ${{ fromJson(steps.compile.outputs.FIRMWARE_JSON) }}
+    
+    steps:
       - name: Upload firmware directory
-        uses: actions/upload-artifact@master
+        uses: actions/upload-artifact@v3
         if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
         with:
           name: ${{ matrix.directory-name }}
           path: ${{ matrix.directory-path }}
-        strategy:
-          matrix:
-            directory: ${{ fromJson(env.FIRMWARE_JSON) }} 
           
       - name: Delete workflow runs
         uses: Mattraks/delete-workflow-runs@v2  # main
