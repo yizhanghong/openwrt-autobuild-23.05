@@ -30,11 +30,14 @@ get_openwrt_firmware()
 	# 进入固件目录
 	cd ${source_path}/bin/targets/*/*
 	
+	# 判断目录是否为空
 	if [ ! -n "$(find . -mindepth 1)" ]; then
 		print_log "ERROR" "compile firmware" "固件目录为空, 请检查!"
 		return 1
 	fi
 	
+	# 拷贝固件至目标路径
+	firmware_array=()
 	for value in "${fields_array[@]}"; do
 		IFS=':' read -r device_name firmware_name <<< "$value"
 		
@@ -49,9 +52,6 @@ get_openwrt_firmware()
 			mkdir -p "${firmware_path}"
 		fi
 		
-		# 固件生成文件
-		firmware_output_file="${firmware_path}.zip"
-		
 		# 拷贝文件	
 		rsync -av \
 			--exclude='packages/' \
@@ -62,18 +62,30 @@ get_openwrt_firmware()
 			--include='*' \
 			${PWD}/ ${firmware_path}/
 			
-		if [ "$(find "${firmware_path}" -mindepth 1)" ]; then
-			# 压缩打包文件
-			zip -j ${firmware_output_file} ${firmware_path}/*
-		fi
-		
-		# 删除缓存文件
-		rm -rf "${firmware_path}"
-		
-		#if [ ${USER_CONFIG_ARRAY["mode"]} -eq ${COMPILE_MODE[local_compile]} ]; then
-		#else
-		#fi
+		firmware_array+=("${firmware_name}:${firmware_path}")
 	done
+	
+	# 生成固件目标文件
+	if [ ${USER_CONFIG_ARRAY["mode"]} -eq ${COMPILE_MODE[local_compile]} ]; then
+		for value in "${firmware_array[@]}"; do
+			IFS=':' read -r firmware_name firmware_path <<< "$value"
+			
+			if [ -z "${firmware_name}" ] || [ -z "${firmware_path}" ]; then
+				continue
+			fi
+			
+			# 固件生成文件
+			firmware_output_file="${firmware_path}.zip"
+			
+			# 压缩打包文件
+			if [ "$(find "${firmware_path}" -mindepth 1)" ]; then
+				zip -j ${firmware_output_file} ${firmware_path}/*
+			fi
+			
+			# 删除缓存文件
+			rm -rf "${firmware_path}"
+		done
+	fi
 	
 	print_log "TRACE" "get firmware" "完成获取OpenWrt固件!"
 	return 0
@@ -389,7 +401,7 @@ auto_compile_openwrt()
 {
 	# 设置自动编译状态
 	USER_STATUS_ARRAY["autocompile"]=1
-	
+	: "
 	# 克隆openwrt源码
 	if ! clone_openwrt_source $1; then
 		return 1
@@ -422,6 +434,7 @@ auto_compile_openwrt()
 	if ! compile_openwrt_firmware $1; then
 		return 1
 	fi
+	"
 	
 	# 获取OpenWrt固件
 	get_openwrt_firmware $1

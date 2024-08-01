@@ -262,6 +262,8 @@ initLinuxEnv()
 		touch "${OPENWRT_PLUGIN_FILE}"
 	fi
 	
+	sudo -E apt-get -qq install -y rsync
+	
 	print_log "TRACE" "init linux" "完成linux环境的初始化!"
 }
 
