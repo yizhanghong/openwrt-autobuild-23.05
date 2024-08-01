@@ -441,7 +441,7 @@ auto_compile_openwrt()
 		return 1
 	fi
 	
-	:"
+	: "
 	# 下载openwrt包
 	if ! download_openwrt_package $1; then
 		return 1
