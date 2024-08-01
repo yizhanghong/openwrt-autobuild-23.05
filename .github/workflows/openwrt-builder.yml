@@ -18,6 +18,8 @@ env:
 jobs:
   build:
     runs-on: ubuntu-22.04
+    outputs:
+      firmware-json: ${{ steps.set-env.outputs.firmware-json }}
 
     steps:
       - name: Checkout
@@ -61,12 +63,14 @@ jobs:
           fi
           
           echo "FIRMWARE_JSON=$OPENWRT_FIRMWARE_JSON" >> $GITHUB_ENV
+          echo "::set-output name=firmware-json::${OPENWRT_FIRMWARE_JSON}"
+          
   upload:
-    runs-on: ubuntu-22.04
     needs: build
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
-        directory: ${{ fromJson(steps.compile.outputs.FIRMWARE_JSON) }}
+        directory: ${{ fromJson(needs.generate-matrix.outputs.firmware-json) }}
     
     steps:
       - name: Upload firmware directory
@@ -74,12 +78,4 @@ jobs:
         if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
         with:
           name: ${{ matrix.directory-name }}
-          path: ${{ matrix.directory-path }}
-          
-      - name: Delete workflow runs
-        uses: Mattraks/delete-workflow-runs@v2  # main
-        with:
-          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-          repository: ${{ github.repository }}
-          retain_days: 0
-          keep_minimum_runs: 0   
+          path: ${{ matrix.directory-path }}       
