@@ -6,15 +6,6 @@ SCRIPT_CMD_ARGS=""
 # 工作目录
 OPENWRT_WORKDIR_NAME="workdir"
 
-# 设备名称
-OPENWRT_DEVICE_NAME=""
-
-# 固件生成名称
-OPENWRT_FIRMWARE_NAME=""
-
-# 固件生成路径
-OPENWRT_FIRMWARE_PATH=""
-
 # 工作路径
 OPENWRT_WORK_PATH=""
 
@@ -41,6 +32,9 @@ OPENWRT_PLUGIN_FILE=""
 
 # 网络代理命令
 NETWORK_PROXY_CMD=""
+
+# 固件数组
+OPENWRT_FIRMWARE_ARRAY=()
 
 # 编译模式
 declare -A COMPILE_MODE
