@@ -19,8 +19,8 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     outputs:
-      #firmware-json: ${{ env.FIRMWARE_JSON }} 
-      firmware-json: ${{ steps.compile.outputs.firmware-json }}
+      firmware-json: ${{ env.FIRMWARE_JSON }} 
+      # firmware-json: ${{ steps.compile.outputs.firmware-json }}
       
     steps:
       - name: Checkout
@@ -30,20 +30,24 @@ jobs:
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
+          # 运行脚本路径
           scripts_path="${GITHUB_WORKSPACE}/scripts"  
           if [ ! -d "${scripts_path}" ]; then
               echo "script path does not exist, please check!"  
               exit 1
           fi
-          
+
+          # 查找脚本并赋予权限
           find $GITHUB_WORKSPACE/scripts -exec chmod +x {} \;
-          
+
+          # 检查执行脚本
           scripts_file="${GITHUB_WORKSPACE}/scripts/${BUILD_SCRIPT}"
           if [ ! -e "${scripts_file}" ]; then
               echo "script files does not exist, please check!"
               exit 1
           fi
-          
+
+          # 检查磁盘空间
           df -hT
           
           echo "scripts_path=${scripts_path}" >> $GITHUB_ENV
@@ -53,11 +57,13 @@ jobs:
         id: compile
         working-directory: ${{ env.scripts_path }}
         run: |
+          # 执行脚本
           scripts_file=${{ env.scripts_file }}
           if [ -x "${scripts_file}" ]; then
               source ${scripts_file} 1
           fi
-          
+
+          # 检查固件信息
           if [ -z "${OPENWRT_FIRMWARE_JSON}" ]; then
               echo "firmware does not exist, please check!"
               exit 1
