@@ -93,7 +93,7 @@ jobs:
           FIRMWARE_MATRIX=$(jq -c '.[]' <<< "$FIRMWARE_JSON")
           
           # 设置输出
-          echo "firmware_json=$(echo "$FIRMWARE_JSON" | jq -s .)" >> $GITHUB_OUTPUT
+          echo "firmware_json=$(echo "$FIRMWARE_JSON" | jq -c .)" >> $GITHUB_OUTPUT
 
       - name: Check test
         run: |   
