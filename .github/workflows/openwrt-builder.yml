@@ -91,22 +91,23 @@ jobs:
 
           # 生成矩阵配置
           FIRMWARE_MATRIX=$(jq -c '.[]' <<< "$FIRMWARE_JSON")
- 
+
+          for item in $(echo "$FIRMWARE_MATRIX" | jq -c '.'); do
+              NAME=$(echo "$item" | jq -r '.name')
+              echo "Matrix item name: $NAME"
+          done
+
           # 设置输出
           # echo "::set-output name=matrix::$FIRMWARE_MATRIX"
           # echo "::set-output name=matrix::$(echo "$FIRMWARE_JSON" | jq -c '.')"
           echo "matrix=$(echo "$FIRMWARE_JSON" | jq -c .)" >> $GITHUB_OUTPUT
 
-      - name: Check test
-        run: |
-            echo "cur dir_name=${{ fromJson(steps.generate-matrix.outputs.matrix).name }}"
-            echo "cur dir_path=${{ fromJson(steps.generate-matrix.outputs.matrix).path }}"   
-          
       - name: Delete workflow runs
         uses: Mattraks/delete-workflow-runs@v2  # main
         with:
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           repository: ${{ github.repository }}
           retain_days: 0
-          keep_minimum_runs: 0      
-  
+          keep_minimum_runs: 0 
+          
+      
