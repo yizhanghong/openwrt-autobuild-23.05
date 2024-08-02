@@ -89,7 +89,7 @@ jobs:
           MATRIX=$(echo "$FIRMWARE_JSON" | jq -c '.[]')
 
           # 将生成的矩阵配置保存到环境变量
-          #echo "matrix=$MATRIX" >> $GITHUB_ENV
+          echo "matrix=$MATRIX" >> $GITHUB_ENV
      
           echo "Matrix: $MATRIX"
       
