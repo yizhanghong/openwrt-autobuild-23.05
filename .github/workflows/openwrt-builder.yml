@@ -109,6 +109,12 @@ jobs:
           echo "Decoded JSON: $FIRMWARE_JSON"
           # echo "::set-output name=decoded_firmware_json::$FIRMWARE_JSON"
 
-      - name: test matrix
+      - name: Set matrix
+        id: set matrix
         run: |
-          echo "Matrix JSON: ${{ fromJson(env.FIRMWARE_JSON) }}"
+          echo "::set-output name=matrix::$(echo '${{ env.FIRMWARE_JSON }}' | jq -c)"
+          
+      - name: Use matrix    
+        run: |
+          echo "Matrix JSON: ${{ steps.set-matrix.outputs.matrix }}"
+      
