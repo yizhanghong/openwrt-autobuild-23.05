@@ -96,7 +96,7 @@ jobs:
           echo "firmware_json=$(echo "$FIRMWARE_JSON" | jq -c .)" >> $GITHUB_OUTPUT
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: build-artifacts
           path: ${GITHUB_WORKSPACE}/output   
@@ -118,9 +118,10 @@ jobs:
           ${{ fromJson(needs.build.outputs.firmware-json) }}
     steps:
       - name: Download build artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: build-artifacts
+          path: ${GITHUB_WORKSPACE}/output 
           
       - name: Check test
         run: |
