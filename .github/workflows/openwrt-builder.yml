@@ -118,8 +118,15 @@ jobs:
         run: |
             echo "cur dir_name=${{ matrix.firmware.name }}"
             echo "cur dir_path=${{ matrix.firmware.path }}"
-            
-            ls -al ${{ matrix.firmware.path }}
+
+            s1="/home/runner/work/openwrt-autobuild/openwrt-autobuild"
+            ls -al $s1
+
+            s2="$s1/output"
+            ls -al $s2
+
+            s3="$s2/20240802"
+            ls -al $s3
             
       - name: Upload firmware directory
         uses: actions/upload-artifact@v4
