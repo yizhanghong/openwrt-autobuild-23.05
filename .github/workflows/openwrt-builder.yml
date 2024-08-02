@@ -100,7 +100,7 @@ jobs:
           FIRMWARE_MATRIX="${{ fromJson(steps.generate-matrix.outputs.firmware_json) }}"
 
           # echo "MATRIX_NAME=$(echo "$FIRMWARE_MATRIX" | jq -r '.[0].name')"
-          jq -c '.[]' <<< "$FIRMWARE_MATRIX"
+          echo "$FIRMWARE_JSON" | jq '.[] | select(.key == "name")'
 
       - name: Delete workflow runs
         uses: Mattraks/delete-workflow-runs@v2  # main
