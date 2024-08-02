@@ -86,15 +86,12 @@ jobs:
           
           # 打印解码后的 JSON 数据
           echo "$FIRMWARE_JSON"
-
-          # 将解码后的 JSON 数据作为输出
-          echo "firmware-json=${FIRMWARE_JSON}" >> $GITHUB_ENV
   upload:
     needs: build
     runs-on: ubuntu-22.04
     
     steps:
-      - name: Print firmware Info
+      - name: Decode firmware info
         run: |
           # 获取 Base64 编码的 JSON 字符串
           ENCODED_JSON="${{ needs.build.outputs.firmware-json }}"
@@ -104,4 +101,4 @@ jobs:
 
           # 打印解码后的 JSON 数据
           echo "$FIRMWARE_JSON"
-         # echo "Firmware Info: ${{ matrix.directory.name }}"
+          echo "${{ fromJson($FIRMWARE_JSON).name }}"
