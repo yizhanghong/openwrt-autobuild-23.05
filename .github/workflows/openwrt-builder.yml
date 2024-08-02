@@ -92,5 +92,20 @@ jobs:
           echo "$MATRIX" > matrix.json
           
           # 将生成的矩阵文件保存到环境变量
-          echo "matrix=matrix.json" >> $GITHUB_ENV
+          #echo "matrix=matrix.json" >> $GITHUB_ENV
+          echo "matrix=$(cat matrix.json)" >> $GITHUB_ENV
+          
+  upload:
+    needs: build
+    runs-on: ubuntu-22.04
+
+    #strategy:
+    #  matrix:
+    #    firmware: ${{ fromJson(cat ) }}
+        
+    steps:
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'    
       
