@@ -112,9 +112,15 @@ jobs:
       - name: Set matrix
         id: set matrix
         run: |
-          echo "::set-output name=matrix::$(echo '${{ env.FIRMWARE_JSON }}' | jq -c)"
+          # echo "::set-output name=matrix::$(echo '${{ env.FIRMWARE_JSON }}' | jq -c)"
+          echo "$FIRMWARE_JSON" | jq -c '.' > matrix.json
+          cat matrix.json
           
-      - name: Use matrix    
+      - name: Use matrix  
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
         run: |
-          echo "Matrix JSON: ${{ steps.set-matrix.outputs.matrix }}"
-      
+          #echo "Matrix JSON: ${{ steps.set-matrix.outputs.matrix }}"
+          MATRIX=$(cat matrix.json)
+          echo "Matrix JSON: $MATRIX"
