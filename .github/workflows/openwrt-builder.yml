@@ -102,8 +102,10 @@ jobs:
       - name: Check test
         run: |   
           ENCODED_MATRIX="${{ steps.generate-matrix.outputs.firmware_matrix }}"
+          echo "$ENCODED_MATRIX"
 
           FIRMWARE_MATRIX=$(echo "$ENCODED_MATRIX" | base64 --decode)
+          echo $FIRMWARE_MATRIX
 
           echo "MATRIX_NAME=$(echo "$FIRMWARE_MATRIX" | jq -r '.[0].name')"
 
