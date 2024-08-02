@@ -97,14 +97,15 @@ jobs:
 
           # 设置输出
           # echo "::set-output name=matrix::$FIRMWARE_MATRIX"
-          echo "::set-output name=matrix::$(echo "$FIRMWARE_JSON" | jq -c '.')"
+          # echo "::set-output name=matrix::$(echo "$FIRMWARE_JSON" | jq -c '.')"
+          echo "matrix=$(echo "$FIRMWARE_JSON" | jq -c .)" >> $GITHUB_OUTPUT
           
   upload:
     needs: build
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        directory:
+        firmware:
           ${{ fromJson(needs.build.outputs.firmware_matrix) }}
           
     steps:
@@ -112,6 +113,6 @@ jobs:
         uses: actions/upload-artifact@master
         if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
         with:
-          name: ${{ matrix.directory.name }}
-          path: ${{ matrix.directory.path }}
+          name: ${{ matrix.firmware.name }}
+          path: ${{ matrix.firmware.path }}
         
