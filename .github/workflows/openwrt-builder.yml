@@ -112,6 +112,6 @@ jobs:
         uses: actions/upload-artifact@master
         if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
         with:
-          name: ${{ matrix.directory.directory-name }}
-          path: ${{ matrix.directory.directory-path }}
+          name: ${{ matrix.directory.name }}
+          path: ${{ matrix.directory.path }}
         
