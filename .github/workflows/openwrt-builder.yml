@@ -32,7 +32,7 @@ jobs:
           # 运行脚本路径
           scripts_path="${GITHUB_WORKSPACE}/scripts"  
           if [ ! -d "${scripts_path}" ]; then
-              echo "script path does not exist, please check!"  
+              echo "Script path does not exist, Please check!"  
               exit 1
           fi
 
@@ -42,7 +42,7 @@ jobs:
           # 检查执行脚本
           scripts_file="${GITHUB_WORKSPACE}/scripts/${BUILD_SCRIPT}"
           if [ ! -e "${scripts_file}" ]; then
-              echo "script files does not exist, please check!"
+              echo "Script files does not exist, Please check!"
               exit 1
           fi
 
@@ -91,10 +91,7 @@ jobs:
 
           # 生成矩阵配置
           FIRMWARE_MATRIX=$(jq -c '.[]' <<< "$FIRMWARE_JSON")
-          
-          # 将整个 JSON 数组转成紧凑格式的字符串，并写入环境变量
-          #echo "matrix=$(echo "$FIRMWARE_JSON" | jq -c .)" >> $GITHUB_ENV
-
+ 
           # 设置输出
           # echo "::set-output name=matrix::$FIRMWARE_MATRIX"
           # echo "::set-output name=matrix::$(echo "$FIRMWARE_JSON" | jq -c '.')"
@@ -115,4 +112,11 @@ jobs:
         with:
           name: ${{ matrix.firmware.name }}
           path: ${{ matrix.firmware.path }}
-        
+          
+      - name: Delete workflow runs
+        uses: Mattraks/delete-workflow-runs@v2  # main
+        with:
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          repository: ${{ github.repository }}
+          retain_days: 0
+          keep_minimum_runs: 0      
