@@ -97,6 +97,14 @@ jobs:
           # echo "::set-output name=matrix::$(echo "$FIRMWARE_JSON" | jq -c '.')"
           echo "matrix=$(echo "$FIRMWARE_JSON" | jq -c .)" >> $GITHUB_OUTPUT
           
+      - name: Delete workflow runs
+        uses: Mattraks/delete-workflow-runs@v2  # main
+        with:
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          repository: ${{ github.repository }}
+          retain_days: 0
+          keep_minimum_runs: 0      
+          
   upload:
     needs: build
     runs-on: ubuntu-22.04
@@ -106,17 +114,16 @@ jobs:
           ${{ fromJson(needs.build.outputs.firmware_matrix) }}
           
     steps:
+      - name: Check test
+        run: |
+            echo "cur dir_name=${{ matrix.firmware.name }}"
+            echo "cur dir_path=${{ matrix.firmware.path }}"
+            
+            ls -al ${{ matrix.firmware.path }}
+            
       - name: Upload firmware directory
-        uses: actions/upload-artifact@master
+        uses: actions/upload-artifact@v4
         if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
         with:
           name: ${{ matrix.firmware.name }}
           path: ${{ matrix.firmware.path }}
-          
-      - name: Delete workflow runs
-        uses: Mattraks/delete-workflow-runs@v2  # main
-        with:
-          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-          repository: ${{ github.repository }}
-          retain_days: 0
-          keep_minimum_runs: 0      

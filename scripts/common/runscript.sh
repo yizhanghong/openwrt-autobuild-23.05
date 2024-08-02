@@ -16,6 +16,10 @@ get_openwrt_firmware()
 		return 1
 	fi
 	
+	# ------
+	target_path="${path}/bin/targets/rockchip/armv8"
+	mkdir -p ${target_path}
+	
 	if [ ! -d "${path}/bin/targets" ] || ! find "${path}/bin/targets/" -mindepth 2 -maxdepth 2 -type d -name '*' | grep -q '.'; then
 		print_log "ERROR" "compile firmware" "固件目录不存在, 请检查!"
 		return 1
@@ -29,6 +33,12 @@ get_openwrt_firmware()
 	
 	# 进入固件目录
 	cd ${path}/bin/targets/*/*
+	
+	# ------
+	echo "this is a test1" > "${target_path}/test1.txt"
+	echo "this is a test2" > "${target_path}/test2.txt"
+	echo "this is a test3" > "${target_path}/test3.txt"
+	echo "this is a test4" > "${target_path}/test4.txt"
 	
 	# 判断目录是否为空
 	if [ ! -n "$(find . -mindepth 1)" ]; then
@@ -425,7 +435,7 @@ auto_compile_openwrt()
 	if ! set_openwrt_feeds $1; then
 		return 1
 	fi
-	
+	: '
 	# 更新 openwrt feeds源
 	if ! update_openwrt_feeds $1; then
 		return 1
@@ -433,12 +443,12 @@ auto_compile_openwrt()
 	
 	# 设置自定义配置
 	set_custom_config $1
-	
+	'
 	# 设置功能选项
 	if ! set_menu_options $1; then
 		return 1
 	fi
-	
+	: '
 	# 下载openwrt包
 	if ! download_openwrt_package $1; then
 		return 1
@@ -448,7 +458,7 @@ auto_compile_openwrt()
 	if ! compile_openwrt_firmware $1; then
 		return 1
 	fi
-	
+	'
 	# 获取OpenWrt固件
 	get_openwrt_firmware $1
 	
