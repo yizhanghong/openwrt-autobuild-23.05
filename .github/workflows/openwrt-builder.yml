@@ -19,9 +19,8 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     outputs:
-      #firmware-json: ${{ steps.compile.outputs.firmware-json }}
-      firmware-json: ${{ env.FIRMWARE_JSON }}
-
+      firmware-json: ${{ env.FIRMWARE_JSON }} 
+      
     steps:
       - name: Checkout
         uses: actions/checkout@master
@@ -66,7 +65,9 @@ jobs:
           echo "FIRMWARE_JSON=$OPENWRT_FIRMWARE_JSON" >> $GITHUB_ENV
           #echo "::set-output name=firmware-json::${OPENWRT_FIRMWARE_JSON}"
           
-          echo "$OPENWRT_FIRMWARE_JSON"
+      - name: print info
+        run: |
+          echo "FIRMWARE_JSON=${{ env.FIRMWARE_JSON }}"
 
   upload:
     needs: build
