@@ -215,7 +215,6 @@ updateLinuxEnv()
 	print_log "TRACE" "update linux" "正在更新linux环境，请等待..."
 	
 	set +e
-	:'
 	if [ ${USER_CONFIG_ARRAY["mode"]} -ne ${COMPILE_MODE[local_compile]} ]; then
 
 		# 列出前100个比较大的包
@@ -245,8 +244,7 @@ updateLinuxEnv()
 	
 	sudo -E apt-get -qq autoremove --purge
 	sudo -E apt-get -qq clean
-	'
-	sudo -E apt-get -qq install -y rsync jq
+
 	df -hT
 	
 	sudo timedatectl set-timezone "${USER_CONFIG_ARRAY["zonename"]}"
