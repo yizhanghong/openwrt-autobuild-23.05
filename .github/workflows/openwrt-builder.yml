@@ -21,7 +21,7 @@ jobs:
     outputs:
       # firmware-json: ${{ env.FIRMWARE_JSON }} 
       # firmware-json: ${{ steps.print.outputs.firmware-json }}
-      firmware: ${{ steps.generate-matrix.outputs.matrix  }}
+      firmware_matrix: ${{ steps.generate-matrix.outputs.matrix  }}
       
     steps:
       - name: Checkout
@@ -86,21 +86,16 @@ jobs:
           FIRMWARE_JSON=$(echo "$ENCODED_FIRMWARE_JSON" | base64 --decode)
 
           # 生成矩阵配置
-          MATRIX=$(echo "$FIRMWARE_JSON" | jq -c '.[]')
+          FIRMWARE_MATRIX=$(echo "$FIRMWARE_JSON" | jq -c '.[]')
 
-          # 生成矩阵文件
-          echo "$MATRIX" > matrix.json
-          
-          # 将生成的矩阵文件保存到环境变量
-          echo "matrix=matrix.json" >> $GITHUB_ENV
+          echo "::set-output name=matrix::$FIRMWARE_MATRIX"
           
   upload:
     needs: build
     runs-on: ubuntu-22.04
 
     strategy:
-      matrix:
-        firmware: ${{ fromJson(cat needs.build.outputs.firmware) }}
+      matrix: ${{ fromJson(needs.build.outputs.firmware_matrix) }}
         
     steps:
       - name: Set up Node.js
