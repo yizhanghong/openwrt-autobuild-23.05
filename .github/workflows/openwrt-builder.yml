@@ -18,9 +18,9 @@ env:
 jobs:
   build:
     runs-on: ubuntu-22.04
-    outputs:
+    #outputs:
       # firmware-json: ${{ env.FIRMWARE_JSON }} 
-      firmware_matrix: ${{ steps.generate-matrix.outputs.matrix  }}
+      #firmware_matrix: ${{ steps.generate-matrix.outputs.matrix  }}
     steps:
       - name: Checkout
         uses: actions/checkout@master
@@ -91,9 +91,12 @@ jobs:
 
           # 生成矩阵配置
           FIRMWARE_MATRIX=$(jq -c '.[]' <<< "$FIRMWARE_JSON")
+          
+          # 将整个 JSON 数组转成紧凑格式的字符串，并写入环境变量
+          echo "matrix=$(echo "$FIRMWARE_JSON" | jq -c .)" >> $GITHUB_ENV
 
           # 设置输出
-          echo "::set-output name=matrix::$FIRMWARE_MATRIX"
+          # echo "::set-output name=matrix::$FIRMWARE_MATRIX"
           
   upload:
     needs: build
@@ -102,12 +105,8 @@ jobs:
       matrix:
         directory:
           ${{ fromJson(needs.build.outputs.firmware_matrix) }}
-    steps:
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
           
+    steps:
       - name: Upload firmware directory
         uses: actions/upload-artifact@master
         if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
