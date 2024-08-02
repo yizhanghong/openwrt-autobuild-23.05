@@ -91,10 +91,11 @@ jobs:
     needs: build
     runs-on: ubuntu-22.04
     
-    # strategy:
+    strategy:
       # matrix: ${{ fromJson(steps.decode.outputs.decoded_firmware_json) }}
-      # matrix: ${{ fromJson(env.FIRMWARE_JSON) }}
-    
+      matrix: 
+        firmware: ${{ fromJson(env.FIRMWARE_JSON) }}
+        
     steps:
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -113,15 +114,11 @@ jobs:
 
           echo "Decoded JSON: $FIRMWARE_JSON"
           # echo "::set-output name=decoded_firmware_json::$FIRMWARE_JSON"
-
-      - name: Set matrix
-        run: |
-          # echo "::set-output name=matrix::$(echo '${{ env.FIRMWARE_JSON }}' | jq -c)"
-          echo "$FIRMWARE_JSON" | jq -c '.' > matrix.json
-          cat matrix.json
           
       - name: Use matrix  
         run: |
           #echo "Matrix JSON: ${{ steps.set-matrix.outputs.matrix }}"
-          MATRIX=$(cat matrix.json)
-          echo "Matrix JSON: $MATRIX"
+          #MATRIX=$(cat matrix.json)
+          #echo "Matrix JSON: $MATRIX"
+
+          echo "Matrix item: ${{ matrix.firmware }}"
