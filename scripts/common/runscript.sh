@@ -80,7 +80,7 @@ get_openwrt_firmware()
 		fireware_array+=("${firmware_name}:${firmware_path}")
 	done
 	
-	OPENWRT_FIRMWARE_JSON=$(array_to_json "${fireware_array[@]}")
+	OPENWRT_FIRMWARE_JSON=$(array_to_jsonarr "${fireware_array[@]}")
 	
 	# 生成固件目标文件
 	if [ ${USER_CONFIG_ARRAY["mode"]} -eq ${COMPILE_MODE[local_compile]} ]; then
