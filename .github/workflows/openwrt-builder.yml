@@ -86,12 +86,14 @@ jobs:
           
           # 打印解码后的 JSON 数据
           echo "$FIRMWARE_JSON"
+          
   upload:
     needs: build
     runs-on: ubuntu-22.04
+    
     strategy:
-      # matrix: ${{ fromJson(steps.decode.outputs.decoded_firmware_json) }}
-      matrix: ${{ fromJson(env.FIRMWARE_JSON) }}
+      matrix: ${{ fromJson(steps.decode.outputs.decoded_firmware_json) }}
+      # matrix: ${{ fromJson(env.FIRMWARE_JSON) }}
     
     steps:
       - name: Decode firmware info
@@ -102,4 +104,6 @@ jobs:
           # Base64 解码 JSON 字符串
           FIRMWARE_JSON=$(echo "$ENCODED_FIRMWARE_JSON" | base64 --decode)
 
-          echo "FIRMWARE_JSON=$FIRMWARE_JSON" >> $GITHUB_ENV
+          # echo "FIRMWARE_JSON=$FIRMWARE_JSON" >> $GITHUB_ENV
+          # 将解码后的 JSON 字符串存储为步骤输出
+          echo "::set-output name=decoded_firmware_json::$FIRMWARE_JSON"
