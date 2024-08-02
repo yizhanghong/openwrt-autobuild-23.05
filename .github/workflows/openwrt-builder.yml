@@ -19,8 +19,8 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     outputs:
-      firmware-json: ${{ env.FIRMWARE_JSON }} 
-      # firmware-json: ${{ steps.compile.outputs.firmware-json }}
+      # firmware-json: ${{ env.FIRMWARE_JSON }} 
+      firmware-json: ${{ steps.print.outputs.firmware-json }}
       
     steps:
       - name: Checkout
@@ -76,6 +76,7 @@ jobs:
           echo "ENCODED_FIRMWARE_JSON=${ENCODED_JSON}" >> $GITHUB_ENV
           
       - name: Print decode info
+        id: print
         run: |
           # 从 GITHUB_ENV 获取 Base64 编码的 JSON 字符串
           ENCODED_JSON="${{ env.ENCODED_FIRMWARE_JSON }}"
@@ -86,6 +87,8 @@ jobs:
           # 打印解码后的 JSON 数据
           echo "$FIRMWARE_JSON"
 
+          # 将解码后的 JSON 数据作为输出
+          echo "firmware-json=${FIRMWARE_JSON}" >> $GITHUB_ENV
   upload:
     needs: build
     runs-on: ubuntu-22.04
@@ -96,7 +99,8 @@ jobs:
     steps:
       - name: Print firmware Info
         run: |
-          echo "Firmware Info: ${{ needs.build.outputs.firmware-json }}"
+          echo "${{ needs.build.outputs.firmware-json }}"
+          echo "Firmware Info: ${{ matrix.directory.name }}"
   
       - name: Upload firmware directory
         uses: actions/upload-artifact@master
