@@ -19,9 +19,8 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     outputs:
-      # firmware-json: ${{ env.FIRMWARE_JSON }} 
+      firmware-json: ${{ env.FIRMWARE_JSON }} 
       # firmware-json: ${{ steps.print.outputs.firmware-json }}
-      fjson: ${{ steps.compile.outputs.FIRMWARE_JSON }}
       
     steps:
       - name: Checkout
@@ -79,23 +78,24 @@ jobs:
   upload:
     needs: build
     runs-on: ubuntu-22.04
-    
+
     strategy:
-      # matrix: ${{ fromJson(steps.decode.outputs.decoded_firmware_json) }}
-      matrix: 
-        # firmware: ${{ fromJson(env.FIRMWARE_JSON) }}
-        firmware: ${{ fromJson(needs.build.outputs.fjson) }}
-        
+      matrix:
+        firmware: ${{ fromJson(decodeBase64(needs.build.outputs.firmware-json)) }}
+    
     steps:
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-
-      - name: Use matrix  
+      - name: Decode firmware info
+        id: decode-firmware
+        env:
+          # 获取 Base64 编码的 JSON 字符串
+          ENCODED_FIRMWARE_JSON: ${{ needs.build.outputs.firmware-json }}
         run: |
-          #echo "Matrix JSON: ${{ steps.set-matrix.outputs.matrix }}"
-          #MATRIX=$(cat matrix.json)
-          #echo "Matrix JSON: $MATRIX"
+          # Base64 解码 JSON 字符串
+          FIRMWARE_JSON=$(echo "$ENCODED_FIRMWARE_JSON" | base64 --decode)
 
-          echo "Matrix item: ${{ matrix.firmware }}"
+          # 写入json文件
+          echo "$FIRMWARE_JSON" > firmware.json
+
+     
+          
+      
