@@ -93,7 +93,8 @@ jobs:
           FIRMWARE_MATRIX=$(jq -c '.[]' <<< "$FIRMWARE_JSON")
           
           # 设置输出
-          echo "matrix=$(echo "$FIRMWARE_MATRIX" | jq -s .)" >> $GITHUB_OUTPUT
+          # echo "matrix=$(echo "$FIRMWARE_MATRIX" | jq -s .)" >> $GITHUB_OUTPUT
+          echo "FIRMWARE_MATRIX=$(echo "$FIRMWARE_MATRIX" | jq -s . | sed 's/^/"/;s/$/"/;s/"/\\"/g')" >> $GITHUB_OUTPUT
 
       - name: Check test
         run: |   
