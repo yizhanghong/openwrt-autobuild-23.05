@@ -369,22 +369,33 @@ enum_struct_field()
 	fi
 }
 
-# 将数组转换为 JSON 对象
-array_to_json()
+# 将数组转换为 JSON 数组
+array_to_jsonarr()
 {
 	local array=("$@")
-    local json="{"
+    local json="["
 	
-	for item in "${array[@]}"; do
+	for index in "${!array[@]}"; do
+		local item="${array[$index]}"
+		
         # 分割 name 和 path
         IFS=":" read -r name path <<< "$item"
+		
+		# 转义特殊字符
+		name=$(printf '%s' "$name" | sed 's/"/\\"/g')
+		path=$(printf '%s' "$path" | sed 's/"/\\"/g')
 
         # 添加到 JSON 字符串
-        json+="\"$name\":\"$path\","
+        json+="{\"name\":\"$name\", \"path\":\"$path\"}"
+		
+		# 添加逗号分隔符，除非是最后一个元素
+        if [[ $index -lt $((${#array[@]} - 1)) ]]; then
+            json+=","
+        fi
     done
 	
-	# 去掉最后一个逗号，并关闭 JSON 对象
-    json="${json%,}}"
+	# 完成 JSON 数组字符串
+    json+="]"
 	
 	echo "$json"
 }
