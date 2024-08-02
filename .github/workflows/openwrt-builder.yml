@@ -19,8 +19,8 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     outputs:
-      firmware-json: ${{ env.FIRMWARE_JSON }} 
-      
+      # firmware-json: ${{ env.FIRMWARE_JSON }} 
+      firmware_matrix: ${{ steps.generate-matrix.outputs.matrix  }}
     steps:
       - name: Checkout
         uses: actions/checkout@master
@@ -64,7 +64,7 @@ jobs:
 
           # 检查固件信息
           if [ -z "${OPENWRT_FIRMWARE_JSON}" ]; then
-              echo "firmware does not exist, please check!"
+              echo "Firmware does not exist, Please check!"
               exit 1
           fi
           
@@ -73,21 +73,12 @@ jobs:
           
           # 将 Base64 编码的字符串保存到 GITHUB_ENV
           echo "FIRMWARE_JSON=${ENCODED_JSON}" >> $GITHUB_ENV
-  upload:
-    needs: build
-    runs-on: ubuntu-22.04
-    
-    steps:
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
 
       - name: Create Matrix configuration
         id: generate-matrix
         env:
           # 获取 Base64 编码的 JSON 字符串
-          ENCODED_FIRMWARE_JSON: ${{ needs.build.outputs.firmware-json }}
+          ENCODED_FIRMWARE_JSON: ${{ env.FIRMWARE_JSON }}
         run: |
           # Base64 解码 JSON 字符串
           FIRMWARE_JSON=$(echo "$ENCODED_FIRMWARE_JSON" | base64 --decode)
@@ -98,11 +89,29 @@ jobs:
               exit 1
           fi
 
+          # 生成矩阵配置
           FIRMWARE_MATRIX=$(jq -c '.[]' <<< "$FIRMWARE_JSON")
 
-          # 写入json文件
-          # echo "$FIRMWARE_JSON" > firmware.json
-  
           # 设置输出
           echo "::set-output name=matrix::$FIRMWARE_MATRIX"
+          
+  upload:
+    needs: build
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        directory:
+          ${{ fromJson(needs.build.outputs.firmware_matrix) }}
+    steps:
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          
+      - name: Upload firmware directory
+        uses: actions/upload-artifact@master
+        if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
+        with:
+          name: ${{ matrix.directory.directory-name }}
+          path: ${{ matrix.directory.directory-path }}
         
