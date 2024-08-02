@@ -97,12 +97,10 @@ jobs:
           # echo "::set-output name=matrix::$(echo "$FIRMWARE_JSON" | jq -c '.')"
           echo "matrix=$(echo "$FIRMWARE_JSON" | jq -c .)" >> $GITHUB_OUTPUT
 
-      - name: Upload firmware directory
-        uses: actions/upload-artifact@v4
-        if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
-        with:
-          name: ${{ fromJson(steps.generate-matrix.outputs.matrix).name }}
-          path: ${{ fromJson(steps.generate-matrix.outputs.matrix).path }}     
+      - name: Check test
+        run: |
+            echo "cur dir_name=${{ fromJson(steps.generate-matrix.outputs.matrix).name }}"
+            echo "cur dir_path=${{ fromJson(steps.generate-matrix.outputs.matrix).path }}"   
           
       - name: Delete workflow runs
         uses: Mattraks/delete-workflow-runs@v2  # main
