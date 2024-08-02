@@ -74,9 +74,13 @@ jobs:
         directory: ${{ fromJson(needs.build.outputs.firmware-json) }}
     
     steps:
+      - name: Print directory path
+        run: |
+          echo "Matrix Directory Path: ${{ matrix.directory.directory-path }}"
+  
       - name: Upload firmware directory
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@master
         if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
         with:
           name: ${{ matrix.directory.directory-name }}
-          path: ${{ matrix.directory.directory-path }}       
+          path: ${{ matrix.directory.directory-path }}
