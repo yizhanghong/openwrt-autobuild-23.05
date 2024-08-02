@@ -76,7 +76,9 @@ jobs:
           # echo "firmware-json-path=${{ runner.temp }}/openwrt_firmware.json" >> $GITHUB_ENV
 
           ENCODED_JSON=$(echo -n "${OPENWRT_FIRMWARE_JSON}" | base64)
-          echo "::set-output name=firmware-json::$ENCODED_JSON"
+          echo "FIRMWARE_JSON=$ENCODED_JSON" >> $GITHUB_ENV
+          
+          # echo "::set-output name=firmware-json::$ENCODED_JSON"
           
       - name: print info
         run: |
@@ -85,7 +87,8 @@ jobs:
           # FIRMWARE_JSON=$(cat "${{ steps.compile.outputs.firmware-json }}")
           # echo "$FIRMWARE_JSON"
 
-          FIRMWARE_JSON=$(echo "${{ steps.compile.outputs.firmware-json }}" | base64 --decode)
+          # FIRMWARE_JSON=$(echo "${{ steps.compile.outputs.firmware-json }}" | base64 --decode)
+          FIRMWARE_JSON=$(echo "${{ env.FIRMWARE_JSON  }}" | base64 --decode)
           echo "$FIRMWARE_JSON"
 
   upload:
