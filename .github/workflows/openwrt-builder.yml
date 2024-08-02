@@ -97,7 +97,7 @@ jobs:
           
           # 设置输出
           # echo "firmware_json=$(echo "$FIRMWARE_JSON" | jq -s .)" >> $GITHUB_OUTPUT
-          echo "firmware_matrix=$(jq -s . <<< "$ENCODED_MATRIX")" >> $GITHUB_OUTPUT
+          echo "firmware_matrix=$ENCODED_MATRIX" >> $GITHUB_OUTPUT
 
       - name: Check test
         run: |   
