@@ -95,7 +95,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     strategy:
-      matrix: ${{ fromJson(needs.build.outputs.firmware_matrix) }}
+      matrix: ${{ needs.build.outputs.firmware_matrix }}
         
     steps:
       - name: Set up Node.js
