@@ -117,10 +117,8 @@ jobs:
         firmware:
           ${{ fromJson(needs.build.outputs.firmware-json) }}
     steps:
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: build-artifacts
+      - name: Checkout
+        uses: actions/checkout@master
           
       - name: Check test
         run: |
