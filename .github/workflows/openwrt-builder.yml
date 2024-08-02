@@ -19,8 +19,8 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     outputs:
-      # firmware-json: ${{ env.FIRMWARE_JSON }} 
-      firmware-json: ${{ steps.print.outputs.firmware-json }}
+      firmware-json: ${{ env.FIRMWARE_JSON }} 
+      # firmware-json: ${{ steps.print.outputs.firmware-json }}
       
     steps:
       - name: Checkout
@@ -92,19 +92,9 @@ jobs:
   upload:
     needs: build
     runs-on: ubuntu-22.04
-    strategy:
-      matrix:
-        directory: ${{ fromJson(needs.build.outputs.firmware-json) }}
     
     steps:
       - name: Print firmware Info
         run: |
           echo "${{ needs.build.outputs.firmware-json }}"
-          echo "Firmware Info: ${{ matrix.directory.name }}"
-  
-      - name: Upload firmware directory
-        uses: actions/upload-artifact@master
-        if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
-        with:
-          name: ${{ matrix.directory.directory-name }}
-          path: ${{ matrix.directory.directory-path }}
+         # echo "Firmware Info: ${{ matrix.directory.name }}"
