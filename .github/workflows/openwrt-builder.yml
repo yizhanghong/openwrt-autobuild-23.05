@@ -67,17 +67,10 @@ jobs:
           ENCODED_JSON=$(echo -n "${OPENWRT_FIRMWARE_JSON}" | base64 | tr -d '\n')
           
           # 将 Base64 编码的字符串保存到 GITHUB_ENV
-          echo "ENCODED_FIRMWARE_JSON=${ENCODED_JSON}" | tee -a $GITHUB_ENV
+          echo "ENCODED_FIRMWARE_JSON=${ENCODED_JSON}" >> $GITHUB_ENV
           
       - name: print info
         run: |
-          #echo "${{ steps.compile.outputs.firmware-json }}"
-
-          # FIRMWARE_JSON=$(cat "${{ steps.compile.outputs.firmware-json }}")
-          # echo "$FIRMWARE_JSON"
-
-          # FIRMWARE_JSON=$(echo "${{ steps.compile.outputs.firmware-json }}" | base64 --decode)
-
           # 从 GITHUB_ENV 获取 Base64 编码的 JSON 字符串
           ENCODED_JSON="${{ env.ENCODED_FIRMWARE_JSON }}"
           
