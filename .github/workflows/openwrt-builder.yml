@@ -63,8 +63,8 @@ jobs:
               exit 1
           fi
 
-          #formatted_json=$(echo $OPENWRT_FIRMWARE_JSON | jq -c .)
-          #echo "::set-output name=firmware-json::$formatted_json"
+          # formatted_json=$(echo $OPENWRT_FIRMWARE_JSON | jq -c .)
+          # echo "::set-output name=firmware-json::$formatted_json"
           
           # echo "FIRMWARE_JSON=$OPENWRT_FIRMWARE_JSON" >> $GITHUB_ENV
           # echo "::set-output name=firmware-json::${OPENWRT_FIRMWARE_JSON}"
@@ -75,8 +75,11 @@ jobs:
           # echo "${OPENWRT_FIRMWARE_JSON}" > "${{ runner.temp }}/openwrt_firmware.json"
           # echo "firmware-json-path=${{ runner.temp }}/openwrt_firmware.json" >> $GITHUB_ENV
 
+          # 将 JSON 字符串进行 Base64 编码
           ENCODED_JSON=$(echo -n "${OPENWRT_FIRMWARE_JSON}" | base64)
-          echo "FIRMWARE_JSON=$ENCODED_JSON" >> $GITHUB_ENV
+          
+          # 将 Base64 编码的字符串保存到 GITHUB_ENV
+          echo "ENCODED_FIRMWARE_JSON=$ENCODED_JSON" >> $GITHUB_ENV
           
           # echo "::set-output name=firmware-json::$ENCODED_JSON"
           
@@ -88,7 +91,14 @@ jobs:
           # echo "$FIRMWARE_JSON"
 
           # FIRMWARE_JSON=$(echo "${{ steps.compile.outputs.firmware-json }}" | base64 --decode)
-          FIRMWARE_JSON=$(echo "${{ env.FIRMWARE_JSON  }}" | base64 --decode)
+
+          # 从 GITHUB_ENV 获取 Base64 编码的 JSON 字符串
+          ENCODED_JSON="${{ env.ENCODED_FIRMWARE_JSON }}"
+          
+          # Base64 解码 JSON 字符串
+          FIRMWARE_JSON=$(echo "$ENCODED_JSON" | base64 --decode)
+          
+          # 打印解码后的 JSON 数据
           echo "$FIRMWARE_JSON"
 
   upload:
