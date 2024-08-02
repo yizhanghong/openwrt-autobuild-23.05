@@ -99,7 +99,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: build-artifacts
-          path: ${GITHUB_WORKSPACE}   
+          path: ./output/ 
 
       - name: Delete workflow runs
         uses: Mattraks/delete-workflow-runs@v2  # main
