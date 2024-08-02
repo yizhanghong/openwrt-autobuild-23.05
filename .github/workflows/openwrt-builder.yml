@@ -101,8 +101,8 @@ jobs:
         uses: actions/upload-artifact@v4
         if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
         with:
-          name: ${{ steps.generate-matrix.outputs.matrix.name }}
-          path: ${{ steps.generate-matrix.outputs.matrix.path }}	     
+          name: ${{ fromJson(steps.generate-matrix.outputs.matrix).name }}
+          path: ${{ fromJson(steps.generate-matrix.outputs.matrix).path }}     
           
       - name: Delete workflow runs
         uses: Mattraks/delete-workflow-runs@v2  # main
