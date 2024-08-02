@@ -67,7 +67,7 @@ jobs:
           ENCODED_JSON=$(echo -n "${OPENWRT_FIRMWARE_JSON}" | base64)
           
           # 将 Base64 编码的字符串保存到 GITHUB_ENV
-          #echo "ENCODED_FIRMWARE_JSON=${ENCODED_JSON}" >> $GITHUB_ENV
+          echo "ENCODED_FIRMWARE_JSON=${ENCODED_JSON}" | tee -a $GITHUB_ENV
           
       - name: print info
         run: |
