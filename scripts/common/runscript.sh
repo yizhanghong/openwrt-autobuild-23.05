@@ -31,16 +31,16 @@ get_openwrt_firmware()
 	fi
 	
 	local file1="$s1/immortalwrt-rockchip-armv8-friendlyarm_nanopi-r2s-ext4-sysupgrade.img.gz"
-	dd if=/dev/zero of=$file1 bs=1 count=0
+	dd if=/dev/zero of=$file1 bs=1M count=0
 	
 	local file2="$s1/immortalwrt-rockchip-armv8-friendlyarm_nanopi-r2s-squashfs-sysupgrade.img.gz"
-	dd if=/dev/zero of=$file2 bs=1 count=0
+	dd if=/dev/zero of=$file2 bs=1M count=0
 	
 	local file3="$s1/immortalwrt-rockchip-armv8-friendlyarm_nanopi-r5s-ext4-sysupgrade.img.gz"
-	dd if=/dev/zero of=$file3 bs=1 count=0
+	dd if=/dev/zero of=$file3 bs=1M count=0
 	
 	local file4="$s1/immortalwrt-rockchip-armv8-friendlyarm_nanopi-r5s-squashfs-sysupgrade.img.gz"
-	dd if=/dev/zero of=$file4 bs=1 count=0
+	dd if=/dev/zero of=$file4 bs=1M count=0
 	
 	# 进入固件目录
 	cd ${path}/bin/targets/*/*
