@@ -21,7 +21,7 @@ jobs:
     outputs:
       # firmware-json: ${{ env.FIRMWARE_JSON }} 
       # firmware-json: ${{ steps.print.outputs.firmware-json }}
-      fjson: ${{ steps.print.outputs.FIRMWARE_JSON }}
+      fjson: ${{ steps.compile.outputs.FIRMWARE_JSON }}
       
     steps:
       - name: Checkout
