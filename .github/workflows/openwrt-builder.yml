@@ -91,6 +91,10 @@ jobs:
 
           # 生成矩阵配置
           FIRMWARE_MATRIX=$(jq -c '.[]' <<< "$FIRMWARE_JSON")
+
+          ss1="$GITHUB_WORKSPACE"
+          echo "s1=${ss1}"
+          ls -al ${ss1}
  
           # 设置输出
           # echo "::set-output name=matrix::$FIRMWARE_MATRIX"
