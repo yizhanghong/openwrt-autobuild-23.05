@@ -65,6 +65,8 @@ jobs:
           
           echo "FIRMWARE_JSON=$OPENWRT_FIRMWARE_JSON" >> $GITHUB_ENV
           #echo "::set-output name=firmware-json::${OPENWRT_FIRMWARE_JSON}"
+          
+          echo "${{ env.FIRMWARE_JSON }}"
 
   upload:
     needs: build
