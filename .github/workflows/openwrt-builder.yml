@@ -19,9 +19,7 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     outputs:
-      # firmware-json: ${{ env.FIRMWARE_JSON }} 
-      # firmware-json: ${{ steps.print.outputs.firmware-json }}
-      firmware_matrix: ${{ steps.generate-matrix.outputs.matrix  }}
+      firmware-json: ${{ env.FIRMWARE_JSON }} 
       
     steps:
       - name: Checkout
@@ -75,31 +73,36 @@ jobs:
           
           # 将 Base64 编码的字符串保存到 GITHUB_ENV
           echo "FIRMWARE_JSON=${ENCODED_JSON}" >> $GITHUB_ENV
-          
-      - name: Create Matrix configuration
-        id: generate-matrix
-        env:
-          # 获取 Base64 编码的 JSON 字符串
-          ENCODED_FIRMWARE_JSON: ${{ env.FIRMWARE_JSON }}
-        run: |
-          # Base64 解码 JSON 字符串
-          FIRMWARE_JSON=$(echo "$ENCODED_FIRMWARE_JSON" | base64 --decode)
-
-          # 生成矩阵配置
-          FIRMWARE_MATRIX=$(echo "$FIRMWARE_JSON" | jq -c '.[]')
-
-          echo "::set-output name=matrix::$FIRMWARE_MATRIX"
-          
   upload:
     needs: build
     runs-on: ubuntu-22.04
-
-    strategy:
-      matrix: ${{ needs.build.outputs.firmware_matrix }}
-        
+    
     steps:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'    
-      
+          node-version: '18'
+
+      - name: Create Matrix configuration
+        id: generate-matrix
+        env:
+          # 获取 Base64 编码的 JSON 字符串
+          ENCODED_FIRMWARE_JSON: ${{ needs.build.outputs.firmware-json }}
+        run: |
+          # Base64 解码 JSON 字符串
+          FIRMWARE_JSON=$(echo "$ENCODED_FIRMWARE_JSON" | base64 --decode)
+
+          # 验证 JSON 并生成矩阵配置
+          if ! jq empty --argjson json "$FIRMWARE_JSON" > /dev/null; then
+              echo "Invalid JSON: $FIRMWARE_JSON"
+              exit 1
+          fi
+
+          FIRMWARE_MATRIX=$(jq -c '.[]' <<< "$FIRMWARE_JSON")
+
+          # 写入json文件
+          # echo "$FIRMWARE_JSON" > firmware.json
+  
+          # 设置输出
+          echo "::set-output name=matrix::$FIRMWARE_MATRIX"
+        
