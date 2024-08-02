@@ -95,6 +95,12 @@ jobs:
           # 设置输出
           echo "firmware_json=$(echo "$FIRMWARE_JSON" | jq -c .)" >> $GITHUB_OUTPUT
 
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifacts
+          path: ${GITHUB_WORKSPACE}/output   
+
       - name: Delete workflow runs
         uses: Mattraks/delete-workflow-runs@v2  # main
         with:
@@ -111,9 +117,16 @@ jobs:
         firmware:
           ${{ fromJson(needs.build.outputs.firmware-json) }}
     steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: build-artifacts
+          
       - name: Check test
         run: |
             echo "cur dir_name=${{ matrix.firmware.name }}"
             echo "cur dir_path=${{ matrix.firmware.path }}"      
           
-      
+            ss1="$GITHUB_WORKSPACE"
+            echo "s1=${ss1}"
+            ls -al ${ss1}
