@@ -91,15 +91,18 @@ jobs:
 
           # 生成矩阵配置
           FIRMWARE_MATRIX=$(jq -c '.[]' <<< "$FIRMWARE_JSON")
-
-          ss1="$GITHUB_WORKSPACE"
-          echo "s1=${ss1}"
-          ls -al ${ss1}
  
           # 设置输出
           # echo "::set-output name=matrix::$FIRMWARE_MATRIX"
           # echo "::set-output name=matrix::$(echo "$FIRMWARE_JSON" | jq -c '.')"
           echo "matrix=$(echo "$FIRMWARE_JSON" | jq -c .)" >> $GITHUB_OUTPUT
+
+      - name: Upload firmware directory
+        uses: actions/upload-artifact@v4
+        if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
+        with:
+          name: ${{ steps.generate-matrix.outputs.matrix.name }}
+          path: ${{ steps.generate-matrix.outputs.matrix.path }}	     
           
       - name: Delete workflow runs
         uses: Mattraks/delete-workflow-runs@v2  # main
@@ -108,36 +111,4 @@ jobs:
           repository: ${{ github.repository }}
           retain_days: 0
           keep_minimum_runs: 0      
-          
-  upload:
-    needs: build
-    runs-on: ubuntu-22.04
-    strategy:
-      matrix:
-        firmware:
-          ${{ fromJson(needs.build.outputs.firmware_matrix) }}
-          
-    steps:
-      - name: Check test
-        run: |
-            echo "cur dir_name=${{ matrix.firmware.name }}"
-            echo "cur dir_path=${{ matrix.firmware.path }}"
-
-            ss1="$GITHUB_WORKSPACE"
-            echo "s1=${ss1}"
-            ls -al ${ss1}
-
-            ss2="${ss1}/output"
-            echo "s2=${ss2}"
-            ls -al ${ss2}
-
-            ss3="${ss2}/20240802"
-            echo "s3=${ss3}"
-            ls -al ${ss3}
-            
-      - name: Upload firmware directory
-        uses: actions/upload-artifact@v4
-        if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
-        with:
-          name: ${{ matrix.firmware.name }}
-          path: ${{ matrix.firmware.path }}
+  
