@@ -94,7 +94,8 @@ jobs:
           
           # 设置输出
           # echo "matrix=$(echo "$FIRMWARE_MATRIX" | jq -s .)" >> $GITHUB_OUTPUT
-          echo "matrix=$(jq -s . <<< "$FIRMWARE_MATRIX")" >> $GITHUB_OUTPUT
+          # echo "matrix=$(jq -s . <<< "$FIRMWARE_MATRIX")" >> $GITHUB_OUTPUT
+          echo "matrix=$(jq -s . <<< "$FIRMWARE_MATRIX" | sed 's/"/\\"/g')" >> $GITHUB_OUTPUT
 
       - name: Check test
         run: |   
