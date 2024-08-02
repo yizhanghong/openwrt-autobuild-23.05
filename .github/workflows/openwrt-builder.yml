@@ -96,6 +96,11 @@ jobs:
       # matrix: ${{ fromJson(env.FIRMWARE_JSON) }}
     
     steps:
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          
       - name: Decode firmware info
         id: decode
         env:
@@ -117,9 +122,6 @@ jobs:
           cat matrix.json
           
       - name: Use matrix  
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
         run: |
           #echo "Matrix JSON: ${{ steps.set-matrix.outputs.matrix }}"
           MATRIX=$(cat matrix.json)
