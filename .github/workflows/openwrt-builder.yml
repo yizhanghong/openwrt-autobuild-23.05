@@ -85,8 +85,11 @@ jobs:
           # Base64 解码 JSON 字符串
           FIRMWARE_JSON=$(echo "$ENCODED_FIRMWARE_JSON" | base64 --decode)
 
-          #MATRIX='{"firmware":'$(echo '$FIRMWARE_JSON' | jq -c '.[]')'}'
-          #echo "::set-output name=matrix::$MATRIX"
+          # 生成矩阵配置
+          MATRIX=$(echo "$FIRMWARE_JSON" | jq -c '.[]')
+
+          # 将生成的矩阵配置保存到环境变量
+          echo "matrix=$MATRIX" >> $GITHUB_ENV
      
-          
+          echo "Matrix: $MATRIX"
       
