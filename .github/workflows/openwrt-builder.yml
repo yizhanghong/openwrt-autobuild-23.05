@@ -121,7 +121,6 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build-artifacts
-          path: ${GITHUB_WORKSPACE}/output 
           
       - name: Check test
         run: |
