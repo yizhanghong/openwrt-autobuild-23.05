@@ -19,8 +19,8 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     outputs:
-      # firmware-json: ${{ env.FIRMWARE_JSON }} 
-      firmware_matrix: ${{ steps.generate-matrix.outputs.matrix  }}
+      firmware-json: ${{ steps.generate-matrix.outputs.firmware_json }} 
+      firmware_matrix: ${{ steps.generate-matrix.outputs.firmware_matrix  }}
     steps:
       - name: Checkout
         uses: actions/checkout@master
@@ -91,16 +91,21 @@ jobs:
 
           # 生成矩阵配置
           FIRMWARE_MATRIX=$(jq -c '.[]' <<< "$FIRMWARE_JSON")
+
+          # 矩阵配置 Base64 编码
+          ENCODED_MATRIX=$(echo "$FIRMWARE_MATRIX" | base64)
           
           # 设置输出
-          # echo "matrix=$(echo "$FIRMWARE_MATRIX" | jq -s .)" >> $GITHUB_OUTPUT
-          # echo "matrix=$(jq -s . <<< "$FIRMWARE_MATRIX")" >> $GITHUB_OUTPUT
-          echo "matrix=$(jq -s . <<< "$FIRMWARE_MATRIX" | sed 's/"/\\"/g')" >> $GITHUB_OUTPUT
+          # echo "firmware_json=$(echo "$FIRMWARE_JSON" | jq -s .)" >> $GITHUB_OUTPUT
+          echo "firmware_matrix=$(jq -s . <<< "$ENCODED_MATRIX")" >> $GITHUB_OUTPUT
 
       - name: Check test
         run: |   
-          MATRIX_OUTPUT="${{ steps.generate-matrix.outputs.matrix }}"
-          echo "${{ matrix.MATRIX_OUTPUT.name }}"
+          ENCODED_MATRIX="${{ steps.generate-matrix.outputs.firmware_matrix }}"
+
+          FIRMWARE_MATRIX=$(echo "$ENCODED_MATRIX" | base64 --decode)
+
+          echo "MATRIX_NAME=$(echo "$FIRMWARE_MATRIX" | jq -r '.[0].name')"
 
       - name: Delete workflow runs
         uses: Mattraks/delete-workflow-runs@v2  # main
