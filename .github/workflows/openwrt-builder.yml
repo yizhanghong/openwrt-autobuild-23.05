@@ -96,5 +96,12 @@ jobs:
     steps:
       - name: Print firmware Info
         run: |
-          echo "${{ needs.build.outputs.firmware-json }}"
+          # 获取 Base64 编码的 JSON 字符串
+          ENCODED_JSON="${{ needs.build.outputs.firmware-json }}"
+
+          # Base64 解码 JSON 字符串
+          FIRMWARE_JSON=$(echo "$ENCODED_JSON" | base64 --decode)
+
+          # 打印解码后的 JSON 数据
+          echo "$FIRMWARE_JSON"
          # echo "Firmware Info: ${{ matrix.directory.name }}"
