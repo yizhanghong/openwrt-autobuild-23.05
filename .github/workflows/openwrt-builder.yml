@@ -130,3 +130,11 @@ jobs:
             ss1="$GITHUB_WORKSPACE"
             echo "s1=${ss1}"
             ls -al ${ss1}
+
+            ss2="${ss1}/output"
+            echo "s2=${ss2}"
+            ls -al ${ss2}
+
+            ss3="${ss2}/20240803"
+            echo "s3=${ss3}"
+            ls -al ${ss3}
