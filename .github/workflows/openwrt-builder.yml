@@ -96,7 +96,8 @@ jobs:
           done <<< "$FIRMWARE_MATRIX"
           
           # 设置输出
-          echo "firmware_json=$(jq -c . <<< "$FIRMWARE_JSON")" >> $GITHUB_OUTPUT
+          # echo "firmware_json=$(jq -c . <<< "$FIRMWARE_JSON")" >> $GITHUB_OUTPUT
+          echo "firmware_json=$FIRMWARE_JSON >> $GITHUB_OUTPUT
 
       - name: Upload firmware directory
         run: |
