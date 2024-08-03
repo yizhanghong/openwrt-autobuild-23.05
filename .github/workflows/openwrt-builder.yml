@@ -105,6 +105,14 @@ jobs:
               
           done <<< "$FIRMWARE_MATRIX"
           
+      - name: test1
+        run: |
+          runid=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                       -H "Accept: application/vnd.github.v3+json" \
+                       "https://api.github.com/repos/${{ github.repository }}/actions/runs" | \
+                       jq -r '.workflow_runs[0].id'))
+           echo $runid
+          
       - name: Delete workflow runs
         uses: Mattraks/delete-workflow-runs@v2  # main
         with:
