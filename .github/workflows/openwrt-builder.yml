@@ -107,12 +107,12 @@ jobs:
           
       - name: test1
         run: |
-          run_id=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          run_id=$(curl -H "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN }}" \
                        -H "Accept: application/vnd.github.v3+json" \
                        "https://api.github.com/repos/${{ github.repository }}/actions/runs" | \
                        jq -r '.workflow_runs[0].id')
                        
-          upload_url=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          upload_url=$(curl -H "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN }}" \
                             -H "Accept: application/vnd.github.v3+json" \
                             -X POST \
                             -d '{"name":"example-artifact"}' \
