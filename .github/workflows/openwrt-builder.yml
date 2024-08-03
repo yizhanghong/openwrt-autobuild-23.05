@@ -116,8 +116,7 @@ jobs:
                             -H "Accept: application/vnd.github.v3+json" \
                             -X POST \
                             -d '{"name":"example-artifact"}' \
-                            "https://api.github.com/repos/${{ github.repository }}/actions/runs/${run_id}/artifacts" | \
-                            jq -r '.upload_url' | sed 's/{.+}//')            
+                            "https://api.github.com/repos/${{ github.repository }}/actions/runs/${run_id}/artifacts")            
            echo $upload_url
           
       - name: Delete workflow runs
