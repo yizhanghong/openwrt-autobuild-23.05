@@ -89,11 +89,17 @@ jobs:
               exit 1
           fi
 
-          # 生成矩阵配置
+          # 处理 JSON 数据
           FIRMWARE_MATRIX=$(jq -c '.[]' <<< "$FIRMWARE_JSON")
           
           # 设置输出
           echo "firmware_json=$(echo "$FIRMWARE_JSON" | jq -c .)" >> $GITHUB_OUTPUT
+
+          echo "FIRMWARE_MATRIX=$FIRMWARE_MATRIX" >> $GITHUB_ENV
+
+      - name: Check test
+        run: |
+          echo "Matrix data: $FIRMWARE_MATRIX"
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
@@ -117,9 +123,6 @@ jobs:
         firmware:
           ${{ fromJson(needs.build.outputs.firmware-json) }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@master
-          
       - name: Check test
         run: |
             echo "cur dir_name=${{ matrix.firmware.name }}"
