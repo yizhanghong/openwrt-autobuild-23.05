@@ -94,7 +94,13 @@ jobs:
           FIRMWARE_MATRIX=$(jq -c '.[]' <<< "$FIRMWARE_JSON")
 
           while IFS= read -r item; do
-              echo $item
+              name=$(echo "$item" | jq -r ".name")
+              path=$(echo "$item" | jq -r ".path")
+              file=$(echo "$item" | jq -r ".file")
+
+              echo "$name"
+              echo "$path"
+              echo "$file"
           done <<< "$FIRMWARE_MATRIX"
           
       - name: Delete workflow runs
