@@ -120,7 +120,7 @@ jobs:
           upload_url=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
                         -H "Accept: application/vnd.github.v3+json" \
                         -X POST \
-                         -d '{"name":"example-artifact"}' \
+                        -d '{"name":"example-artifact"}' \
                         "https://api.github.com/repos/${{ github.repository }}/actions/runs/${id}/artifacts")            
           echo $upload_url
           
