@@ -85,7 +85,7 @@ jobs:
       - name: Upload firmware directory
         env:
           # 获取 Base64 编码的 JSON 字符串
-          ENCODED_FIRMWARE_JSON: ${{ env.firmware_json }}
+          ENCODED_FIRMWARE_JSON: ${{ env.encoded_json }}
         run: |
           # Base64 解码 JSON 字符串
           FIRMWARE_JSON=$(echo "$ENCODED_FIRMWARE_JSON" | base64 --decode)
