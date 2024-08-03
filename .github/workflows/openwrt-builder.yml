@@ -87,6 +87,8 @@ jobs:
         run: |
           # Base64 解码 JSON 字符串
           FIRMWARE_JSON=$(echo "$ENCODED_FIRMWARE_JSON" | base64 --decode)
+
+          echo $FIRMWARE_JSON
           
           # 处理 JSON 数据
           FIRMWARE_MATRIX=$(jq -c '.[]' <<< "$FIRMWARE_JSON")
