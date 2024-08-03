@@ -98,9 +98,11 @@ jobs:
               path=$(echo "$item" | jq -r ".path")
               file=$(echo "$item" | jq -r ".file")
 
-              echo "$name"
-              echo "$path"
-              echo "$file"
+              if [ -z "$name" ] || [ -z "$path" ] || [ -z "$file"]; then
+                  continue
+              fi
+
+              
           done <<< "$FIRMWARE_MATRIX"
           
       - name: Delete workflow runs
