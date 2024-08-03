@@ -369,35 +369,92 @@ enum_struct_field()
 	fi
 }
 
-# 将数组转换为 JSON 数组
-array_to_jsonarr()
+# 判断是否是有效的 JSON 对象
+is_json_object()
 {
-	local array=("$@")
-    local json="["
+	local input=$1
 	
-	for index in "${!array[@]}"; do
-		local item="${array[$index]}"
-		
-        # 分割 name 和 path
-        IFS=":" read -r name path <<< "$item"
-		
-		# 转义特殊字符
-		name=$(printf '%s' "$name" | sed 's/"/\\"/g')
-		path=$(printf '%s' "$path" | sed 's/"/\\"/g')
+	# 去掉字符串两端的空白字符
+    input=$(echo "${input}" | xargs)
+	
+	 # 检查输入是否以 "{" 开头并以 "}" 结尾
+    if [[ ! "${input}" =~ ^\{.*\}$ ]]; then
+		return 1
+	fi
+	
+	return 0
+}
 
-        # 添加到 JSON 字符串
-        json+="{\"name\":\"$name\", \"path\":\"$path\"}"
+# 将数组转换为 JSON 数组
+generate_json_array()
+{
+	local -n json_items=$1
+	local json_output="["
+	
+	local last_index=$(( ${#json_items[@]} - 1 ))
+	
+	for index in "${!json_items[@]}"; do
+		json_output+="${json_items[${index}]}"
 		
-		# 添加逗号分隔符，除非是最后一个元素
-        if [[ $index -lt $((${#array[@]} - 1)) ]]; then
-            json+=","
+		if [ ${index} -ne ${last_index} ]; then
+			json_output+=", "
+		fi
+	done
+	
+	json_output+="]"
+    echo "${json_output}"
+}
+
+# 构建 JSON 对象
+build_json_object()
+{
+	local -n params_ref=$1
+	local json_object="{"
+	
+	local first_pair=true
+	
+	for key in "${!params_ref[@]}"; do
+        local value="${params_ref[$key]}"
+		
+        # 如果不是第一个键值对，添加逗号
+		if [ "${first_pair}" = false ]; then
+            json_object+=", "
         fi
+		
+		# 添加键值对
+		json_object+="\"${key}\": \"${value}\""
+        
+         # 更新标志，后续键值对之前需要添加逗号
+        first_pair=false
     done
 	
-	# 完成 JSON 数组字符串
-    json+="]"
+	json_object+="}"
+    echo "$json_object"
+}
+
+# 构建 JSON 数组
+build_json_array()
+{
+	local -n array_ref=$1
+    local -a json_array=()
 	
-	echo "$json"
+	for value in "${array_ref[@]}"; do
+		local json_object
+
+		# 判断元素类型
+		if is_json_object "$value"; then
+			json_object="$value"
+		else
+			json_object="\"${value}\""
+		fi
+		
+		# 添加到 JSON 数组
+		if [ -n "${json_object}" ]; then
+			json_array+=("$json_object")
+		fi
+	done
+	
+	generate_json_array json_array
 }
 
 # 将 JSON 对象转换为数组

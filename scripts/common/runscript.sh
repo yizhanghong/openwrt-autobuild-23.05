@@ -81,30 +81,42 @@ get_openwrt_firmware()
 		fireware_array+=("${firmware_name}:${firmware_path}")
 	done
 	
-	OPENWRT_FIRMWARE_JSON=$(array_to_jsonarr "${fireware_array[@]}")
+	# 固件信息数组
+	firmware_array=()
 	
 	# 生成固件目标文件
-	if [ ${USER_CONFIG_ARRAY["mode"]} -eq ${COMPILE_MODE[local_compile]} ]; then
-		for value in "${fireware_array[@]}"; do
-			IFS=':' read -r firmware_name firmware_path <<< "$value"
-			
-			if [ -z "${firmware_name}" ] || [ -z "${firmware_path}" ]; then
-				continue
-			fi
-			
-			# 固件生成文件
-			local firmware_output_file="${firmware_path}.zip"
-			
-			# 压缩打包文件
-			if [ "$(find "${firmware_path}" -mindepth 1)" ]; then
-				zip -j ${firmware_output_file} ${firmware_path}/*
-			fi
-			
-			# 删除缓存文件
-			rm -rf "${firmware_path}"
-		done
-	fi
+	for value in "${fireware_array[@]}"; do
+		IFS=':' read -r firmware_name firmware_path <<< "$value"
+		
+		if [ -z "${firmware_name}" ] || [ -z "${firmware_path}" ]; then
+			continue
+		fi
+		
+		# 固件生成文件
+		local firmware_output_file="${firmware_path}.zip"
+		
+		# 压缩打包文件
+		if [ "$(find "${firmware_path}" -mindepth 1)" ]; then
+			zip -j ${firmware_output_file} ${firmware_path}/*
+		fi
+		
+		# 删除缓存文件
+		rm -rf "${firmware_path}"
+		
+		# 输出对象数组
+		declare -A object_array=(
+			["name"]="${firmware_name}"
+			["path"]="${firmware_path%/*}"
+			["file"]="${firmware_output_file}"
+		)
+		
+		# 将生成的 JSON 对象添加到 firmware_array 数组
+		firmware_array+=("$(build_json_object object_array)")
+	done
 	
+	# 生成固件JSON数组
+	OPENWRT_FIRMWARE_JSON=$(build_json_array firmware_array)
+
 	print_log "TRACE" "get firmware" "完成获取OpenWrt固件!"
 	return 0
 }
