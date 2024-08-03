@@ -19,7 +19,7 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     outputs:
-      firmware-json: ${{ steps.generate-matrix.outputs.firmware_json }} 
+      firmware-json: ${{ steps.compile-scripts.outputs.firmware_json }} 
     steps:
       - name: Checkout
         uses: actions/checkout@master
@@ -77,32 +77,11 @@ jobs:
           ENCODED_JSON=$(echo -n "${OPENWRT_FIRMWARE_JSON}" | base64 | tr -d '\n')
           
           # 将 Base64 编码的字符串保存到 GITHUB_ENV
-          echo "FIRMWARE_JSON=${ENCODED_JSON}" >> $GITHUB_ENV
+          echo "encoded_json=${ENCODED_JSON}" >> $GITHUB_ENV
 
-      - name: Create Matrix configuration
-        id: generate-matrix
-        env:
-          # 获取 Base64 编码的 JSON 字符串
-          ENCODED_FIRMWARE_JSON: ${{ env.FIRMWARE_JSON }}
-        run: |
-          # Base64 解码 JSON 字符串
-          FIRMWARE_JSON=$(echo "$ENCODED_FIRMWARE_JSON" | base64 --decode)
-          
-          # 处理 JSON 数据
-          FIRMWARE_MATRIX=$(jq -c '.[]' <<< "$FIRMWARE_JSON")
-
-          while IFS= read -r item; do
-              echo "Processing: $item"
-          done <<< "$FIRMWARE_MATRIX"
-          
           # 设置输出
-          # echo "firmware_json=$(jq -c . <<< "$FIRMWARE_JSON")" >> $GITHUB_OUTPUT
-          echo "firmware_json=$FIRMWARE_JSON >> $GITHUB_OUTPUT
-
-      - name: Upload firmware directory
-        run: |
-          echo "Matrix data: ${{ steps.generate-matrix.outputs.firmware_json }}"
-
+          echo "firmware_json=$(jq -c . <<< "${OPENWRT_FIRMWARE_JSON}")" >> $GITHUB_OUTPUT
+          
       - name: Delete workflow runs
         uses: Mattraks/delete-workflow-runs@v2  # main
         with:
