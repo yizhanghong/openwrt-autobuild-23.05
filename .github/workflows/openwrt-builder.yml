@@ -92,10 +92,13 @@ jobs:
           
           # 处理 JSON 数据
           FIRMWARE_MATRIX=$(jq -c '.[]' <<< "$FIRMWARE_JSON")
+
+          echo $FIRMWARE_MATRIX
           
           # 设置输出
           echo "firmware_json=$(echo "$FIRMWARE_JSON" | jq -c .)" >> $GITHUB_OUTPUT
 
+          echo "${{ env.firmware_json }}"
       - name: Upload firmware directory
         run: |
           echo "Matrix data: ${{ steps.generate-matrix.outputs.firmware_json }}"
