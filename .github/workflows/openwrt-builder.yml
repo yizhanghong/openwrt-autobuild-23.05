@@ -20,7 +20,6 @@ jobs:
     runs-on: ubuntu-22.04
     outputs:
       firmware-json: ${{ steps.generate-matrix.outputs.firmware_json }} 
-      firmware_matrix: ${{ steps.generate-matrix.outputs.firmware_matrix  }}
     steps:
       - name: Checkout
         uses: actions/checkout@master
@@ -67,6 +66,12 @@ jobs:
               echo "Firmware does not exist, Please check!"
               exit 1
           fi
+
+          # 验证 JSON 对象是否为空
+          if ! jq empty --argjson json "${OPENWRT_FIRMWARE_JSON}" > /dev/null; then
+              echo "Invalid JSON: $OPENWRT_FIRMWARE_JSON"
+              exit 1
+          fi
           
           # 将 JSON 字符串进行 Base64 编码
           ENCODED_JSON=$(echo -n "${OPENWRT_FIRMWARE_JSON}" | base64 | tr -d '\n')
@@ -82,30 +87,16 @@ jobs:
         run: |
           # Base64 解码 JSON 字符串
           FIRMWARE_JSON=$(echo "$ENCODED_FIRMWARE_JSON" | base64 --decode)
-
-          # 验证 JSON 并生成矩阵配置
-          if ! jq empty --argjson json "$FIRMWARE_JSON" > /dev/null; then
-              echo "Invalid JSON: $FIRMWARE_JSON"
-              exit 1
-          fi
-
+          
           # 处理 JSON 数据
           FIRMWARE_MATRIX=$(jq -c '.[]' <<< "$FIRMWARE_JSON")
           
           # 设置输出
           echo "firmware_json=$(echo "$FIRMWARE_JSON" | jq -c .)" >> $GITHUB_OUTPUT
 
-          echo "FIRMWARE_MATRIX=$FIRMWARE_MATRIX" >> $GITHUB_ENV
-
-      - name: Check test
+      - name: Upload firmware directory
         run: |
-          echo "Matrix data: $FIRMWARE_MATRIX"
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-artifacts
-          path: ./
+          echo "Matrix data: ${{ steps.generate-matrix.outputs.firmware_json }}"
 
       - name: Delete workflow runs
         uses: Mattraks/delete-workflow-runs@v2  # main
@@ -123,19 +114,7 @@ jobs:
         firmware:
           ${{ fromJson(needs.build.outputs.firmware-json) }}
     steps:
-      - name: Check test
+      - name: Check matrix
         run: |
             echo "cur dir_name=${{ matrix.firmware.name }}"
             echo "cur dir_path=${{ matrix.firmware.path }}"      
-          
-            ss1="$GITHUB_WORKSPACE"
-            echo "s1=${ss1}"
-            ls -al ${ss1}
-
-            ss2="${ss1}/output"
-            echo "s2=${ss2}"
-            ls -al ${ss2}
-
-            ss3="${ss2}/20240803"
-            echo "s3=${ss3}"
-            ls -al ${ss3}
