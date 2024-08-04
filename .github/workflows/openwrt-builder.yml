@@ -113,26 +113,9 @@ jobs:
                       # jq -r '.workflow_runs[0].id')
           echo $result
 
-          id=$(echo $result | jq -r '.workflow_runs[0].id')  
-          echo $id            
-                      
-          #result=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-          #              -H "Accept: application/vnd.github.v3+json" \
-          #              -X POST \
-          #              -d '{"name":"example-artifact"}' \
-          #              "https://api.github.com/repos/${{ github.repos  itory }}/actions/runs/${id}/artifacts")      
+          run_id=$(echo $result | jq -r '.workflow_runs[0].id')  
+          echo ${run_id}            
 
-          #result=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-          #              -H "Accept: application/vnd.github.v3+json" \
-          #              "https://api.github.com/repos/$GITHUB_REPOSITORY")
-
-          ARTIFACT_NAME="my-artifact"
-          result=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-                    -H "Accept: application/vnd.github.v3+json" \ 
-                    "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts" \
-                       -d '{"name": "'$ARTIFACT_NAME'"}')
-          echo $result
-          
       - name: Delete workflow runs
         uses: Mattraks/delete-workflow-runs@v2  # main
         with:
