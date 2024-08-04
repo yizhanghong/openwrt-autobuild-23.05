@@ -118,8 +118,6 @@ jobs:
 
           result=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
                         -H "Accept: application/vnd.github.v3+json" \
-                        -X POST \
-                        -d '{"name":"example-artifact"}' \
                         "https://api.github.com/repos/${{ github.repository }}/actions/runs/${run_id}/artifacts")
           echo $result              
 
