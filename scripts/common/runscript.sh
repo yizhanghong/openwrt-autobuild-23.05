@@ -17,8 +17,8 @@ get_openwrt_firmware()
 	fi
 	
 	# ------
-	target_path="${path}/bin/targets/rockchip/armv8"
-	mkdir -p ${target_path}
+	src_path="${path}/bin/targets/rockchip/armv8"
+	mkdir -p ${src_path}
 	
 	if [ ! -d "${path}/bin/targets" ] || ! find "${path}/bin/targets/" -mindepth 2 -maxdepth 2 -type d -name '*' | grep -q '.'; then
 		print_log "ERROR" "compile firmware" "固件目录不存在, 请检查!"
@@ -35,15 +35,21 @@ get_openwrt_firmware()
 	cd ${path}/bin/targets/*/*
 	
 	# ------
-	echo "this is a test1" > "${target_path}/test1.txt"
-	echo "this is a test2" > "${target_path}/test2.txt"
-	echo "this is a test3" > "${target_path}/test3.txt"
-	echo "this is a test4" > "${target_path}/test4.txt"
+	echo "this is a test1" > "${src_path}/test1.txt"
+	echo "this is a test2" > "${src_path}/test2.txt"
+	echo "this is a test3" > "${src_path}/test3.txt"
+	echo "this is a test4" > "${src_path}/test4.txt"
 	
 	# 判断目录是否为空
 	if [ ! -n "$(find . -mindepth 1)" ]; then
 		print_log "ERROR" "compile firmware" "固件目录为空, 请检查!"
 		return 1
+	fi
+	
+	# 目标路径
+	target_path="${OPENWRT_OUTPUT_PATH}/$(date +"%Y%m%d")"
+	if [ ! -d "${target_path}" ]; then
+		mkdir -p "${target_path}"
 	fi
 	
 	# 拷贝固件至目标路径
@@ -55,8 +61,8 @@ get_openwrt_firmware()
 			continue
 		fi
 		
-		# 固件路径
-		local firmware_path="${OPENWRT_OUTPUT_PATH}/$(date +"%Y%m%d")/${firmware_name}"
+		# 导出固件路径
+		local firmware_path="${target_path}/${firmware_name}"
 		
 		if [ ! -d "${firmware_path}" ]; then
 			mkdir -p "${firmware_path}"
@@ -84,6 +90,9 @@ get_openwrt_firmware()
 	# 固件信息数组
 	firmware_array=()
 	
+	# 计数器
+	counter=0
+	
 	# 生成固件目标文件
 	for value in "${fireware_array[@]}"; do
 		IFS=':' read -r firmware_name firmware_path <<< "$value"
@@ -91,6 +100,9 @@ get_openwrt_firmware()
 		if [ -z "${firmware_name}" ] || [ -z "${firmware_path}" ]; then
 			continue
 		fi
+		
+		# 增加计数器
+		counter=$((counter + 1))
 		
 		# 固件生成文件
 		local firmware_output_file="${firmware_path}.zip"
@@ -106,7 +118,6 @@ get_openwrt_firmware()
 		# 输出对象数组
 		declare -A object_array=(
 			["name"]="${firmware_name}"
-			["path"]="${firmware_path%/*}"
 			["file"]="${firmware_output_file}"
 		)
 		
@@ -114,8 +125,21 @@ get_openwrt_firmware()
 		firmware_array+=("$(build_json_object object_array)")
 	done
 	
-	# 生成固件JSON数组
-	OPENWRT_FIRMWARE_JSON=$(build_json_array firmware_array)
+	# 返回固件JSON数组
+	FIRMWARE_JSON_ARRAY=$(build_json_array firmware_array)
+	
+	# 生成JSON对象数组
+	declare -A object_array=(
+		["count"]="${counter}"
+		["name"]="test"
+		["path"]="${target_path}"
+		["items"]=$FIRMWARE_JSON_ARRAY
+	)
+	
+	# 返回固件JSON对象
+	FIRMWARE_JSON_OBJECT=$(build_json_object object_array)
+	
+	echo $FIRMWARE_JSON_OBJECT
 
 	print_log "TRACE" "get firmware" "完成获取OpenWrt固件!"
 	return 0

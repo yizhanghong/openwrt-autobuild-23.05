@@ -369,7 +369,7 @@ enum_struct_field()
 	fi
 }
 
-# 判断是否是有效的 JSON 对象
+# 判断是否为有效 JSON 对象
 is_json_object()
 {
 	local input=$1
@@ -383,6 +383,17 @@ is_json_object()
 	fi
 	
 	return 0
+}
+
+# 判断是否为有效 JSON 格式
+is_valid_json()
+{
+	 local input="$1"
+	
+	 # 使用 jq 来验证输入是否是有效的 JSON
+    echo "$input" | jq empty >/dev/null 2>&1
+	
+	return $?
 }
 
 # 将数组转换为 JSON 数组
@@ -422,8 +433,12 @@ build_json_object()
         fi
 		
 		# 添加键值对
-		json_object+="\"${key}\": \"${value}\""
-        
+		if is_valid_json "$value"; then
+			json_object+="\"${key}\": ${value}"
+		else
+			json_object+="\"${key}\": \"${value}\""
+		fi
+
          # 更新标志，后续键值对之前需要添加逗号
         first_pair=false
     done

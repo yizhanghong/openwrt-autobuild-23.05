@@ -62,25 +62,25 @@ jobs:
           fi
 
           # 检查固件信息
-          if [ -z "${OPENWRT_FIRMWARE_JSON}" ]; then
+          if [ -z "${FIRMWARE_JSON_OBJECT}" ]; then
               echo "Firmware does not exist, Please check!"
               exit 1
           fi
 
           # 验证 JSON 对象是否为空
-          if ! jq empty --argjson json "${OPENWRT_FIRMWARE_JSON}" > /dev/null; then
-              echo "Invalid JSON: $OPENWRT_FIRMWARE_JSON"
+          if ! jq empty --argjson json "${FIRMWARE_JSON_OBJECT}" > /dev/null; then
+              echo "Invalid JSON: $FIRMWARE_JSON_OBJECT"
               exit 1
           fi
           
           # 将 JSON 字符串进行 Base64 编码
-          ENCODED_JSON=$(echo -n "${OPENWRT_FIRMWARE_JSON}" | base64 | tr -d '\n')
+          ENCODED_JSON=$(echo -n "${FIRMWARE_JSON_OBJECT}" | base64 | tr -d '\n')
           
           # 将 Base64 编码的字符串保存到 GITHUB_ENV
           echo "encoded_json=${ENCODED_JSON}" >> $GITHUB_ENV
 
           # 设置输出
-          echo "firmware_json=$(jq -c . <<< "${OPENWRT_FIRMWARE_JSON}")" >> $GITHUB_OUTPUT
+          echo "firmware_json=$(jq -c . <<< "${FIRMWARE_JSON_OBJECT}")" >> $GITHUB_OUTPUT
 
       - name: Upload firmware directory
         env:
@@ -90,43 +90,8 @@ jobs:
           # Base64 解码 JSON 字符串
           FIRMWARE_JSON=$(echo "$ENCODED_FIRMWARE_JSON" | base64 --decode)
 
-          # 处理 JSON 数据
-          FIRMWARE_MATRIX=$(jq -c '.[]' <<< "$FIRMWARE_JSON")
-
-          while IFS= read -r item; do
-              name=$(echo "$item" | jq -r ".name")
-              path=$(echo "$item" | jq -r ".path")
-              file=$(echo "$item" | jq -r ".file")
-
-              if [ -z "$name" ] || [ -z "$path" ] || [ -z "$file"]; then
-                  continue
-              fi
-
-              
-          done <<< "$FIRMWARE_MATRIX"
           
-      - name: test1
-        run: |
-          result=$(curl -H "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN  }}" \
-                      -H "Accept: application/vnd.github.v3+json" \
-                      "https://api.github.com/repos/${{ github.repository }}/actions/runs")
-          run_id=$(echo $result | jq -r '.workflow_runs[0].id')
-        
-          result=$(curl -H "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN }}" \
-                      -H "Accept: application/vnd.github.v3+json" \
-                      "https://api.github.com/repos/${{ github.repository }}/actions/runs/${run_id}")
-          echo $result | jq .
-
-          echo "this is a test!"
-          echo "URL: https://api.github.com/repos/${{ github.repository }}/actions/runs/${run_id}/artifacts"
           
-          result=$(curl -H "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN }}" \
-                      -H "Accept: application/vnd.github.v3+json" \
-                      -X POST \
-                      -d '{"name":"example-artifact"}' \
-                      "https://api.github.com/repos/${{ github.repository }}/actions/runs/${run_id}/artifacts")
-          echo $result | jq .
-
       - name: Delete workflow runs
         uses: Mattraks/delete-workflow-runs@v2  # main
         with:
