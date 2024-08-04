@@ -107,22 +107,25 @@ jobs:
           
       - name: test1
         run: |
-          run_id=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          result=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
                        -H "Accept: application/vnd.github.v3+json" \
                        "https://api.github.com/repos/${{ github.repository }}/actions/runs") # | \
                       # jq -r '.workflow_runs[0].id')
-                      
-          echo $run_id
+          echo $result
 
-          id=$(echo $run_id | jq -r '.workflow_runs[0].id')  
+          id=$(echo $result | jq -r '.workflow_runs[0].id')  
           echo $id            
                       
-          upload_url=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          #result=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          #              -H "Accept: application/vnd.github.v3+json" \
+          #              -X POST \
+          #              -d '{"name":"example-artifact"}' \
+          #              "https://api.github.com/repos/${{ github.repos  itory }}/actions/runs/${id}/artifacts")      
+
+          result=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
                         -H "Accept: application/vnd.github.v3+json" \
-                        -X POST \
-                        -d '{"name":"example-artifact"}' \
-                        "https://api.github.com/repos/${{ github.repository }}/actions/runs/${id}/artifacts")            
-          echo $upload_url
+                        "https://api.github.com/repos/$GITHUB_REPOSITORY")  
+          echo $result
           
       - name: Delete workflow runs
         uses: Mattraks/delete-workflow-runs@v2  # main
