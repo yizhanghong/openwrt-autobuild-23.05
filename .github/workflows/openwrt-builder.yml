@@ -122,9 +122,15 @@ jobs:
           #              -d '{"name":"example-artifact"}' \
           #              "https://api.github.com/repos/${{ github.repos  itory }}/actions/runs/${id}/artifacts")      
 
+          #result=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          #              -H "Accept: application/vnd.github.v3+json" \
+          #              "https://api.github.com/repos/$GITHUB_REPOSITORY")
+
+          ARTIFACT_NAME="my-artifact"
           result=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-                        -H "Accept: application/vnd.github.v3+json" \
-                        "https://api.github.com/repos/$GITHUB_REPOSITORY")  
+                    -H "Accept: application/vnd.github.v3+json" \ 
+                    "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts" \
+                       -d '{"name": "'$ARTIFACT_NAME'"}')
           echo $result
           
       - name: Delete workflow runs
