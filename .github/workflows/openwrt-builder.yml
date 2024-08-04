@@ -120,7 +120,7 @@ jobs:
           echo "this is a test!"
           echo "URL: https://api.github.com/repos/${{ github.repository }}/actions/runs/${run_id}/artifacts"
           
-          result=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          result=$(curl -H "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN }}" \
                       -H "Accept: application/vnd.github.v3+json" \
                       -X POST \
                       -d '{"name":"example-artifact"}' \
