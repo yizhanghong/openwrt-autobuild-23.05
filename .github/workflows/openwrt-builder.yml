@@ -80,7 +80,7 @@ jobs:
           echo "encoded_json=${ENCODED_JSON}" >> $GITHUB_ENV
 
           # 设置输出
-          echo "firmware_json=$(jq -c . <<< "${FIRMWARE_JSON_OBJECT}")" >> $GITHUB_OUTPUT
+          echo "firmware_json=$(jq -c . <<< "${FIRMWARE_JSON_ARRAY}")" >> $GITHUB_OUTPUT
 
       - name: Upload firmware directory
         env:
