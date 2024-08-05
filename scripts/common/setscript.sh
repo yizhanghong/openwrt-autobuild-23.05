@@ -350,10 +350,16 @@ get_firmware_info()
 		fi
 	fi
 	
+	# 架构名称
 	arch_name=$(sed -n -r 's/^CONFIG_TARGET_DEVICE_(.*)_DEVICE.*=y/\1/p' "${source_path}/${defaultconf}" | head -n 1)
-	echo $arch_name
+	arch_name=$(echo "${arch_name}" | sed 's/_/-/g')
+	
+	result["name"]="openwrt-${arch_name}"
+	result["path"]="${OPENWRT_OUTPUT_PATH}/$(date +"%Y%m%d")"
+	result["version"]="${version_num}"
 	
 	# 获取设备名称
+	local device_array=()
 	while IFS= read -r line; do
 		if [[ ! $line =~ ^CONFIG_TARGET.*DEVICE.*=y ]]; then
 			continue
@@ -373,9 +379,10 @@ get_firmware_info()
 		local file_date=$(date +"%Y%m%d%H%M")
 		firmware_name="${firmware_name}-${device_name}-${file_date}"
 		
-		result+=("${device_name}:${firmware_name}")
+		device_array+=("${device_name}:${firmware_name}")
 	done < "${source_path}/${defaultconf}"
 	
+	result["devices"]="${device_array[@]}"
 	return 0
 }
 

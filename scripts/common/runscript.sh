@@ -26,10 +26,23 @@ get_openwrt_firmware()
 	fi
 	
 	# 获取固件信息
-	local fields_array=()
+	declare -A fields_array
 	if ! get_firmware_info local_source_array fields_array; then
 		return 1
 	fi
+	
+	# 目标名称
+	target_name="${fields_array["name"]}"
+
+	# 目标路径
+	target_path="${fields_array["path"]}"
+	
+	# 版本信息
+	version="${fields_array["version"]}"
+	
+	# 设备数组
+	device_array=()
+	IFS=' ' read -r -a device_array <<< "${fields_array["devices"]}"
 	
 	# 进入固件目录
 	cd ${path}/bin/targets/*/*
@@ -46,15 +59,14 @@ get_openwrt_firmware()
 		return 1
 	fi
 	
-	# 目标路径
-	target_path="${OPENWRT_OUTPUT_PATH}/$(date +"%Y%m%d")"
+	# 创建目标路径
 	if [ ! -d "${target_path}" ]; then
 		mkdir -p "${target_path}"
 	fi
 	
 	# 拷贝固件至目标路径
-	local fireware_array=()
-	for value in "${fields_array[@]}"; do
+	local firmware_array=()
+	for value in "${device_array[@]}"; do
 		IFS=':' read -r device_name firmware_name <<< "$value"
 		
 		if [ -z "${device_name}" ] || [ -z "${firmware_name}" ]; then
@@ -78,17 +90,17 @@ get_openwrt_firmware()
 			--include='*' \
 			${PWD}/ ${firmware_path}/
 
-		fireware_array+=("${firmware_name}:${firmware_path}")
+		firmware_array+=("${firmware_name}:${firmware_path}")
 	done
-	
-	# 固件信息数组
-	firmware_array=()
 	
 	# 计数器
 	counter=0
 	
+	# 固件信息数组
+	firmware_json_array=()
+	
 	# 生成固件目标文件
-	for value in "${fireware_array[@]}"; do
+	for value in "${firmware_array[@]}"; do
 		IFS=':' read -r firmware_name firmware_path <<< "$value"
 		
 		if [ -z "${firmware_name}" ] || [ -z "${firmware_path}" ]; then
@@ -115,26 +127,24 @@ get_openwrt_firmware()
 			["file"]="${firmware_output_file}"
 		)
 		
-		# 将生成的 JSON 对象添加到 firmware_array 数组
-		firmware_array+=("$(build_json_object object_array)")
+		# 将生成的 JSON 对象添加到 firmware_json_array 数组
+		firmware_json_array+=("$(build_json_object object_array)")
 	done
 	
 	# 返回固件JSON数组
-	FIRMWARE_JSON_ARRAY=$(build_json_array firmware_array)
+	FIRMWARE_JSON_ARRAY=$(build_json_array firmware_json_array)
 	
 	# 生成JSON对象数组
-	declare -A object_array=(
+	declare -A object_json_array=(
 		["count"]="${counter}"
-		["name"]="test"
+		["name"]="${target_name}"
 		["path"]="${target_path}"
-		["items"]=$FIRMWARE_JSON_ARRAY
+		["items"]=${FIRMWARE_JSON_ARRAY}
 	)
 	
 	# 返回固件JSON对象
-	FIRMWARE_JSON_OBJECT=$(build_json_object object_array)
+	FIRMWARE_JSON_OBJECT=$(build_json_object object_json_array)
 	
-	echo $FIRMWARE_JSON_OBJECT
-
 	print_log "TRACE" "get firmware" "完成获取OpenWrt固件!"
 	return 0
 }
