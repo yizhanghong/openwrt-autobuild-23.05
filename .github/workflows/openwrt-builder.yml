@@ -115,6 +115,9 @@ jobs:
                   echo "Firmware JSON object format is invalid, Please check!"
                   exit 1
               fi
+
+              name=$(jq -r '.name' <<< "${items_object}")
+              path=$(jq -r '.file' <<< "${items_object}")
           fi
 
           # 设置输出
