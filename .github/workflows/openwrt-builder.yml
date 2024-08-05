@@ -77,7 +77,7 @@ jobs:
           
           # 获取 JSON 数组
           JSON_ARRAY=$(jq '.items' <<< "${FIRMWARE_JSON_OBJECT})
-          echo "arr=${$JSON_ARRAY}"
+          echo "arr=$JSON_ARRAY"
           
           # 将 JSON 字符串进行 Base64 编码
           ENCODED_JSON=$(echo -n "${FIRMWARE_JSON_OBJECT}" | base64 | tr -d '\n')
