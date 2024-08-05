@@ -84,7 +84,8 @@ jobs:
           # 设置输出
           echo "firmware_json=$(jq -c . <<< "${JSON_ARRAY}")" >> $GITHUB_OUTPUT
 
-      - name: Get firmware Info
+      - name: Extract Firmware Details
+        id: extract_firmware_info 
         env:
           # 获取 Base64 编码的 JSON 字符串
           ENCODED_FIRMWARE_JSON: ${{ env.encoded_json }}
@@ -94,11 +95,28 @@ jobs:
 
           # 获取 count 字段的值
           count=$(jq -r '.count' <<< "${FIRMWARE_JSON}")
-          echo $count
+          if [ ${count} -eq 0 ]; then
+              echo "Firmware does not exist, Please check!"
+              exit 1
+          fi
+
+          if [ ${count} -gt 1 ]; then
+              name=$(jq -r '.name' <<< "${FIRMWARE_JSON}")
+              path=$(jq -r '.path' <<< "${FIRMWARE_JSON}")
+          else
+              echo "test2"
+          fi
+
+          # 设置输出
+          echo "firmware_name=${name}" >> $GITHUB_OUTPUT
+          echo "firmware_path=${path}" >> $GITHUB_OUTPUT
           
       - name: Upload firmware directory
-        run: |
-          echo "test"
+        uses: actions/upload-artifact@master
+        if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
+        with:
+          name: ${{ steps.extract_firmware_info.outputs.firmware_name }}
+          path: ${{ steps.extract_firmware_info.outputs.firmware_path }}
 
       - name: Delete workflow runs
         uses: Mattraks/delete-workflow-runs@v2  # main
