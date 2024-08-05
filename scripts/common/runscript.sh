@@ -77,13 +77,7 @@ get_openwrt_firmware()
 			--exclude='*.manifest' \
 			--include='*' \
 			${PWD}/ ${firmware_path}/
-			
-		echo "cur dir=$PWD"
-		ls -al $PWD
-		
-		echo "dest dir=$firmware_path"
-		ls -al $firmware_path
-			
+
 		fireware_array+=("${firmware_name}:${firmware_path}")
 	done
 	
