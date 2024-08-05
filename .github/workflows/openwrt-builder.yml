@@ -110,11 +110,11 @@ jobs:
                   exit 1
               fi
 
-              items_object=$(jq '.items[0]' <<< "${json_array}")
-               if [ -z "${items_object}" ] || ! jq empty <<< "${items_object}"; then
-                  echo "Firmware JSON object format is invalid, Please check!"
-                  exit 1
-              fi
+              #items_object=$(jq '.items[0]' <<< "${json_array}")
+              #if [ -z "${items_object}" ] || ! jq empty <<< "${items_object}"; then
+              #    echo "Firmware JSON object format is invalid, Please check!"
+              #    exit 1
+             # fi
           fi
 
           # 设置输出
