@@ -119,6 +119,11 @@ jobs:
               name=$(jq -r '.name' <<< "${items_object}")
               path=$(jq -r '.file' <<< "${items_object}")
           fi
+          
+          if [ -z "${name}" ] || [ -z "${path}" ]; then
+              echo "Get Firmware information is Failed, please check!"
+              exit 1
+          fi
 
           # 设置输出
           echo "firmware_name=${name}" >> $GITHUB_OUTPUT
