@@ -11,7 +11,7 @@ get_openwrt_firmware()
 	
 	# 获取路径
 	local path=${local_source_array["Path"]}
-	if [ -z "${path}" ]; then
+	if [ -z "${path}" ] || [ ! -d "${path}" ]; then
 		print_log "ERROR" "compile firmware" "获取源码路径失败, 请检查!"
 		return 1
 	fi
@@ -159,7 +159,7 @@ compile_openwrt_firmware()
 	
 	# 获取路径
 	local path=${local_source_array["Path"]}
-	if [ -z "${path}" ]; then
+	if [ -z "${path}" ] || [ ! -d "${path}" ]; then
 		print_log "ERROR" "compile firmware" "获取源码路径失败, 请检查!"
 		return 1
 	fi
@@ -206,7 +206,7 @@ download_openwrt_package()
 
 	# 获取路径
 	local path=${local_source_array["Path"]}
-	if [ -z "${path}" ]; then
+	if [ -z "${path}" ] || [ ! -d "${path}" ]; then
 		print_log "ERROR" "download package" "获取源码路径失败, 请检查!"
 		return 1
 	fi
@@ -249,7 +249,7 @@ set_menu_options()
 	
 	# 获取路径
 	local path=${local_source_array["Path"]}
-	if [ -z "${path}" ]; then
+	if [ -z "${path}" ] || [ ! -d "${path}" ]; then
 		print_log "ERROR" "menu config" "获取源码路径失败, 请检查!"
 		return 1
 	fi
@@ -309,6 +309,16 @@ set_menu_options()
 set_custom_config()
 {
 	print_log "TRACE" "custom config" "正在设置自定义配置，请等待..."
+	
+	# 传入源码信息
+	local -n local_source_array="$1"
+	
+	# 获取路径
+	local path=${local_source_array["Path"]}
+	if [ -z "${path}" ] || [ ! -d "${path}" ]; then
+		print_log "ERROR" "menu config" "获取源码路径失败, 请检查!"
+		return 1
+	fi
 
 	# 增加第三方插件
 	if ! set_openwrt_plugins $1; then
@@ -340,7 +350,7 @@ update_openwrt_feeds()
 	
 	# 获取路径
 	local path=${local_source_array["Path"]}
-	if [ -z "${path}" ]; then
+	if [ -z "${path}" ] || [ ! -d "${path}" ]; then
 		print_log "ERROR" "update feeds" "获取源码路径失败, 请检查!"
 		return 1
 	fi
@@ -377,7 +387,7 @@ set_openwrt_feeds()
 	
 	# 获取路径
 	local path=${local_source_array["Path"]}
-	if [ -z "${path}" ]; then
+	if [ -z "${path}" ] || [ ! -d "${path}" ]; then
 		print_log "ERROR" "setting feeds" "获取源码路径失败, 请检查!"
 		return 1
 	fi
