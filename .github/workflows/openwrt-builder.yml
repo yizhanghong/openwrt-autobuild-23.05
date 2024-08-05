@@ -133,7 +133,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
         with:
-          #name: ${{ steps.extract_firmware_info.outputs.firmware_name }}
+          name: ${{ steps.extract_firmware_info.outputs.firmware_name }}
           path: ${{ steps.extract_firmware_info.outputs.firmware_path }}
 
       - name: Delete workflow runs
