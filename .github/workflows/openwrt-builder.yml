@@ -73,7 +73,7 @@ jobs:
               exit 1
           fi
 
-          echo "obj=${FIRMWARE_JSON_OBJECT}"
+          echo ${FIRMWARE_JSON_OBJECT} | jq '.'
           
           # 获取 JSON 数组
           JSON_ARRAY=$(jq '.items' <<< "${FIRMWARE_JSON_OBJECT})
