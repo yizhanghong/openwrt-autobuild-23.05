@@ -350,6 +350,9 @@ get_firmware_info()
 		fi
 	fi
 	
+	arch_name=$(sed -n -r 's/^CONFIG_TARGET_DEVICE_(.*)_DEVICE.*=y/\1/p' "${source_path}/${defaultconf}" | head -n 1)
+	echo $arch_name
+	
 	# 获取设备名称
 	while IFS= read -r line; do
 		if [[ ! $line =~ ^CONFIG_TARGET.*DEVICE.*=y ]]; then
