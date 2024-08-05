@@ -104,7 +104,17 @@ jobs:
               name=$(jq -r '.name' <<< "${FIRMWARE_JSON}")
               path=$(jq -r '.path' <<< "${FIRMWARE_JSON}")
           else
-              echo "test2"
+              json_array=$(jq '.items' <<< "${FIRMWARE_JSON}")
+              if ! is_valid_json ${json_array}; then
+                  echo "Firmware JSON data format is invalid, Please check!"
+                  exit 1
+              fi
+
+              items_object=$(jq '.items[0]' <<< "${json_array}")
+              if ! is_valid_json ${json_array}; then
+                  echo "Firmware JSON data format is invalid, Please check!"
+                  exit 1
+              fi
           fi
 
           # 设置输出
