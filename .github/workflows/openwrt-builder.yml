@@ -105,14 +105,14 @@ jobs:
               path=$(jq -r '.path' <<< "${FIRMWARE_JSON}")
           else
               json_array=$(jq '.items' <<< "${FIRMWARE_JSON}")
-              if ! is_valid_json ${json_array}; then
-                  echo "Firmware JSON data format is invalid, Please check!"
+              if [ -z "${json_array}" ] || ! jq empty <<< "${json_array}"; then
+                  echo "Firmware JSON array format is invalid, Please check!"
                   exit 1
               fi
 
               items_object=$(jq '.items[0]' <<< "${json_array}")
-              if ! is_valid_json ${json_array}; then
-                  echo "Firmware JSON data format is invalid, Please check!"
+               if [ -z "${items_object}" ] || ! jq empty <<< "${items_object}"; then
+                  echo "Firmware JSON object format is invalid, Please check!"
                   exit 1
               fi
           fi
