@@ -72,12 +72,8 @@ jobs:
               echo "Invalid JSON: $FIRMWARE_JSON_OBJECT"
               exit 1
           fi
-
-          echo ${FIRMWARE_JSON_OBJECT} | jq '.'
-          
           # 获取 JSON 数组
           JSON_ARRAY=$(jq '.items' <<< "${FIRMWARE_JSON_OBJECT}")
-          echo "arr=$JSON_ARRAY"
           
           # 将 JSON 字符串进行 Base64 编码
           ENCODED_JSON=$(echo -n "${FIRMWARE_JSON_OBJECT}" | base64 | tr -d '\n')
@@ -86,9 +82,9 @@ jobs:
           echo "encoded_json=${ENCODED_JSON}" >> $GITHUB_ENV
 
           # 设置输出
-          echo "firmware_json=$(jq -c . <<< "${FIRMWARE_JSON_ARRAY}")" >> $GITHUB_OUTPUT
+          echo "firmware_json=$(jq -c . <<< "${JSON_ARRAY}")" >> $GITHUB_OUTPUT
 
-      - name: Upload firmware directory
+      - name: Get firmware Info
         env:
           # 获取 Base64 编码的 JSON 字符串
           ENCODED_FIRMWARE_JSON: ${{ env.encoded_json }}
@@ -96,8 +92,14 @@ jobs:
           # Base64 解码 JSON 字符串
           FIRMWARE_JSON=$(echo "$ENCODED_FIRMWARE_JSON" | base64 --decode)
 
+          # 获取 count 字段的值
+          count=$(jq -r '.count' <<< "${FIRMWARE_JSON}")
+          echo $count
           
-          
+      - name: Upload firmware directory
+        run: |
+          echo "test"
+
       - name: Delete workflow runs
         uses: Mattraks/delete-workflow-runs@v2  # main
         with:
