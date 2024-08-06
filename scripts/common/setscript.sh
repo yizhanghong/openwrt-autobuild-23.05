@@ -245,7 +245,7 @@ set_user_status()
 	USER_STATUS_ARRAY["waittimeout"]=5
 	
 	# 尝试次数
-	USER_STATUS_ARRAY["retrycount"]=2
+	USER_STATUS_ARRAY["retrycount"]=3
 	
 	# 自动编译
 	USER_STATUS_ARRAY["autocompile"]=0
