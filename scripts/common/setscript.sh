@@ -1,9 +1,9 @@
 #!/bin/bash
 
-. diyconfig/plugin-setup.sh
-. diyconfig/themes-setup.sh
-. diyconfig/system-setup.sh
-. diyconfig/network-setup.sh
+. diyscripts/plugin-setup.sh
+. diyscripts/themes-setup.sh
+. diyscripts/system-setup.sh
+. diyscripts/network-setup.sh
 
 # 脚本运行参数
 SCRIPT_CMD_ARGS=$1
@@ -139,9 +139,6 @@ get_diy_config()
 			reutrn 1
 		fi
 		
-		# feeds配置名称
-		USER_CONFIG_ARRAY["feedsname"]="${fields_array["feeds_name"]}"
-		
 		# 时区
 		USER_CONFIG_ARRAY["timezone"]="${fields_array["time_zone"]}"
 		
@@ -245,7 +242,7 @@ set_user_status()
 	USER_STATUS_ARRAY["waittimeout"]=5
 	
 	# 尝试次数
-	USER_STATUS_ARRAY["retrycount"]=3
+	USER_STATUS_ARRAY["retrycount"]=10
 	
 	# 自动编译
 	USER_STATUS_ARRAY["autocompile"]=0

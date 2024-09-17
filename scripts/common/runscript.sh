@@ -258,7 +258,7 @@ set_menu_options()
 	local default_feeds_file="${path}/${USER_CONFIG_ARRAY["defaultconf"]}"
 	
 	# 自定义feeds配置文件
-	local custom_feeds_file="${OPENWRT_CONFIG_PATH}/${USER_CONFIG_ARRAY["feedsname"]}"
+	local custom_feeds_file="${OPENWRT_CONFIG_PATH}/conf-file/${local_source_array["Config"]}"
 	
 	# 进入源码目录
 	pushd ${path} > /dev/null
