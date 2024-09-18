@@ -101,14 +101,17 @@ setSourceMenu()
 	while [ 1 ]; do
 		local source_name_array=("${@}")
 		
+		# 名称进行排序
+		local sorted_source_name_array=($(for i in "${source_name_array[@]}"; do echo "$i"; done | sort -r))
+		
 		# 显示源码目录
-		show_source_menu ${source_name_array[@]}
+		show_source_menu ${sorted_source_name_array[@]}
 		
 		# 获取用户输入
 		local index=`input_user_index`
 		
 		# 判断输入值是否有效
-		if [ $index -lt 0 ] || [ $index -gt ${#source_name_array[@]} ]; then
+		if [ $index -lt 0 ] || [ $index -gt ${#sorted_source_name_array[@]} ]; then
 			clear; print_log "WARNING" "source menu" "请输入正确的命令序号!"
 			continue
 		fi
@@ -117,7 +120,7 @@ setSourceMenu()
 		[ $index -eq 0 ] && { break; }
 		
 		# 获取源码名称
-		local source_name=${source_name_array[$index-1]}
+		local source_name=${sorted_source_name_array[$index-1]}
 		
 		# 获取源码类型
 		local source_type=${SOURCE_TYPE[${source_name}]}
@@ -152,7 +155,7 @@ runLinuxEnv()
 		print_log "ERROR" "run linux" "获取配置信息失败, 请检查!"
 		return
 	fi
-
+	
 	if [ ${USER_CONFIG_ARRAY["mode"]} -eq ${COMPILE_MODE[local_compile]} ]; then
 		# 设置源码目录 
 		setSourceMenu ${source_name_array[@]}

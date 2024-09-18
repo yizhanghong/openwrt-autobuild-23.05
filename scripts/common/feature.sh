@@ -32,16 +32,18 @@ timeout_with_count()
 # 获取命令序号
 input_user_index()
 {
-	#stty erase ^H
-	read -r value
+	local value
+    local result
 	
-	echo "$value"|[ -n "`sed -n '/^[0-9][0-9]*$/p'`" ]
+	# 提示用户输入
+	read -r -e -p "$(printf "\033[1;33m请输出正确的序列号:\033[0m")" value
 	
-	if [ "$?" = "0" ]; then
-		result=$value
-	else
-		result=-1
-	fi
+	# 过滤输入，只接受数字
+    if [[ "$value" =~ ^[0-9]+$ ]]; then
+        result="$value"
+    else
+        result=-1
+    fi
 	
 	echo "$result"
 }
@@ -676,8 +678,6 @@ show_source_menu()
 	for ((i=0; i<${#source_array[@]}; i++)) do
 		printf "\033[1;36m%2d. %s项目\033[0m\n" $((i+1)) "${source_array[i]}"
 	done
-	
-	printf "\033[1;33m%s\033[0m" "请输入源码序号:"
 }
 
 # 显示命令目录
@@ -692,6 +692,4 @@ show_cmd_menu()
 	for ((i=0; i<${#cmd_array[@]}; i++)) do
 		printf "\033[1;36m%2d. %s\033[0m\n" $((i+1)) "${cmd_array[i]}"
 	done
-	
-	printf "\033[1;33m%s\033[0m" "请输入命令序号:"
 }
