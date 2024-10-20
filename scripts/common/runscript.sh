@@ -255,10 +255,19 @@ set_menu_options()
 	fi
 	
 	# 缺省feeds配置文件
-	local default_feeds_file="${USER_CONFIG_ARRAY["defaultfeeds"]}"
+	local default_feeds_file="${path}/${USER_CONFIG_ARRAY["defaultconf"]}"
 	
 	# 自定义feeds配置文件
-	local custom_feeds_file="${USER_CONFIG_ARRAY["customfeeds"]}"
+	local custom_feeds_file=""
+	if [ -n "${USER_CONFIG_ARRAY["userdevice"]}" ] && [ -n "${local_source_array["Alias"]}" ]; then
+		local feeds_file_path="${OPENWRT_CONFIG_PATH}/conf-file/${USER_CONFIG_ARRAY["userdevice"]}"
+		
+		if [ "${USER_CONFIG_ARRAY["nginxcfg"]}" = "1" ]; then
+			custom_feeds_file="${feeds_file_path}/${local_source_array["Alias"]}-nginx-${USER_CONFIG_ARRAY["userdevice"]}.config"
+		else
+			custom_feeds_file="${feeds_file_path}/${local_source_array["Alias"]}-${USER_CONFIG_ARRAY["userdevice"]}.config"
+		fi
+	fi
 	
 	# 进入源码目录
 	pushd ${path} > /dev/null
