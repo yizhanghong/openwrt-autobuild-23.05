@@ -34,9 +34,6 @@ exeCmdShell()
 	local ret=0
 	case ${cmd} in
 	${CMD_TYPE[autoCompileOpenwrt]})
-		# 设置自动编译状态
-		USER_STATUS_ARRAY["autocompile"]=1
-		
 		# 自动编译openwrt
 		auto_compile_openwrt $2; ret=$?
 		;;

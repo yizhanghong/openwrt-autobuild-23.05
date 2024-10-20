@@ -473,6 +473,9 @@ clone_openwrt_source()
 # 自动编译openwrt
 auto_compile_openwrt()
 {
+	# 设置自动编译状态
+	USER_STATUS_ARRAY["autocompile"]=1
+		
 	# 克隆openwrt源码
 	if ! clone_openwrt_source $1; then
 		return 1
