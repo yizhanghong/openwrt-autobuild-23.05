@@ -131,6 +131,10 @@ set_uhttpd_plugin()
 {
 	local source_path=$1
 	
+	if [ "${USER_CONFIG_ARRAY["nginxcfg"]}" != "1" ]; then
+		return
+	fi
+	
 	{
 		local file="${source_path}/feeds/luci/collections/luci/Makefile"
 		print_log "INFO" "custom config" "[修改uhttpd编译]"
@@ -185,6 +189,10 @@ set_bootstrap_plugin()
 set_nginx_plugin()
 {
 	local source_path=$1
+	
+	if [ "${USER_CONFIG_ARRAY["nginxcfg"]}" != "1" ]; then
+		return
+	fi
 	
 	# 修改nginx配置文件
 	{

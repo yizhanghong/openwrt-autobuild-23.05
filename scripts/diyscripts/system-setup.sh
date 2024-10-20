@@ -172,6 +172,10 @@ set_pwm_fan()
 	local source_type=$1
 	local source_path=$2
 	
+	if [ "${USER_CONFIG_ARRAY["userdevice"]}" != "r2s" ] && [ "${USER_CONFIG_ARRAY["userdevice"]}" != "r5s" ]; then
+		return
+	fi
+	
 	print_log "INFO" "custom config" "[设置PWM风扇]"
 	{
 		local path=""

@@ -255,10 +255,10 @@ set_menu_options()
 	fi
 	
 	# 缺省feeds配置文件
-	local default_feeds_file="${path}/${USER_CONFIG_ARRAY["defaultconf"]}"
+	local default_feeds_file="${USER_CONFIG_ARRAY["defaultfeeds"]}"
 	
 	# 自定义feeds配置文件
-	local custom_feeds_file="${OPENWRT_CONFIG_PATH}/conf-file/${local_source_array["Config"]}"
+	local custom_feeds_file="${USER_CONFIG_ARRAY["customfeeds"]}"
 	
 	# 进入源码目录
 	pushd ${path} > /dev/null
@@ -473,9 +473,6 @@ clone_openwrt_source()
 # 自动编译openwrt
 auto_compile_openwrt()
 {
-	# 设置自动编译状态
-	USER_STATUS_ARRAY["autocompile"]=1
-	
 	# 克隆openwrt源码
 	if ! clone_openwrt_source $1; then
 		return 1

@@ -6,10 +6,37 @@ exeCmdShell()
 {
 	# 执行命令
 	local cmd=$1
-	local ret=0
+	local -n array=$2
 	
+	local path=${array["Path"]}
+	local alias=${array["Alias"]}
+	
+	# 设置缺省feeds配置文件
+	if [ -z "${USER_CONFIG_ARRAY["defaultconf"]}" ]; then
+		USER_CONFIG_ARRAY["defaultfeeds"]="${path}/.config"
+	else
+		USER_CONFIG_ARRAY["defaultfeeds"]="${path}/${USER_CONFIG_ARRAY["defaultconf"]}"
+	fi
+	
+	# 设置自定义feeds配置文件
+	if [ -z "${USER_CONFIG_ARRAY["userdevice"]}" ] || [ -z "${alias}" ]; then
+		USER_CONFIG_ARRAY["customfeeds"]=""
+	else
+		local filepath="${OPENWRT_CONFIG_PATH}/conf-file/${USER_CONFIG_ARRAY["userdevice"]}"
+		
+		if [ "${USER_CONFIG_ARRAY["nginxcfg"]}" = "1" ]; then
+			USER_CONFIG_ARRAY["customfeeds"]="${filepath}/${alias}-nginx-${USER_CONFIG_ARRAY["userdevice"]}.config"
+		else
+			USER_CONFIG_ARRAY["customfeeds"]="${filepath}/${alias}-${USER_CONFIG_ARRAY["userdevice"]}.config"
+		fi
+	fi
+	
+	local ret=0
 	case ${cmd} in
 	${CMD_TYPE[autoCompileOpenwrt]})
+		# 设置自动编译状态
+		USER_STATUS_ARRAY["autocompile"]=1
+		
 		# 自动编译openwrt
 		auto_compile_openwrt $2; ret=$?
 		;;

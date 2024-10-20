@@ -139,6 +139,9 @@ get_diy_config()
 			reutrn 1
 		fi
 		
+		# 用户设备
+		USER_CONFIG_ARRAY["userdevice"]="${fields_array["user_device"]}"
+		
 		# 时区
 		USER_CONFIG_ARRAY["timezone"]="${fields_array["time_zone"]}"
 		
@@ -150,6 +153,9 @@ get_diy_config()
 		
 		# 缺省密码
 		USER_CONFIG_ARRAY["defaultpasswd"]="${fields_array["user_passwd"]}"
+		
+		# nginx配置
+		USER_CONFIG_ARRAY["nginxcfg"]="${fields_array["nginx_cfg"]}"
 	}
 }
 
@@ -293,7 +299,7 @@ init_user_config()
 	if ! get_user_config "${OPENWRT_CONF_FILE}"; then
 		print_log "ERROR" "user config" "获取用户配置失败, 请检查!"
 		return 1
-	else	
+	else
 		# 工作目录
 		USER_CONFIG_ARRAY["workdir"]="openwrt"
 		
@@ -302,6 +308,12 @@ init_user_config()
 		
 		# 插件名称
 		USER_CONFIG_ARRAY["plugins"]="wl"
+		
+		# 缺省feeds配置文件
+		USER_CONFIG_ARRAY["defaultfeeds"]=""
+		
+		# 自定义feeds配置文件
+		USER_CONFIG_ARRAY["customfeeds"]=""
 	fi
 	
 	# 设置用户状态
