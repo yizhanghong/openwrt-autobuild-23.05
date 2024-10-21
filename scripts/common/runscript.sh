@@ -374,7 +374,7 @@ update_openwrt_feeds()
 	fi
 
 	# Install feeds configuration
-	print_log "INFO" "update feeds" "安装Feds源码!"
+	print_log "INFO" "update feeds" "安装Feeds源码!"
 	
 	command="${NETWORK_PROXY_CMD} ${path}/scripts/feeds install -a"
 	if ! execute_command_retry ${USER_STATUS_ARRAY["retrycount"]} ${USER_STATUS_ARRAY["waittimeout"]} "${command}"; then

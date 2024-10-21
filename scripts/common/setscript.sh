@@ -244,14 +244,19 @@ get_user_config()
 # 设置用户状态
 set_user_status()
 {
+	# 自动编译
+	USER_STATUS_ARRAY["autocompile"]=0
+	
 	# 等待超时
 	USER_STATUS_ARRAY["waittimeout"]=5
 	
 	# 尝试次数
 	USER_STATUS_ARRAY["retrycount"]=10
-	
-	# 自动编译
-	USER_STATUS_ARRAY["autocompile"]=0
+
+	if [ ${USER_CONFIG_ARRAY["mode"]} -eq ${COMPILE_MODE[remote_compile]} ]; then
+		USER_STATUS_ARRAY["waittimeout"]=0
+		USER_STATUS_ARRAY["retrycount"]=1f
+	fi
 }
 
 # 初始用户配置
