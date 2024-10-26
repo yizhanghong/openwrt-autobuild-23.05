@@ -205,6 +205,11 @@ setLinuxEnv()
 		if dpkg -s proxychains4 >/dev/null 2>&1; then
 			NETWORK_PROXY_CMD="proxychains4 -q -f /etc/proxychains4.conf"
 		fi
+		
+		set +e
+	else
+		# exit on error
+		set -e
 	fi
 	
 	# 为工作目录赋予权限
@@ -218,46 +223,18 @@ updateLinuxEnv()
 {
 	print_log "TRACE" "update linux" "正在更新linux环境，请等待..."
 	
-	if [ ${USER_CONFIG_ARRAY["mode"]} -eq ${COMPILE_MODE[local_compile]} ]; then
-		set +e
-	else
-		# exit on error
-		set -e
-		
+	if [ ${USER_CONFIG_ARRAY["mode"]} -eq ${COMPILE_MODE[remote_compile]} ]; then
 		# 列出前100个比较大的包
-		dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100
+		#dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100
+		
 		print_log "INFO" "update linux" "正在删除大的软件包，请等待..."
 		
-		ghc_packages=$(dpkg -l | awk '/^ii/ && $2 ~ /^ghc-8\./ { print $2 }')
-		if [ -n "$ghc_packages" ]; then
-			echo "$ghc_packages" | xargs -r sudo apt-get remove -y
-		fi
-		
-		dotnet_packages=$(dpkg -l | awk '/^ii/ && $2 ~ /^\^dotnet-/ { print $2 }')
-		if [ -n "$dotnet_packages" ]; then
-			echo "$dotnet_packages" | xargs -r sudo apt-get remove -y
-		fi
-		
-		llvm_packages=$(dpkg -l | awk '/^ii/ && $2 ~ /^llvm-/ { print $2 }')
-		if [ -n "$llvm_packages" ]; then
-			echo "$llvm_packages" | xargs -r sudo apt-get remove -y
-		fi
-		
-		php_packages=$(dpkg -l | awk '/^ii/ && $2 ~ /^php\./' | awk '{ print $2 }')
-		if [ -n "$php_packages" ]; then
-			echo "$php_packages" | xargs -r sudo apt-get remove -y
-		fi
-		
-		temurin_packages=$(dpkg -l | awk '/^ii/ && $2 ~ /^temurin-/' | awk '{ print $2 }')
-		if [ -n "$temurin_packages" ]; then
-			echo "$temurin_packages" | xargs -r sudo apt-get remove -y
-		fi
-		
-		mono_packages=$(dpkg -l | awk '/^ii/ && $2 ~ /^mono-/' | awk '{ print $2 }')
-		if [ -n "$temurin_packages" ]; then
-			echo "$temurin_packages" | xargs -r sudo apt-get remove -y
-		fi
-
+		sudo apt-get remove -y '^ghc-8.*'
+		sudo apt-get remove -y '^dotnet-.*'
+		sudo apt-get remove -y '^llvm-.*'
+		sudo apt-get remove -y 'php.*'
+		sudo apt-get remove -y 'temurin-.*'
+		sudo apt-get remove -y 'mono-.*'
 		sudo apt-get remove -y azure-cli google-cloud-sdk hhvm google-chrome-stable firefox powershell microsoft-edge-stable
 		
 		sudo rm -rf \
@@ -267,7 +244,7 @@ updateLinuxEnv()
             /opt/ghc \
             /opt/hostedtoolcache/CodeQL
 	fi
-
+	
 	sudo -E apt-get -qq update
 	sudo -E apt-get -qq upgrade
 	
