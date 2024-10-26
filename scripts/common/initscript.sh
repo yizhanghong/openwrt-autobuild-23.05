@@ -228,12 +228,36 @@ updateLinuxEnv()
 		dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100
 		print_log "INFO" "update linux" "正在删除大的软件包，请等待..."
 		
-		sudo apt-get remove -y '^ghc-8.*'
-		sudo apt-get remove -y '^dotnet-.*'
-		sudo apt-get remove -y '^llvm-.*'
-		sudo apt-get remove -y 'php.*'
-		sudo apt-get remove -y 'temurin-.*'
-		sudo apt-get remove -y 'mono-.*'
+		ghc_packages=$(dpkg -l | awk '/^ii/ && $2 ~ /^ghc-8\./ { print $2 }')
+		if [ -n "$ghc_packages" ]; then
+			echo "$ghc_packages" | xargs -r sudo apt-get remove -y
+		fi
+		
+		dotnet_packages=$(dpkg -l | awk '/^ii/ && $2 ~ /^\^dotnet-/ { print $2 }')
+		if [ -n "$dotnet_packages" ]; then
+			echo "$dotnet_packages" | xargs -r sudo apt-get remove -y
+		fi
+		
+		llvm_packages=$(dpkg -l | awk '/^ii/ && $2 ~ /^llvm-/ { print $2 }')
+		if [ -n "$llvm_packages" ]; then
+			echo "$llvm_packages" | xargs -r sudo apt-get remove -y
+		fi
+		
+		php_packages=$(dpkg -l | awk '/^ii/ && $2 ~ /^php\./' | awk '{ print $2 }')
+		if [ -n "$php_packages" ]; then
+			echo "$php_packages" | xargs -r sudo apt-get remove -y
+		fi
+		
+		temurin_packages=$(dpkg -l | awk '/^ii/ && $2 ~ /^temurin-/' | awk '{ print $2 }')
+		if [ -n "$temurin_packages" ]; then
+			echo "$temurin_packages" | xargs -r sudo apt-get remove -y
+		fi
+		
+		mono_packages=$(dpkg -l | awk '/^ii/ && $2 ~ /^mono-/' | awk '{ print $2 }')
+		if [ -n "$temurin_packages" ]; then
+			echo "$temurin_packages" | xargs -r sudo apt-get remove -y
+		fi
+
 		sudo apt-get remove -y azure-cli google-cloud-sdk hhvm google-chrome-stable firefox powershell microsoft-edge-stable
 		
 		sudo rm -rf \
