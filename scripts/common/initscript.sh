@@ -229,13 +229,30 @@ updateLinuxEnv()
 		
 		print_log "INFO" "update linux" "正在删除大的软件包，请等待..."
 		
-		sudo apt-get remove -y '^ghc-8.*'
-		sudo apt-get remove -y '^dotnet-.*'
-		sudo apt-get remove -y '^llvm-.*'
-		sudo apt-get remove -y 'php.*'
-		sudo apt-get remove -y 'temurin-.*'
-		sudo apt-get remove -y 'mono-.*'
-		sudo apt-get remove -y azure-cli google-cloud-sdk hhvm google-chrome-stable firefox powershell microsoft-edge-stable
+		# ^ghc-8.*
+		remove_packages '^ghc-8.*'
+
+		# ^dotnet-.*
+		remove_packages '^dotnet-.*'
+
+		# ^llvm-.*
+		remove_packages '^llvm-.*'
+		
+		# php.*
+		remove_packages 'php.*'
+		
+		# temurin-.*
+		remove_packages 'temurin-.*'
+		
+		# mono-.*
+		remove_packages 'mono-.*'
+		
+		remove_packages_list=("azure-cli" "google-cloud-sdk" "hhvm" "google-chrome-stable" "firefox" "powershell" "microsoft-edge-stable")
+		
+		for package in "${packages_to_remove[@]}"; do
+			echo "正在尝试删除包：$package"
+			remove_packages "$package"
+		done
 		
 		sudo rm -rf \
             /etc/apt/sources.list.d/* \
