@@ -174,17 +174,13 @@ remove_packages()
 	
 	# 查找符合条件的正则表达式软件包
 	remove_packages=$(dpkg -l | awk "/^ii/ && \$2 ~ /${pattern}/" | awk '{print $2}')
-	
-	# 检查命令是否成功
-	if [ ${PIPESTATUS[0]} -eq 0 ] && [ ${PIPESTATUS[1]} -eq 0 ] && [ ${PIPESTATUS[2]} -eq 0 ]; then 
-		if [ -n "$remove_packages" ]; then
-			# 逐个删除包，忽略无法找到的包
-			while read -r package; do
-				if sudo apt-get remove -y "$package" 2>/dev/null; then
-					echo "已成功删除包: $package"
-				fi
-			done <<< "$remove_packages"
-		fi
+	if [ -n "$remove_packages" ]; then
+		# 逐个删除包，忽略无法找到的包
+		while read -r package; do
+			if sudo apt-get remove -y "$package" 2>/dev/null; then
+				echo "已成功删除包: $package"
+			fi
+		done <<< "$remove_packages"
 	fi
 }
 
