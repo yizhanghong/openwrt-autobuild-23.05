@@ -218,9 +218,12 @@ updateLinuxEnv()
 {
 	print_log "TRACE" "update linux" "正在更新linux环境，请等待..."
 	
-	set +e
-	if [ ${USER_CONFIG_ARRAY["mode"]} -ne ${COMPILE_MODE[local_compile]} ]; then
-
+	if [ ${USER_CONFIG_ARRAY["mode"]} -eq ${COMPILE_MODE[local_compile]} ]; then
+		set +e
+	else
+		# exit on error
+		set -e
+		
 		# 列出前100个比较大的包
 		dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100
 		print_log "INFO" "update linux" "正在删除大的软件包，请等待..."
@@ -232,7 +235,7 @@ updateLinuxEnv()
 		sudo apt-get remove -y 'temurin-.*'
 		sudo apt-get remove -y 'mono-.*'
 		sudo apt-get remove -y azure-cli google-cloud-sdk hhvm google-chrome-stable firefox powershell microsoft-edge-stable
-
+		
 		sudo rm -rf \
             /etc/apt/sources.list.d/* \
             /usr/share/dotnet \
