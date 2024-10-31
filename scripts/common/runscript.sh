@@ -320,27 +320,26 @@ set_custom_config()
 	print_log "TRACE" "custom config" "正在设置自定义配置，请等待..."
 	
 	# 传入源码信息
-	local -n local_source_array="$1"
+	local -n local_source_array=$1
 	
 	# 获取路径
-	local path=${local_source_array["Path"]}
-	if [ -z "${path}" ] || [ ! -d "${path}" ]; then
-		print_log "ERROR" "menu config" "获取源码路径失败, 请检查!"
-		return 1
-	fi
-
-	# 增加第三方插件
-	if ! set_openwrt_plugins $1; then
+	if [ -z "${local_source_array["Path"]}" ] || [ ! -d "${local_source_array["Path"]}" ]; then
+		print_log "ERROR" "menu config" "获取源码失败, 请检查!"
 		return 1
 	fi
 	
-	# 增加自定义主题
-	if ! set_openwrt_themes $1; then
+	# 添加插件
+	if ! set_openwrt_plugins local_source_array; then
+		return 1
+	fi
+	
+	# 添加主题
+	if ! set_openwrt_themes local_source_array; then
 		return 1
 	fi
 
 	# 设置openwrt缺省配置
-	set_openwrt_config $1
+	set_openwrt_config local_source_array
 	
 	print_log "TRACE" "custom config" "完成设置自定义配置!"
 	return 0
@@ -408,6 +407,11 @@ set_openwrt_feeds()
 	# 设置种子配置文件
 	print_log "INFO" "setting feeds" "设置Feeds源配置文件!"
 	for key in "${!FEEDS_ARRAY[@]}"; do
+
+		if [ "$key" = "istore" ] && [ ${local_source_array["Type"]} -eq ${SOURCE_TYPE[istoreos]} ]; then
+			continue
+		fi
+		
 		if grep -q "src-git.*${key}.*https" "${path}/feeds.conf.default"; then
 			if grep -q "^#.*src-git.*${key}.*https" "${path}/feeds.conf.default"; then
 				sed -i "/^#.*${key}/s/#//" "${path}/feeds.conf.default"
@@ -501,7 +505,7 @@ auto_compile_openwrt()
 	fi
 	
 	# 设置自定义配置
-	#set_custom_config $1
+	set_custom_config $1
 
 	# 设置功能选项
 	if ! set_menu_options $1; then
