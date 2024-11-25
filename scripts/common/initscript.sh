@@ -282,7 +282,7 @@ updateLinuxEnv()
             /opt/ghc \
             /opt/hostedtoolcache/CodeQL
 	fi
-	
+
 	sudo -E apt-get -qq update
 	sudo -E apt-get -qq upgrade
 	
